@@ -911,8 +911,8 @@ class BluesoundPlayer(MediaPlayerEntity):
             )
 
             master = sync_status["SyncStatus"].get('master')
-            master_id = slave_objects['@id']
-            master_port = slave_objects['@port']
+            master_id = master['@id']
+            master_port = master['@port']
             master_device = None
 
             for device in self._hass.data[DATA_BLUESOUND]:
