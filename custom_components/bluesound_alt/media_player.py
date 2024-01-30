@@ -872,7 +872,7 @@ class BluesoundPlayer(MediaPlayerEntity):
 
         device_group = self._group_name.split("+")
         new_device_group = []
-        
+
         if self.is_master:
             new_device_group.append(self)
             sync_status = await self.send_bluesound_command(
@@ -885,13 +885,13 @@ class BluesoundPlayer(MediaPlayerEntity):
             slave_objects = sync_status["SyncStatus"].get('slave', [])
             if isinstance(slave_objects, list):
                 for slave_obj in slave_objects:
-                    slave_id = slave_obj['@id']
-                    slave_port = slave_obj['@port']
+                    slave_id = slave_obj.id
+                    slave_port = slave_obj.port
                     slaves.append(slave_id + ":" + slave_port)
             elif slave_objects != None:
                 # Single slave object
-                slave_id = slave_objects['@id']
-                slave_port = slave_objects['@port']
+                slave_id = slave_objects.id
+                slave_port = slave_objects.port
                 slaves.append(slave_id + ":" + slave_port)
 
             new_device_group = slaves
