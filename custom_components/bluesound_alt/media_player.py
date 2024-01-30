@@ -868,9 +868,6 @@ class BluesoundPlayer(MediaPlayerEntity):
         if self._group_name is None:
             return None
 
-        bluesound_group = []
-
-        device_group = self._group_name.split("+")
         new_device_group = []
 
         if self.is_master:
@@ -908,22 +905,56 @@ class BluesoundPlayer(MediaPlayerEntity):
         else:
             _LOGGER.debug("Device is a slave: %s", new_device_group)
 
-        _LOGGER.debug("HOPEFULLY RIGHT GROUP: %s", new_device_group)
+            # Call to get slaves
+            sync_status = await self.send_bluesound_command(
+                f"/SyncStatus"
+            )
 
-        sorted_entities = sorted(
-            self._hass.data[DATA_BLUESOUND],
-            key=lambda entity: entity.is_master,
-            reverse=True,
-        )
-        bluesound_group = [
-            entity.entity_id
-            for entity in sorted_entities
-            if entity.bluesound_device_name.strip() in device_group
-        ]
+            master = sync_status["SyncStatus"].get('master')
+            master_id = slave_objects['@id']
+            master_port = slave_objects['@port']
+            master_device = None
 
-        _LOGGER.debug("New group for device: %s", bluesound_group)
+            for device in self._hass.data[DATA_BLUESOUND]:
+                    if str(device._id) == master_id + ":" + master_port:
+                        master_device = device
 
-        return bluesound_group
+            if master_device != None:
+                # Add device itself to the start of array
+                new_device_group.append(master_device)
+
+                # Call to get slaves
+                sync_status = await master_device.send_bluesound_command(
+                    f"/SyncStatus"
+                )
+
+                # Extract information from slave objects
+                slave_objects = sync_status["SyncStatus"].get('slave', [])
+                if isinstance(slave_objects, list):
+                    # Multiple slave objects
+                    for slave_obj in slave_objects:
+                        slave_id = slave_obj['@id']
+                        slave_port = slave_obj['@port']
+                        _LOGGER.debug("ID: %s", slave_id)
+                        _LOGGER.debug("PORT: %s", slave_port)
+                        # Find correct entity_id for slave
+                        for device in self._hass.data[DATA_BLUESOUND]:
+                            if str(device._id) == slave_id + ":" + slave_port:
+                                new_device_group.append(device.entity_id)
+                elif slave_objects != None:
+                    # Single slave object
+                    slave_id = slave_objects['@id']
+                    slave_port = slave_objects['@port']
+                    _LOGGER.debug("ID: %s", slave_id)
+                    _LOGGER.debug("PORT: %s", slave_port)
+                    # Find correct entity_id for slave
+                    for device in self._hass.data[DATA_BLUESOUND]:
+                        if str(device._id) == slave_id + ":" + slave_port:
+                            new_device_group.append(device.entity_id)
+
+        _LOGGER.debug("New group for device: %s", new_device_group)
+
+        return new_device_group
 
     async def async_unjoin(self):
         """Unjoin the player from a group."""
