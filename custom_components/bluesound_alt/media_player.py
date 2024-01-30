@@ -912,7 +912,7 @@ class BluesoundPlayer(MediaPlayerEntity):
 
             master = sync_status["SyncStatus"].get('master')
             if master != None:
-                master_id = sync_status["SyncStatus"]["master"]
+                master_id = master['#text']
                 master_port = master['@port']
                 master_device = None
 
