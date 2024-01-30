@@ -412,7 +412,7 @@ class BluesoundPlayer(MediaPlayerEntity):
                     self._group_name = group_name
 
                     # rebuild ordered list of entity_ids that are in the group, master is first
-                    self._group_list = self.rebuild_bluesound_group()
+                    self._group_list = await self.rebuild_bluesound_group()
 
                     # the sleep is needed to make sure that the
                     # devices is synced
@@ -862,7 +862,7 @@ class BluesoundPlayer(MediaPlayerEntity):
 
         return attributes
 
-    def rebuild_bluesound_group(self):
+    async def rebuild_bluesound_group(self):
         """Rebuild the list of entities in speaker group."""
         if self._group_name is None:
             return None
@@ -870,6 +870,33 @@ class BluesoundPlayer(MediaPlayerEntity):
         bluesound_group = []
 
         device_group = self._group_name.split("+")
+
+        new_device_group = []
+        if self.is_master:
+            new_device_group.append(self)
+            sync_status = await self.send_bluesound_command(
+                f"/SyncStatus"
+            )
+            slaves = sync_status.get("slave")
+            for slave in slaves:
+                new_device_group.append(slave.id + ":" + slave.port)
+        else:
+            sync_status = await self.send_bluesound_command(
+                f"/SyncStatus"
+            )
+            master = sync_status.get("master")
+            master_id = master.id + ":" + master.port
+            for device in self._hass.data[DATA_BLUESOUND]:
+                if device.id == master_id:
+                    new_device_group.append(self)
+                    sync_status = await self.send_bluesound_command(
+                        f"/SyncStatus"
+                    )
+                    slaves = sync_status.get("slave")
+                    for slave in slaves:
+                        new_device_group.append(slave.id + ":" + slave.port)
+
+        _LOGGER.debug("HOPEFULLY RIGHT GROUP: %s", new_device_group)
 
         sorted_entities = sorted(
             self._hass.data[DATA_BLUESOUND],
