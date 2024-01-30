@@ -881,9 +881,7 @@ class BluesoundPlayer(MediaPlayerEntity):
 
             slaves = []
             for key in sync_status["SyncStatus"]:
-                if key.name == "slave":
-                    _LOGGER.debug("Slave: %s", key.id)
-                    slaves.append(key.id + ":" + key.port)
+                _LOGGER.debug("KEY: %s", key)
 
             for slave in slaves:
                 new_device_group.append(slave.id + ":" + slave.port)
