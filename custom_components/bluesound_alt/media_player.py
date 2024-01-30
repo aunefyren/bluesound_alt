@@ -407,19 +407,15 @@ class BluesoundPlayer(MediaPlayerEntity):
                 self._last_status_update = dt_util.utcnow()
                 self._status = xmltodict.parse(result)["status"].copy()
 
-                group_name = self._status.get("groupName")
-                if group_name != self._group_name or True:
-                    _LOGGER.debug("Group name change detected on device: %s", self.id)
-                    self._group_name = group_name
+                # rebuild ordered list of entity_ids that are in the group, master is first
+                self._group_list = await self.rebuild_bluesound_group()
 
-                    # rebuild ordered list of entity_ids that are in the group, master is first
-                    self._group_list = await self.rebuild_bluesound_group()
-
-                    # the sleep is needed to make sure that the
-                    # devices is synced
-                    await asyncio.sleep(1)
-                    await self.async_trigger_sync_on_all()
-                elif self.is_grouped:
+                # the sleep is needed to make sure that the
+                # devices is synced
+                await asyncio.sleep(1)
+                await self.async_trigger_sync_on_all()
+                
+                if self.is_grouped:
                     # when player is grouped we need to fetch volume from
                     # sync_status. We will force an update if the player is
                     # grouped this isn't a foolproof solution. A better
@@ -886,8 +882,6 @@ class BluesoundPlayer(MediaPlayerEntity):
                 for slave_obj in slave_objects:
                     slave_id = slave_obj['@id']
                     slave_port = slave_obj['@port']
-                    _LOGGER.debug("ID: %s", slave_id)
-                    _LOGGER.debug("PORT: %s", slave_port)
                     # Find correct entity_id for slave
                     for device in self._hass.data[DATA_BLUESOUND]:
                         if str(device._id) == slave_id + ":" + slave_port:
@@ -896,8 +890,6 @@ class BluesoundPlayer(MediaPlayerEntity):
                 # Single slave object
                 slave_id = slave_objects['@id']
                 slave_port = slave_objects['@port']
-                _LOGGER.debug("ID: %s", slave_id)
-                _LOGGER.debug("PORT: %s", slave_port)
                 # Find correct entity_id for slave
                 for device in self._hass.data[DATA_BLUESOUND]:
                     if str(device._id) == slave_id + ":" + slave_port:
@@ -912,13 +904,10 @@ class BluesoundPlayer(MediaPlayerEntity):
 
             master = sync_status["SyncStatus"].get('master')
             master_device = None
-            
+
             if master != None:
                 master_id = master['#text']
                 master_port = master['@port']
-
-                _LOGGER.debug("Master ID: %s", master_id)
-                _LOGGER.debug("Master PORT: %s", master_port)
 
                 for device in self._hass.data[DATA_BLUESOUND]:
                     if str(device._id) == master_id + ":" + master_port:
@@ -941,8 +930,6 @@ class BluesoundPlayer(MediaPlayerEntity):
                         for slave_obj in slave_objects:
                             slave_id = slave_obj['@id']
                             slave_port = slave_obj['@port']
-                            _LOGGER.debug("ID: %s", slave_id)
-                            _LOGGER.debug("PORT: %s", slave_port)
                             # Find correct entity_id for slave
                             for device in self._hass.data[DATA_BLUESOUND]:
                                 if str(device._id) == slave_id + ":" + slave_port:
@@ -951,15 +938,12 @@ class BluesoundPlayer(MediaPlayerEntity):
                         # Single slave object
                         slave_id = slave_objects['@id']
                         slave_port = slave_objects['@port']
-                        _LOGGER.debug("ID: %s", slave_id)
-                        _LOGGER.debug("PORT: %s", slave_port)
                         # Find correct entity_id for slave
                         for device in self._hass.data[DATA_BLUESOUND]:
                             if str(device._id) == slave_id + ":" + slave_port:
                                 new_device_group.append(device.entity_id)
 
         _LOGGER.debug("New group for device: %s", new_device_group)
-
         return new_device_group
 
     async def async_unjoin(self):
