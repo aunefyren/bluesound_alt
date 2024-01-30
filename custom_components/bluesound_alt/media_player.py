@@ -875,7 +875,7 @@ class BluesoundPlayer(MediaPlayerEntity):
 
         if self.is_master:
             # Add device itself to the start of array
-            new_device_group.append(str(self._id) + ":" + str(self.port))
+            new_device_group.append(self.entity_id)
 
             # Call to get slaves
             sync_status = await self.send_bluesound_command(
@@ -885,17 +885,26 @@ class BluesoundPlayer(MediaPlayerEntity):
             # Extract information from slave objects
             slave_objects = sync_status["SyncStatus"].get('slave', [])
             if isinstance(slave_objects, list):
+                # Multiple slave objects
                 for slave_obj in slave_objects:
                     slave_id = slave_obj['@id']
                     slave_port = slave_obj['@port']
                     _LOGGER.debug("ID: %s", slave_id)
                     _LOGGER.debug("PORT: %s", slave_port)
-                    new_device_group.append(slave_id + ":" + slave_port)
+                    # Find correct entity_id for slave
+                    for device in self._hass.data[DATA_BLUESOUND]:
+                        if str(device._id) == slave_id + ":" + slave_port:
+                            new_device_group.append(device.entity_id)
             elif slave_objects != None:
                 # Single slave object
                 slave_id = slave_objects['@id']
                 slave_port = slave_objects['@port']
-                new_device_group.append(slave_id + ":" + slave_port)
+                _LOGGER.debug("ID: %s", slave_id)
+                _LOGGER.debug("PORT: %s", slave_port)
+                # Find correct entity_id for slave
+                for device in self._hass.data[DATA_BLUESOUND]:
+                    if str(device._id) == slave_id + ":" + slave_port:
+                        new_device_group.append(device.entity_id)
         else:
             _LOGGER.debug("Device is a slave: %s", new_device_group)
 
