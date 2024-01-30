@@ -916,12 +916,12 @@ class BluesoundPlayer(MediaPlayerEntity):
                 master_port = master['@port']
                 master_device = None
 
-            _LOGGER.debug("Master ID: %s", master_id)
-            _LOGGER.debug("Master PORT: %s", master_port)
+                _LOGGER.debug("Master ID: %s", master_id)
+                _LOGGER.debug("Master PORT: %s", master_port)
 
-            for device in self._hass.data[DATA_BLUESOUND]:
-                if str(device._id) == master_id + ":" + master_port:
-                    master_device = device
+                for device in self._hass.data[DATA_BLUESOUND]:
+                    if str(device._id) == master_id + ":" + master_port:
+                        master_device = device
 
             if master_device != None:
                 # Add device itself to the start of array
