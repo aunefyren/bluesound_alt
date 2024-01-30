@@ -925,7 +925,7 @@ class BluesoundPlayer(MediaPlayerEntity):
 
             if master_device != None:
                 # Add device itself to the start of array
-                new_device_group.append(master_device)
+                new_device_group.append(master_device.entity_id)
 
                 # Call to get slaves
                 sync_status = await master_device.send_bluesound_command(
