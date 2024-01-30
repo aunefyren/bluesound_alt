@@ -920,8 +920,8 @@ class BluesoundPlayer(MediaPlayerEntity):
             _LOGGER.debug("Master PORT: %s", master_port)
 
             for device in self._hass.data[DATA_BLUESOUND]:
-                    if str(device._id) == master_id + ":" + master_port:
-                        master_device = device
+                if str(device._id) == master_id + ":" + master_port:
+                    master_device = device
 
             if master_device != None:
                 # Add device itself to the start of array
@@ -932,29 +932,30 @@ class BluesoundPlayer(MediaPlayerEntity):
                     f"/SyncStatus"
                 )
 
-                # Extract information from slave objects
-                slave_objects = sync_status["SyncStatus"].get('slave', [])
-                if isinstance(slave_objects, list):
-                    # Multiple slave objects
-                    for slave_obj in slave_objects:
-                        slave_id = slave_obj['@id']
-                        slave_port = slave_obj['@port']
+                if sync_status["SyncStatus"]["slave"] != None:
+                    # Extract information from slave objects
+                    slave_objects = sync_status["SyncStatus"].get('slave', [])
+                    if isinstance(slave_objects, list):
+                        # Multiple slave objects
+                        for slave_obj in slave_objects:
+                            slave_id = slave_obj['@id']
+                            slave_port = slave_obj['@port']
+                            _LOGGER.debug("ID: %s", slave_id)
+                            _LOGGER.debug("PORT: %s", slave_port)
+                            # Find correct entity_id for slave
+                            for device in self._hass.data[DATA_BLUESOUND]:
+                                if str(device._id) == slave_id + ":" + slave_port:
+                                    new_device_group.append(device.entity_id)
+                    elif slave_objects != None:
+                        # Single slave object
+                        slave_id = slave_objects['@id']
+                        slave_port = slave_objects['@port']
                         _LOGGER.debug("ID: %s", slave_id)
                         _LOGGER.debug("PORT: %s", slave_port)
                         # Find correct entity_id for slave
                         for device in self._hass.data[DATA_BLUESOUND]:
                             if str(device._id) == slave_id + ":" + slave_port:
                                 new_device_group.append(device.entity_id)
-                elif slave_objects != None:
-                    # Single slave object
-                    slave_id = slave_objects['@id']
-                    slave_port = slave_objects['@port']
-                    _LOGGER.debug("ID: %s", slave_id)
-                    _LOGGER.debug("PORT: %s", slave_port)
-                    # Find correct entity_id for slave
-                    for device in self._hass.data[DATA_BLUESOUND]:
-                        if str(device._id) == slave_id + ":" + slave_port:
-                            new_device_group.append(device.entity_id)
 
         _LOGGER.debug("New group for device: %s", new_device_group)
 
