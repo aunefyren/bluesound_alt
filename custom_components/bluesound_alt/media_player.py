@@ -408,7 +408,7 @@ class BluesoundPlayer(MediaPlayerEntity):
                 self._status = xmltodict.parse(result)["status"].copy()
 
                 group_name = self._status.get("groupName")
-                if group_name != self._group_name:
+                if group_name != self._group_name or True:
                     _LOGGER.debug("Group name change detected on device: %s", self.id)
                     self._group_name = group_name
 
