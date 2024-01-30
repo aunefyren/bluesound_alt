@@ -57,7 +57,7 @@ _LOGGER = logging.getLogger(__name__)
 ATTR_BLUESOUND_GROUP = "bluesound_group"
 ATTR_MASTER = "master"
 
-DATA_BLUESOUND = "bluesound"
+DATA_BLUESOUND = "bluesound_alt"
 DEFAULT_PORT = 11000
 
 NODE_OFFLINE_CHECK_TIMEOUT = 180
