@@ -407,6 +407,10 @@ class BluesoundPlayer(MediaPlayerEntity):
                 self._last_status_update = dt_util.utcnow()
                 self._status = xmltodict.parse(result)["status"].copy()
 
+                # update group name
+                group_name = self._status.get("groupName")
+                self._group_name = group_name
+
                 # rebuild ordered list of entity_ids that are in the group, master is first
                 self._group_list = await self.rebuild_bluesound_group()
 
@@ -414,7 +418,7 @@ class BluesoundPlayer(MediaPlayerEntity):
                 # devices is synced
                 await asyncio.sleep(1)
                 await self.async_trigger_sync_on_all()
-                
+
                 if self.is_grouped:
                     # when player is grouped we need to fetch volume from
                     # sync_status. We will force an update if the player is
@@ -423,6 +427,7 @@ class BluesoundPlayer(MediaPlayerEntity):
                     # the device is playing. This would solve a lot of
                     # problems. This change will be done when the
                     # communication is moved to a separate library
+                    await asyncio.sleep(1)
                     await self.force_update_sync_status()
 
                 self.async_write_ha_state()
