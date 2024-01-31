@@ -314,8 +314,11 @@ class BluesoundPlayer(MediaPlayerEntity):
                             if str(device._id) == slave_id + ":" + slave_port:
                                 new_device_group.append(device.entity_id)
 
-                # Add new group
-                self._group_list = new_device_group
+                # Add new group to master and slave
+                for main_device in self._hass.data[DATA_BLUESOUND]:
+                    for device in new_device_group:
+                        if main_device.id == device.id:
+                            main_device._group_list = new_device_group
 
         elif self._sync_status.get("slave") is not None:
             # Device is a master
@@ -350,8 +353,11 @@ class BluesoundPlayer(MediaPlayerEntity):
                         new_device_group.append(device.entity_id)
                         self._is_master = True
 
-            # Add new group
-            self._group_list = new_device_group
+            # Add new group to master and slave
+            for main_device in self._hass.data[DATA_BLUESOUND]:
+                for device in new_device_group:
+                    if main_device.id == device.id:
+                        main_device._group_list = new_device_group
 
         else:
             self._is_master = False
