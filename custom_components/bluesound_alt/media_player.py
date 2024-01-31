@@ -884,8 +884,7 @@ class BluesoundPlayer(MediaPlayerEntity):
 
     async def rebuild_bluesound_group(self):
         """Rebuild the list of entities in speaker group."""
-        if self._group_name is None:
-            return None
+        _LOGGER.debug("Rebuilding group for %s", self._id)
 
         new_device_group = []
 
