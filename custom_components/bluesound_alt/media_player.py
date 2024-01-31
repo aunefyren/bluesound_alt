@@ -272,11 +272,13 @@ class BluesoundPlayer(MediaPlayerEntity):
             master_host = master.get("#text")
             master_port = master.get("@port", "11000")
             master_id = f"{master_host}:{master_port}"
+            master_device = None
 
             # Find device
             for device in self._hass.data[DATA_BLUESOUND]:
                 if device.id == master_id:
                     self._master = device
+                    master_device = device
 
             # Error if master is not found
             if self._master is None:
@@ -284,18 +286,18 @@ class BluesoundPlayer(MediaPlayerEntity):
 
             # New group for master
             new_device_group = []
-            new_device_group.append(self._master.entity_id)
+            new_device_group.append(master_device.entity_id)
 
             # Call to get slaves for master
             resp_two = await self.send_bluesound_command(
                 "SyncStatus", raise_timeout, raise_timeout
             )
 
-            self._master._sync_status = resp_two["SyncStatus"].copy()
+            master_device._sync_status = resp_two["SyncStatus"].copy()
 
-            if self._master.sync_status["SyncStatus"]["slave"] != None:
+            if master_device._sync_status["SyncStatus"]["slave"] != None:
                 # Extract information from slave objects
-                slave_objects = self._master._sync_status["SyncStatus"].get('slave', [])
+                slave_objects = master_device._sync_status["SyncStatus"].get('slave', [])
                 if isinstance(slave_objects, list):
                     # Multiple slave objects
                     for slave_obj in slave_objects:
