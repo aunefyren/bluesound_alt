@@ -69,8 +69,6 @@ UPDATE_CAPTURE_INTERVAL = timedelta(minutes=30)
 UPDATE_PRESETS_INTERVAL = timedelta(minutes=30)
 UPDATE_SERVICES_INTERVAL = timedelta(minutes=30)
 
-EPOCH_REBUILD_GROUPS_MODULO = 10
-
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Optional(CONF_HOSTS): vol.All(
@@ -370,10 +368,8 @@ class BluesoundPlayer(MediaPlayerEntity):
     async def _start_poll_command(self):
         """Loop which polls the status of the player."""
         try:    
-            epoch = 0
             while True:
-                await self.async_update_status(epoch)
-                epoch += 1
+                await self.async_update_status()
 
         except (asyncio.TimeoutError, ClientError, BluesoundPlayer._TimeoutException):
             _LOGGER.info("Node %s:%s is offline, retrying later", self.name, self.port)
@@ -464,7 +460,7 @@ class BluesoundPlayer(MediaPlayerEntity):
 
         return data
 
-    async def async_update_status(self, epoch):
+    async def async_update_status(self):
         """Use the poll session to always get the status of the player."""
         response = None
 
