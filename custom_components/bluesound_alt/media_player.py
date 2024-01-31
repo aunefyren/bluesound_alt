@@ -224,7 +224,6 @@ class BluesoundPlayer(MediaPlayerEntity):
         self._muted = False
         self._master = None
         self._is_master = False
-        self.is_grouped = False
         self._group_name = None
         self._group_list = []
         self._bluesound_device_name = None
@@ -268,7 +267,6 @@ class BluesoundPlayer(MediaPlayerEntity):
 
             self._is_master = False
             self._master = None
-            self.is_grouped = True
 
             # Build parameters
             master_host = master.get("#text")
@@ -327,7 +325,6 @@ class BluesoundPlayer(MediaPlayerEntity):
             if self._master is not None:
                 self._master = None
             self._is_master = False
-            self.is_grouped = True
 
             slave_objects = []
             slave_objects.append(self.entity_id)
@@ -361,7 +358,6 @@ class BluesoundPlayer(MediaPlayerEntity):
         else:
             self._is_master = False
             self._master = None
-            self.is_grouped = False
             device._group_list = []
 
         if on_updated_cb:
