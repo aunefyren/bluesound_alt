@@ -1,13 +1,20 @@
 # Alternative Bluesound Integration for Home Assistant
 This project is an alternative integration for Bluesound speakers.
 
+<br>
+<br>
+
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=aunefyren&repository=bluesound_alt)  
+Must be added as a custom repository.
 
 <br>
 <br>
 
 > [!IMPORTANT]  
 > This integration is built on top of the official one. I did not create all the original source code, but I am developing it further. Everything might not be perfect yet as I am learning and fixing the code. Feel free to open an issue to contribute.
+
+<br>
+<br>
 
 ## Main features
 * Group variable refreshes properly in Home Assistant
@@ -21,8 +28,16 @@ This project is an alternative integration for Bluesound speakers.
 ## Installation instructions
 The installation within Home Assistant is identical to the official Bluesound integration, but you have to select the platform `bluesound_alt` for your media players.
 
-1. Install `bluesound_alt` in HACS (might have to be added as a custom repository)
-2. Open the Home Assistant `configuration.yaml` and add the Bluesound media speakers using the `bluesound_alt` platform
+1. Add this repo to HACS as a custom repository
+
+![Alt text](.github/assets/add-custom-repo-example.png)
+
+<br>
+
+2. Install `bluesound_alt` in HACS
+3. Open the Home Assistant `configuration.yaml` and add the Bluesound media speakers using the `bluesound_alt` platform
+
+<br>
 
 `configuration.yaml` example:
 ```
@@ -38,6 +53,8 @@ media_player:
       - host: 192.168.10.93
         name: Pulse Flex Office
 ```
+
+4. Restart Home Assistant and the devices should be added
 
 <br>
 <br>
@@ -72,6 +89,8 @@ cards:
 ```
 
 Note that the platform here says `bluesound`. This is because Mini Media Player sort of has Bluesound support, but it doesn't work properly because the official integration is old. By selecting `bluesound` in the card configuration we are using their Bluesound settings with our Bluesound Alt devices.
+
+<br>
 
 Result: 
 
