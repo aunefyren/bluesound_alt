@@ -358,7 +358,7 @@ class BluesoundPlayer(MediaPlayerEntity):
         else:
             self._is_master = False
             self._master = None
-            device._group_list = []
+            self._group_list = []
 
         if on_updated_cb:
             on_updated_cb()
