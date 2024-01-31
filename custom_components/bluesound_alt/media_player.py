@@ -69,6 +69,8 @@ UPDATE_CAPTURE_INTERVAL = timedelta(minutes=30)
 UPDATE_PRESETS_INTERVAL = timedelta(minutes=30)
 UPDATE_SERVICES_INTERVAL = timedelta(minutes=30)
 
+EPOCH_REBUILD_GROUPS_MODULO = 100
+
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Optional(CONF_HOSTS): vol.All(
@@ -287,9 +289,11 @@ class BluesoundPlayer(MediaPlayerEntity):
 
     async def _start_poll_command(self):
         """Loop which polls the status of the player."""
-        try:
+        try:    
+            epoch = 0
             while True:
-                await self.async_update_status()
+                await self.async_update_status(epoch)
+                epoch += 1
 
         except (asyncio.TimeoutError, ClientError, BluesoundPlayer._TimeoutException):
             _LOGGER.info("Node %s:%s is offline, retrying later", self.name, self.port)
@@ -380,7 +384,7 @@ class BluesoundPlayer(MediaPlayerEntity):
 
         return data
 
-    async def async_update_status(self):
+    async def async_update_status(self, epoch):
         """Use the poll session to always get the status of the player."""
         response = None
 
@@ -407,16 +411,19 @@ class BluesoundPlayer(MediaPlayerEntity):
                 self._last_status_update = dt_util.utcnow()
                 self._status = xmltodict.parse(result)["status"].copy()
 
-                # update group name
-                group_name = self._status.get("groupName")
-                self._group_name = group_name
+                # update groups if enough epochs have passed
+                if epoch % EPOCH_REBUILD_GROUPS_MODULO == 0:
+                    # update group name
+                    group_name = self._status.get("groupName")
+                    self._group_name = group_name
 
-                # rebuild ordered list of entity_ids that are in the group, master is first
-                self._group_list = await self.rebuild_bluesound_group()
+                    # rebuild ordered list of entity_ids that are in the group, master is first
+                    self._group_list = await self.rebuild_bluesound_group()
 
-                # the sleep is needed to make sure that the
-                # devices is synced
-                await asyncio.sleep(1)
+                    # the sleep is needed to make sure that the
+                    # devices is synced
+                    await asyncio.sleep(1)
+
                 await self.async_trigger_sync_on_all()
 
                 if self.is_grouped:
@@ -853,6 +860,9 @@ class BluesoundPlayer(MediaPlayerEntity):
         else:
             _LOGGER.error("Master not found %s", master_device)
 
+        # rebuild ordered list of entity_ids that are in the group, master is first
+        self._group_list = await self.rebuild_bluesound_group()
+
     @property
     def extra_state_attributes(self):
         """List members in group."""
@@ -959,17 +969,30 @@ class BluesoundPlayer(MediaPlayerEntity):
         _LOGGER.debug("Trying to unjoin player: %s", self.id)
         await self._master.async_remove_slave(self)
 
+        # rebuild ordered list of entity_ids that are in the group, master is first
+        self._group_list = await self.rebuild_bluesound_group()
+
     async def async_add_slave(self, slave_device):
         """Add slave to master."""
-        return await self.send_bluesound_command(
+        result =  await self.send_bluesound_command(
             f"/AddSlave?slave={slave_device.host}&port={slave_device.port}"
         )
+    
+        # rebuild ordered list of entity_ids that are in the group, master is first
+        self._group_list = await self.rebuild_bluesound_group()
+
+        return result
 
     async def async_remove_slave(self, slave_device):
         """Remove slave to master."""
-        return await self.send_bluesound_command(
+        result =  await self.send_bluesound_command(
             f"/RemoveSlave?slave={slave_device.host}&port={slave_device.port}"
         )
+
+        # rebuild ordered list of entity_ids that are in the group, master is first
+        self._group_list = await self.rebuild_bluesound_group()
+
+        return result
 
     async def async_increase_timer(self):
         """Increase sleep time on player."""
