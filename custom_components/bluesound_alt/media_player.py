@@ -69,7 +69,7 @@ UPDATE_CAPTURE_INTERVAL = timedelta(minutes=30)
 UPDATE_PRESETS_INTERVAL = timedelta(minutes=30)
 UPDATE_SERVICES_INTERVAL = timedelta(minutes=30)
 
-EPOCH_REBUILD_GROUPS_MODULO = 100
+EPOCH_REBUILD_GROUPS_MODULO = 10
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
@@ -866,7 +866,7 @@ class BluesoundPlayer(MediaPlayerEntity):
 
         # rebuild ordered list of entity_ids that are in the group, master is first
         self._group_list = await self.rebuild_bluesound_group()
-        master_device._group_list = await master_device.rebuild_bluesound_group()
+        master_device[0]._group_list = await master_device[0].rebuild_bluesound_group()
 
         # the sleep is needed to make sure that the devices are synced
         await asyncio.sleep(1)
