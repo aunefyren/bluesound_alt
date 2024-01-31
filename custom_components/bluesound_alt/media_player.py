@@ -939,11 +939,7 @@ class BluesoundPlayer(MediaPlayerEntity):
             _LOGGER.error("Master not found %s", master_device)
 
         # rebuild ordered list of entity_ids that are in the group, master is first
-        self._group_list = await self.rebuild_bluesound_group()
-        master_device[0]._group_list = await master_device[0].rebuild_bluesound_group()
-
-        # the sleep is needed to make sure that the devices are synced
-        await asyncio.sleep(1)
+        await self.async_update_status()
 
     @property
     def extra_state_attributes(self):
@@ -956,94 +952,6 @@ class BluesoundPlayer(MediaPlayerEntity):
 
         return attributes
 
-    async def rebuild_bluesound_group(self):
-        """Rebuild the list of entities in speaker group."""
-        _LOGGER.debug("Rebuilding group for %s", self._id)
-
-        new_device_group = []
-
-        if self.is_master:
-            _LOGGER.debug("Device is a master: %s", self._id)
-
-            # Add device itself to the start of array
-            new_device_group.append(self.entity_id)
-
-            # Call to get slaves
-            sync_status = await self.send_bluesound_command(
-                f"/SyncStatus"
-            )
-
-            # Extract information from slave objects
-            slave_objects = sync_status["SyncStatus"].get('slave', [])
-            if isinstance(slave_objects, list):
-                # Multiple slave objects
-                for slave_obj in slave_objects:
-                    slave_id = slave_obj['@id']
-                    slave_port = slave_obj['@port']
-                    # Find correct entity_id for slave
-                    for device in self._hass.data[DATA_BLUESOUND]:
-                        if str(device._id) == slave_id + ":" + slave_port:
-                            new_device_group.append(device.entity_id)
-            elif slave_objects != None:
-                # Single slave object
-                slave_id = slave_objects['@id']
-                slave_port = slave_objects['@port']
-                # Find correct entity_id for slave
-                for device in self._hass.data[DATA_BLUESOUND]:
-                    if str(device._id) == slave_id + ":" + slave_port:
-                        new_device_group.append(device.entity_id)
-        else:
-            _LOGGER.debug("Device is a slave: %s", self._id)
-
-            # Call to get slaves
-            sync_status = await self.send_bluesound_command(
-                f"/SyncStatus"
-            )
-
-            master = sync_status["SyncStatus"].get('master')
-            master_device = None
-
-            if master != None:
-                master_id = master['#text']
-                master_port = master['@port']
-
-                for device in self._hass.data[DATA_BLUESOUND]:
-                    if str(device._id) == master_id + ":" + master_port:
-                        master_device = device
-
-            if master_device != None:
-                # Add device itself to the start of array
-                new_device_group.append(master_device.entity_id)
-
-                # Call to get slaves
-                sync_status = await master_device.send_bluesound_command(
-                    f"/SyncStatus"
-                )
-
-                if sync_status["SyncStatus"]["slave"] != None:
-                    # Extract information from slave objects
-                    slave_objects = sync_status["SyncStatus"].get('slave', [])
-                    if isinstance(slave_objects, list):
-                        # Multiple slave objects
-                        for slave_obj in slave_objects:
-                            slave_id = slave_obj['@id']
-                            slave_port = slave_obj['@port']
-                            # Find correct entity_id for slave
-                            for device in self._hass.data[DATA_BLUESOUND]:
-                                if str(device._id) == slave_id + ":" + slave_port:
-                                    new_device_group.append(device.entity_id)
-                    elif slave_objects != None:
-                        # Single slave object
-                        slave_id = slave_objects['@id']
-                        slave_port = slave_objects['@port']
-                        # Find correct entity_id for slave
-                        for device in self._hass.data[DATA_BLUESOUND]:
-                            if str(device._id) == slave_id + ":" + slave_port:
-                                new_device_group.append(device.entity_id)
-
-        _LOGGER.debug("New group for device: %s", new_device_group)
-        return new_device_group
-
     async def async_unjoin(self):
         """Unjoin the player from a group."""
         if self._master is None:
@@ -1053,10 +961,7 @@ class BluesoundPlayer(MediaPlayerEntity):
         await self._master.async_remove_slave(self)
 
         # rebuild ordered list of entity_ids that are in the group, master is first
-        self._group_list = await self.rebuild_bluesound_group()
-
-        # the sleep is needed to make sure that the devices are synced
-        await asyncio.sleep(1)
+        await self.async_update_status()
 
     async def async_add_slave(self, slave_device):
         """Add slave to master."""
@@ -1065,11 +970,7 @@ class BluesoundPlayer(MediaPlayerEntity):
         )
 
         # rebuild ordered list of entity_ids that are in the group, master is first
-        self._group_list = await self.rebuild_bluesound_group()
-        slave_device._group_list = await slave_device.rebuild_bluesound_group()
-
-        # the sleep is needed to make sure that the devices are synced
-        await asyncio.sleep(1)
+        await self.async_update_status()
 
         return result
 
@@ -1080,11 +981,7 @@ class BluesoundPlayer(MediaPlayerEntity):
         )
 
         # rebuild ordered list of entity_ids that are in the group, master is first
-        self._group_list = await self.rebuild_bluesound_group()
-        slave_device._group_list = await slave_device.rebuild_bluesound_group()
-
-        # the sleep is needed to make sure that the devices are synced
-        await asyncio.sleep(1)
+        await self.async_update_status()
 
         return result
 
