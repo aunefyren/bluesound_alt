@@ -914,6 +914,17 @@ class BluesoundPlayer(MediaPlayerEntity):
     def shuffle(self):
         """Return true if shuffle is active."""
         return self._status.get("shuffle", "0") == "1"
+    
+    @property
+    def extra_state_attributes(self):
+        """List members in group."""
+        attributes = {}
+        if self._group_list:
+            attributes = {ATTR_BLUESOUND_GROUP: self._group_list}
+
+        attributes[ATTR_MASTER] = self._is_master
+
+        return attributes
 
     async def async_join(self, master):
         """Join the player to a group."""
@@ -934,19 +945,11 @@ class BluesoundPlayer(MediaPlayerEntity):
         else:
             _LOGGER.error("Master not found %s", master_device)
 
+        # the sleep is needed to make sure that the devices are synced
+        await asyncio.sleep(1)
+
         # rebuild ordered list of entity_ids that are in the group, master is first
         await self.async_update_status()
-
-    @property
-    def extra_state_attributes(self):
-        """List members in group."""
-        attributes = {}
-        if self._group_list:
-            attributes = {ATTR_BLUESOUND_GROUP: self._group_list}
-
-        attributes[ATTR_MASTER] = self._is_master
-
-        return attributes
 
     async def async_unjoin(self):
         """Unjoin the player from a group."""
@@ -956,6 +959,9 @@ class BluesoundPlayer(MediaPlayerEntity):
         _LOGGER.debug("Trying to unjoin player: %s", self.id)
         await self._master.async_remove_slave(self)
 
+        # the sleep is needed to make sure that the devices are synced
+        await asyncio.sleep(1)
+
         # rebuild ordered list of entity_ids that are in the group, master is first
         await self.async_update_status()
 
@@ -964,6 +970,9 @@ class BluesoundPlayer(MediaPlayerEntity):
         result =  await self.send_bluesound_command(
             f"/AddSlave?slave={slave_device.host}&port={slave_device.port}"
         )
+
+        # the sleep is needed to make sure that the devices are synced
+        await asyncio.sleep(1)
 
         # rebuild ordered list of entity_ids that are in the group, master is first
         await self.async_update_status()
@@ -975,6 +984,9 @@ class BluesoundPlayer(MediaPlayerEntity):
         result =  await self.send_bluesound_command(
             f"/RemoveSlave?slave={slave_device.host}&port={slave_device.port}"
         )
+
+        # the sleep is needed to make sure that the devices are synced
+        await asyncio.sleep(1)
 
         # rebuild ordered list of entity_ids that are in the group, master is first
         await self.async_update_status()
