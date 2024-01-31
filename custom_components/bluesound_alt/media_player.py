@@ -943,7 +943,7 @@ class BluesoundPlayer(MediaPlayerEntity):
         await asyncio.sleep(1)
 
         # rebuild ordered list of entity_ids that are in the group, master is first
-        await self.async_update_status()
+        await self.async_trigger_sync_on_all()
 
     async def async_unjoin(self):
         """Unjoin the player from a group."""
@@ -957,7 +957,7 @@ class BluesoundPlayer(MediaPlayerEntity):
         await asyncio.sleep(1)
 
         # rebuild ordered list of entity_ids that are in the group, master is first
-        await self.async_update_status()
+        await self.async_trigger_sync_on_all()
 
     async def async_add_slave(self, slave_device):
         """Add slave to master."""
@@ -969,7 +969,7 @@ class BluesoundPlayer(MediaPlayerEntity):
         await asyncio.sleep(1)
 
         # rebuild ordered list of entity_ids that are in the group, master is first
-        await self.async_update_status()
+        await self.async_trigger_sync_on_all()
 
         return result
 
@@ -983,7 +983,7 @@ class BluesoundPlayer(MediaPlayerEntity):
         await asyncio.sleep(1)
 
         # rebuild ordered list of entity_ids that are in the group, master is first
-        await self.async_update_status()
+        await self.async_trigger_sync_on_all()
 
         return result
 
