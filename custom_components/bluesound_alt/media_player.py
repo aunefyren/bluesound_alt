@@ -285,7 +285,7 @@ class BluesoundPlayer(MediaPlayerEntity):
                 new_device_group.append(self._master.entity_id)
 
                 # Call to get slaves for master
-                resp_two = await self.send_bluesound_command(
+                resp_two = await self._master.send_bluesound_command(
                     "SyncStatus", raise_timeout, raise_timeout
                 )
 
