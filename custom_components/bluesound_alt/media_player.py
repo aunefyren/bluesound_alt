@@ -328,8 +328,8 @@ class BluesoundPlayer(MediaPlayerEntity):
                 self._master = None
             self._is_master = False
 
-            slave_objects = []
-            slave_objects.append(self.entity_id)
+            new_device_group = []
+            new_device_group.append(self.entity_id)
 
             # Extract information from slave objects
             slave_objects = self._sync_status.get('slave', [])
