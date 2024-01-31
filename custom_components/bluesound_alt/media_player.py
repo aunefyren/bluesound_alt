@@ -224,7 +224,7 @@ class BluesoundPlayer(MediaPlayerEntity):
         self._muted = False
         self._master = None
         self._is_master = False
-        self._is_grouped = False
+        self.is_grouped = False
         self._group_name = None
         self._group_list = []
         self._bluesound_device_name = None
