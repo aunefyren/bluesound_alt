@@ -413,6 +413,8 @@ class BluesoundPlayer(MediaPlayerEntity):
 
                 # update groups if enough epochs have passed
                 if epoch % EPOCH_REBUILD_GROUPS_MODULO == 0:
+                    _LOGGER.debug("Time for a group rebuild.")
+
                     # update group name
                     group_name = self._status.get("groupName")
                     self._group_name = group_name
@@ -860,6 +862,10 @@ class BluesoundPlayer(MediaPlayerEntity):
         else:
             _LOGGER.error("Master not found %s", master_device)
 
+        # the sleep is needed to make sure that the
+        # devices is synced
+        await asyncio.sleep(1)
+
         # rebuild ordered list of entity_ids that are in the group, master is first
         self._group_list = await self.rebuild_bluesound_group()
 
@@ -882,6 +888,8 @@ class BluesoundPlayer(MediaPlayerEntity):
         new_device_group = []
 
         if self.is_master:
+            _LOGGER.debug("Device is a master: %s", self._id)
+
             # Add device itself to the start of array
             new_device_group.append(self.entity_id)
 
@@ -910,7 +918,7 @@ class BluesoundPlayer(MediaPlayerEntity):
                     if str(device._id) == slave_id + ":" + slave_port:
                         new_device_group.append(device.entity_id)
         else:
-            _LOGGER.debug("Device is a slave: %s", new_device_group)
+            _LOGGER.debug("Device is a slave: %s", self._id)
 
             # Call to get slaves
             sync_status = await self.send_bluesound_command(
@@ -969,6 +977,10 @@ class BluesoundPlayer(MediaPlayerEntity):
         _LOGGER.debug("Trying to unjoin player: %s", self.id)
         await self._master.async_remove_slave(self)
 
+        # the sleep is needed to make sure that the
+        # devices is synced
+        await asyncio.sleep(1)
+
         # rebuild ordered list of entity_ids that are in the group, master is first
         self._group_list = await self.rebuild_bluesound_group()
 
@@ -977,6 +989,10 @@ class BluesoundPlayer(MediaPlayerEntity):
         result =  await self.send_bluesound_command(
             f"/AddSlave?slave={slave_device.host}&port={slave_device.port}"
         )
+
+        # the sleep is needed to make sure that the
+        # devices is synced
+        await asyncio.sleep(1)
     
         # rebuild ordered list of entity_ids that are in the group, master is first
         self._group_list = await self.rebuild_bluesound_group()
@@ -988,6 +1004,10 @@ class BluesoundPlayer(MediaPlayerEntity):
         result =  await self.send_bluesound_command(
             f"/RemoveSlave?slave={slave_device.host}&port={slave_device.port}"
         )
+
+        # the sleep is needed to make sure that the
+        # devices is synced
+        await asyncio.sleep(1)
 
         # rebuild ordered list of entity_ids that are in the group, master is first
         self._group_list = await self.rebuild_bluesound_group()
