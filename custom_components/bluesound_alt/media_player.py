@@ -866,7 +866,7 @@ class BluesoundPlayer(MediaPlayerEntity):
 
         # rebuild ordered list of entity_ids that are in the group, master is first
         self._group_list = await self.rebuild_bluesound_group()
-        master._group_list = await master.rebuild_bluesound_group()
+        master_device._group_list = await master_device.rebuild_bluesound_group()
 
         # the sleep is needed to make sure that the devices are synced
         await asyncio.sleep(1)
