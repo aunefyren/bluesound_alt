@@ -277,47 +277,46 @@ class BluesoundPlayer(MediaPlayerEntity):
             for device in self._hass.data[DATA_BLUESOUND]:
                 if device.id == master_id:
                     self._master = device
-                    master_device = device
 
             # Error if master is not found
             if self._master is None:
-                _LOGGER.error("Master not found %s", master_id)
+                _LOGGER.error("Master not found for: %s", master_id)
+            else: 
+                # New group for master
+                new_device_group = []
+                new_device_group.append(self._master.entity_id)
 
-            # New group for master
-            new_device_group = []
-            new_device_group.append(self._master.entity_id)
+                # Call to get slaves for master
+                resp_two = await self.send_bluesound_command(
+                    "SyncStatus", raise_timeout, raise_timeout
+                )
 
-            # Call to get slaves for master
-            resp_two = await self.send_bluesound_command(
-                "SyncStatus", raise_timeout, raise_timeout
-            )
+                self._master._sync_status = resp_two["SyncStatus"].copy()
 
-            self._master._sync_status = resp_two["SyncStatus"].copy()
-
-            if self._master._sync_status["SyncStatus"]["slave"] != None:
-                # Extract information from slave objects
-                slave_objects = self._master._sync_status["SyncStatus"].get('slave', [])
-                if isinstance(slave_objects, list):
-                    # Multiple slave objects
-                    for slave_obj in slave_objects:
-                        slave_id = slave_obj['@id']
-                        slave_port = slave_obj['@port']
+                if self._master._sync_status["SyncStatus"]["slave"] != None:
+                    # Extract information from slave objects
+                    slave_objects = self._master._sync_status["SyncStatus"].get('slave', [])
+                    if isinstance(slave_objects, list):
+                        # Multiple slave objects
+                        for slave_obj in slave_objects:
+                            slave_id = slave_obj['@id']
+                            slave_port = slave_obj['@port']
+                            # Find correct entity_id for slave
+                            for device in self._hass.data[DATA_BLUESOUND]:
+                                if str(device._id) == slave_id + ":" + slave_port:
+                                    new_device_group.append(device.entity_id)
+                    elif slave_objects != None:
+                        # Single slave object
+                        slave_id = slave_objects['@id']
+                        slave_port = slave_objects['@port']
                         # Find correct entity_id for slave
                         for device in self._hass.data[DATA_BLUESOUND]:
                             if str(device._id) == slave_id + ":" + slave_port:
                                 new_device_group.append(device.entity_id)
-                elif slave_objects != None:
-                    # Single slave object
-                    slave_id = slave_objects['@id']
-                    slave_port = slave_objects['@port']
-                    # Find correct entity_id for slave
-                    for device in self._hass.data[DATA_BLUESOUND]:
-                        if str(device._id) == slave_id + ":" + slave_port:
-                            new_device_group.append(device.entity_id)
 
-            # Add new group to master and slave
-            for device in new_device_group:
-                device._group_list = new_device_group
+                # Add new group to master and slave
+                for device in new_device_group:
+                    device._group_list = new_device_group
 
         elif self._sync_status.get("slave") is not None:
             # Device is a master
@@ -331,7 +330,7 @@ class BluesoundPlayer(MediaPlayerEntity):
             slave_objects.append(self.entity_id)
 
             # Extract information from slave objects
-            slave_objects = self._sync_status["SyncStatus"].get('slave', [])
+            slave_objects = self._sync_status.get('slave', [])
             if isinstance(slave_objects, list):
                 # Multiple slave objects
                 for slave_obj in slave_objects:
