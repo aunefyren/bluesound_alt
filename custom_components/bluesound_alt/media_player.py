@@ -293,9 +293,8 @@ class BluesoundPlayer(MediaPlayerEntity):
 
                 self._master._sync_status = resp_two["SyncStatus"].copy()
 
-                if self._master._sync_status["slave"] != None:
+                if (slave_objects := self._master._sync_status.get('slave', [])) is not None:
                     # Extract information from slave objects
-                    slave_objects = self._master._sync_status.get('slave', [])
                     if isinstance(slave_objects, list):
                         # Multiple slave objects
                         for slave_obj in slave_objects:
@@ -314,11 +313,11 @@ class BluesoundPlayer(MediaPlayerEntity):
                             if str(device._id) == slave_id + ":" + slave_port:
                                 new_device_group.append(device.entity_id)
 
-                # Add new group to master and slave
-                for main_device in self._hass.data[DATA_BLUESOUND]:
-                    for device in new_device_group:
-                        if main_device.entity_id == device:
-                            main_device._group_list = new_device_group
+                    # Add new group to master and slave
+                    for main_device in self._hass.data[DATA_BLUESOUND]:
+                        for device in new_device_group:
+                            if main_device.entity_id == device:
+                                main_device._group_list = new_device_group
 
         elif self._sync_status.get("slave") is not None:
             # Device is a master
