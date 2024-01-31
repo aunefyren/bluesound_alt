@@ -1,4 +1,10 @@
 # Alternative Bluesound Integration for Home Assistant
+![GitHub Release](https://img.shields.io/github/v/release/aunefyren/bluesound_alt?style=for-the-badge)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/aunefyren/bluesound_alt/total?style=for-the-badge)
+![GitHub issues](https://img.shields.io/github/issues/aunefyren/bluesound_alt?style=for-the-badge)
+![GitHub Repo stars](https://img.shields.io/github/stars/aunefyren/bluesound_alt?style=for-the-badge)
+![GitHub forks](https://img.shields.io/github/forks/aunefyren/bluesound_alt?style=for-the-badge)
+
 This project is an alternative integration for Bluesound speakers.
 
 <br>
