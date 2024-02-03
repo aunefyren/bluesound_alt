@@ -498,7 +498,6 @@ class BluesoundPlayer(MediaPlayerEntity):
                     # the device is playing. This would solve a lot of
                     # problems. This change will be done when the
                     # communication is moved to a separate library
-                    # await asyncio.sleep(1)
                     await self.force_update_sync_status()
 
                 self.async_write_ha_state()
