@@ -488,13 +488,6 @@ class BluesoundPlayer(MediaPlayerEntity):
                 group_name = self._status.get("groupName")
                 self._group_name = group_name
 
-                # rebuild ordered list of entity_ids that are in the group, master is first
-                # self._group_list = await self.rebuild_bluesound_group()
-
-                # the sleep is needed to make sure that the
-                # devices is synced
-                # await asyncio.sleep(1)
-
                 await self.async_trigger_sync_on_all()
 
                 if self.is_grouped:
@@ -505,7 +498,7 @@ class BluesoundPlayer(MediaPlayerEntity):
                     # the device is playing. This would solve a lot of
                     # problems. This change will be done when the
                     # communication is moved to a separate library
-                    await asyncio.sleep(1)
+                    # await asyncio.sleep(1)
                     await self.force_update_sync_status()
 
                 self.async_write_ha_state()
@@ -945,9 +938,6 @@ class BluesoundPlayer(MediaPlayerEntity):
         else:
             _LOGGER.error("Master not found %s", master_device)
 
-        # the sleep is needed to make sure that the devices are synced
-        # await asyncio.sleep(1)
-            
         _LOGGER.debug("Syncing all devices.")
 
         # rebuild ordered list of entity_ids that are in the group, master is first
@@ -960,9 +950,6 @@ class BluesoundPlayer(MediaPlayerEntity):
         
         _LOGGER.debug("Trying to unjoin player from group: %s", self.id)
         await self._master.async_remove_slave(self)
-
-        # the sleep is needed to make sure that the devices are synced
-        # await asyncio.sleep(1)
 
         _LOGGER.debug("Syncing all devices.")
 
@@ -977,9 +964,6 @@ class BluesoundPlayer(MediaPlayerEntity):
         result =  await self.send_bluesound_command(
             f"/AddSlave?slave={slave_device.host}&port={slave_device.port}"
         )
-
-        # the sleep is needed to make sure that the devices are synced
-        # await asyncio.sleep(1)
 
         _LOGGER.debug("Syncing all devices.")
 
@@ -996,9 +980,6 @@ class BluesoundPlayer(MediaPlayerEntity):
         result =  await self.send_bluesound_command(
             f"/RemoveSlave?slave={slave_device.host}&port={slave_device.port}"
         )
-
-        # the sleep is needed to make sure that the devices are synced
-        # await asyncio.sleep(1)
 
         _LOGGER.debug("Syncing all devices.")
 
