@@ -926,7 +926,7 @@ class BluesoundPlayer(MediaPlayerEntity):
     async def async_join(self, master):
         """Join the player to a group."""
 
-        _LOGGER.debug("Device '%s' joining master '%s'.", self._id, master._id)
+        _LOGGER.debug("Device '%s' joining master '%s'.", self._id, master)
         
         master_device = [
             device
@@ -972,7 +972,7 @@ class BluesoundPlayer(MediaPlayerEntity):
     async def async_add_slave(self, slave_device):
         """Add slave to master."""
 
-        _LOGGER.debug("Master '%s' is adding slave '%s'.", self._id)
+        _LOGGER.debug("Master '%s' is adding slave '%s'.", self._id, slave_device._id)
 
         result =  await self.send_bluesound_command(
             f"/AddSlave?slave={slave_device.host}&port={slave_device.port}"
@@ -991,7 +991,7 @@ class BluesoundPlayer(MediaPlayerEntity):
     async def async_remove_slave(self, slave_device):
         """Remove slave to master."""
 
-        _LOGGER.debug("Master '%s' is removing slave '%s'.", self._id)
+        _LOGGER.debug("Master '%s' is removing slave '%s'.", self._id, slave_device._id)
 
         result =  await self.send_bluesound_command(
             f"/RemoveSlave?slave={slave_device.host}&port={slave_device.port}"
