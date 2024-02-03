@@ -940,7 +940,7 @@ class BluesoundPlayer(MediaPlayerEntity):
             _LOGGER.error("Master not found %s", master_device)
 
         # the sleep is needed to make sure that the devices are synced
-        await asyncio.sleep(1)
+        # await asyncio.sleep(1)
 
         # rebuild ordered list of entity_ids that are in the group, master is first
         await self.async_trigger_sync_on_all()
@@ -954,7 +954,7 @@ class BluesoundPlayer(MediaPlayerEntity):
         await self._master.async_remove_slave(self)
 
         # the sleep is needed to make sure that the devices are synced
-        await asyncio.sleep(1)
+        # await asyncio.sleep(1)
 
         # rebuild ordered list of entity_ids that are in the group, master is first
         await self.async_trigger_sync_on_all()
@@ -966,7 +966,7 @@ class BluesoundPlayer(MediaPlayerEntity):
         )
 
         # the sleep is needed to make sure that the devices are synced
-        await asyncio.sleep(1)
+        # await asyncio.sleep(1)
 
         # rebuild ordered list of entity_ids that are in the group, master is first
         await self.async_trigger_sync_on_all()
@@ -980,7 +980,7 @@ class BluesoundPlayer(MediaPlayerEntity):
         )
 
         # the sleep is needed to make sure that the devices are synced
-        await asyncio.sleep(1)
+        # await asyncio.sleep(1)
 
         # rebuild ordered list of entity_ids that are in the group, master is first
         await self.async_trigger_sync_on_all()
