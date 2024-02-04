@@ -13,7 +13,7 @@ from homeassistant.const import (
     CONF_NAME,
 )
 
-from .media_player import (DEFAULT_PORT, BluesoundPlayer, on_updated_cb)
+from .media_player import (DEFAULT_PORT, BluesoundPlayer)
 from .const import DOMAIN  # pylint:disable=unused-import
 
 _LOGGER = logging.getLogger(__name__)
@@ -54,7 +54,7 @@ async def validate_input(hass: HomeAssistant, data: dict) -> dict[str, Any]:
         raise InvalidName
 
     player = BluesoundPlayer(HomeAssistant, data[CONF_HOST], DEFAULT_PORT, data[CONF_NAME], None)
-    result = await player.force_update_sync_status(on_updated_cb, raise_timeout=False)
+    result = await player.force_update_sync_status(None, raise_timeout=False)
     if result is not True:
         # If there is an error, raise an exception to notify HA that there was a
         # problem. The UI will also show there was a problem
