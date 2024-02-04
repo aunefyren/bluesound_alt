@@ -16,7 +16,7 @@ from homeassistant.const import (
 )
 import homeassistant.helpers.config_validation as cv
 
-from .media_player import (DEFAULT_PORT, BluesoundPlayer)
+from .media_player import (DEFAULT_PORT, async_setup_platform, PLATFORM_SCHEMA)
 from .const import DOMAIN  # pylint:disable=unused-import
 
 _LOGGER = logging.getLogger(__name__)
@@ -32,33 +32,14 @@ _LOGGER = logging.getLogger(__name__)
 # quite work as documented and always gave me the "Lokalise key references" string
 # (in square brackets), rather than the actual translated value. I did not attempt to
 # figure this out or look further into it.
-DATA_SCHEMA = vol.Schema(
-        {
-            vol.Required(CONF_HOST): cv.string,
-            vol.Required(CONF_NAME): cv.string
-        }
-    )
-
+DATA_SCHEMA = PLATFORM_SCHEMA
 
 async def validate_input(hass: HomeAssistant, data: dict) -> dict[str, Any]:
     """Validate the user input allows us to connect.
 
     Data has the keys from DATA_SCHEMA with values provided by the user.
     """
-    # Validate the data can be used to set up a connection.
-
-    # This is a simple example to show an error in the UI for a short hostname
-    # The exceptions are defined at the end of this file, and are used in the
-    # `async_step_user` method below.
-    if len(data[CONF_HOST]) < 1:
-        raise InvalidHost
-    
-    if len(data[CONF_NAME]) < 1:
-        raise InvalidName
-
-    HomeAssistant.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, None)
-    player = BluesoundPlayer(HomeAssistant, data[CONF_HOST], DEFAULT_PORT, data[CONF_NAME], None)
-    result = await player.force_update_sync_status(None, raise_timeout=False)
+    result = await async_setup_platform(HomeAssistant, data, True, None)
     if result is not True:
         # If there is an error, raise an exception to notify HA that there was a
         # problem. The UI will also show there was a problem
