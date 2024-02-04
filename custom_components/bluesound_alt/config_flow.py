@@ -11,7 +11,9 @@ from homeassistant import data_entry_flow
 from homeassistant.core import HomeAssistant
 from homeassistant.const import (
     CONF_HOST,
+    CONF_HOSTS,
     CONF_NAME,
+    CONF_PORT,
     EVENT_HOMEASSISTANT_STOP,
 )
 import homeassistant.helpers.config_validation as cv
@@ -32,14 +34,25 @@ _LOGGER = logging.getLogger(__name__)
 # quite work as documented and always gave me the "Lokalise key references" string
 # (in square brackets), rather than the actual translated value. I did not attempt to
 # figure this out or look further into it.
-DATA_SCHEMA = PLATFORM_SCHEMA
+DATA_SCHEMA = vol.Schema(
+        {
+            vol.Required(CONF_HOST): cv.string,
+            vol.Required(CONF_NAME): cv.string
+        }
+)
 
 async def validate_input(hass: HomeAssistant, data: dict) -> dict[str, Any]:
     """Validate the user input allows us to connect.
 
     Data has the keys from DATA_SCHEMA with values provided by the user.
     """
-    result = await async_setup_platform(HomeAssistant, data, True, None)
+
+    hosts = CONF_HOSTS
+    hosts[0].CONF_HOST = data[CONF_HOST]
+    hosts[0].CONF_NAME = data[CONF_NAME]
+    hosts[0].CONF_PORT = CONF_PORT[DEFAULT_PORT]
+
+    result = await async_setup_platform(HomeAssistant, hosts, True, None)
     if result is not True:
         # If there is an error, raise an exception to notify HA that there was a
         # problem. The UI will also show there was a problem
