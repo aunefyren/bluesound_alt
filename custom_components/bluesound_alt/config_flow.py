@@ -16,6 +16,7 @@ from homeassistant.const import (
     CONF_PORT,
     EVENT_HOMEASSISTANT_STOP,
 )
+from homeassistant.helpers.typing import ConfigType
 import homeassistant.helpers.config_validation as cv
 
 from .media_player import (DEFAULT_PORT, async_setup_platform, PLATFORM_SCHEMA)
@@ -47,13 +48,15 @@ async def validate_input(hass: HomeAssistant, data: dict) -> dict[str, Any]:
     Data has the keys from DATA_SCHEMA with values provided by the user.
     """
 
-    hosts = [
-        {
-            "CONF_HOST": data[CONF_HOST],
-            "CONF_NAME": data[CONF_NAME],
-            "CONF_PORT": DEFAULT_PORT
-        }
-    ]
+    hosts = {
+        "CONF_HOSTS": [
+            {
+                "CONF_HOST": data[CONF_HOST],
+                "CONF_NAME": data[CONF_NAME],
+                "CONF_PORT": DEFAULT_PORT
+            }
+        ]
+    }
 
     result = await async_setup_platform(hass, hosts, True, None)
     if result is not True:
