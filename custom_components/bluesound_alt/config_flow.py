@@ -48,9 +48,9 @@ async def validate_input(hass: HomeAssistant, data: dict) -> dict[str, Any]:
     """
 
     hosts = CONF_HOSTS
-    hosts[0].CONF_HOST = data[CONF_HOST]
-    hosts[0].CONF_NAME = data[CONF_NAME]
-    hosts[0].CONF_PORT = CONF_PORT[DEFAULT_PORT]
+    hosts[0][CONF_HOST] = data[CONF_HOST]
+    hosts[0][CONF_NAME] = data[CONF_NAME]
+    hosts[0][CONF_PORT] = CONF_PORT[DEFAULT_PORT]
 
     result = await async_setup_platform(HomeAssistant, hosts, True, None)
     if result is not True:
