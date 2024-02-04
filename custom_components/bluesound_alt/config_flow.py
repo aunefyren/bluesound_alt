@@ -62,7 +62,7 @@ async def validate_input(hass: HomeAssistant, data: dict) -> dict[str, Any]:
         }
     )
 
-    result = await async_setup_platform(HomeAssistant, hosts, True, None)
+    result = await async_setup_platform(hass, hosts, True, None)
     if result is not True:
         # If there is an error, raise an exception to notify HA that there was a
         # problem. The UI will also show there was a problem
