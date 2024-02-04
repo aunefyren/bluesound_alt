@@ -4,7 +4,7 @@
   "codeowners": ["@aunefyren"],
   "documentation": "https://github.com/aunefyren/bluesound_alt",
   "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/aunefyren/bluesound_alt/issues",
   "requirements": ["xmltodict==0.13.0"],
-  "version" : "0.0.1",
-  "issue_tracker": "https://github.com/aunefyren/bluesound_alt/issues"
+  "version" : "0.0.1"
 }
