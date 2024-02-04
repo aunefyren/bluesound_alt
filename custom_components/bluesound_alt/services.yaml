@@ -4,12 +4,12 @@ join:
       required: true
       selector:
         entity:
-          integration: bluesound
+          integration: bluesound_alt
           domain: media_player
     entity_id:
       selector:
         entity:
-          integration: bluesound
+          integration: bluesound_alt
           domain: media_player
 
 unjoin:
@@ -17,7 +17,7 @@ unjoin:
     entity_id:
       selector:
         entity:
-          integration: bluesound
+          integration: bluesound_alt
           domain: media_player
 
 set_sleep_timer:
@@ -25,7 +25,7 @@ set_sleep_timer:
     entity_id:
       selector:
         entity:
-          integration: bluesound
+          integration: bluesound_alt
           domain: media_player
 
 clear_sleep_timer:
@@ -33,5 +33,5 @@ clear_sleep_timer:
     entity_id:
       selector:
         entity:
-          integration: bluesound
+          integration: bluesound_alt
           domain: media_player
