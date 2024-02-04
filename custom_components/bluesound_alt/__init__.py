@@ -1,1 +1,1 @@
-"""The bluesound component."""
+"""The Bluesound component."""

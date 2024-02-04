@@ -7,7 +7,7 @@ from homeassistant.helpers.schema_config_entry_flow import (
     SchemaOptionsFlowHandler,
 )
 
-OPTIONS_SCHEMA = vol.Schema()
+OPTIONS_SCHEMA = vol.Schema({})
 OPTIONS_FLOW = {
     "init": SchemaFlowFormStep(OPTIONS_SCHEMA),
 }
