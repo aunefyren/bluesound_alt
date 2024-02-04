@@ -12,6 +12,7 @@ from homeassistant.const import (
     CONF_HOST,
     CONF_NAME,
 )
+import homeassistant.helpers.config_validation as cv
 
 from .media_player import (DEFAULT_PORT, BluesoundPlayer)
 from .const import DOMAIN  # pylint:disable=unused-import
