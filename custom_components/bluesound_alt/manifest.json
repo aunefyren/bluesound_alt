@@ -2,6 +2,7 @@
   "domain": "bluesound_alt",
   "name": "Bluesound Alt",
   "codeowners": ["@aunefyren"],
+  "config_flow": true,
   "documentation": "https://github.com/aunefyren/bluesound_alt",
   "iot_class": "local_polling",
   "requirements": ["xmltodict==0.13.0"],
