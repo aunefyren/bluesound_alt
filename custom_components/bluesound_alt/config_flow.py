@@ -47,20 +47,13 @@ async def validate_input(hass: HomeAssistant, data: dict) -> dict[str, Any]:
     Data has the keys from DATA_SCHEMA with values provided by the user.
     """
 
-    hosts = PLATFORM_SCHEMA.extend(
+    hosts = [
         {
-            vol.Optional(CONF_HOSTS): vol.All(
-                cv.ensure_list,
-                [
-                    {
-                        vol.Required(CONF_HOST): data[CONF_HOST],
-                        vol.Optional(CONF_NAME): data[CONF_NAME],
-                        vol.Optional(CONF_PORT): DEFAULT_PORT,
-                    }
-                ],
-            )
+            "CONF_HOST": data[CONF_HOST],
+            "CONF_NAME": data[CONF_NAME],
+            "CONF_PORT": DEFAULT_PORT
         }
-    )
+    ]
 
     result = await async_setup_platform(hass, hosts, True, None)
     if result is not True:
