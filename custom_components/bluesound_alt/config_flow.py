@@ -1,12 +1,24 @@
 from homeassistant.helpers.selector import selector
+from homeassistant import config_entries
+import voluptuous as vol
 
-class BluesoundConfigFlow(data_entry_flow.FlowHandler):
+
+from .const import DOMAIN
+
+class BluesoundConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """Handle a config flow for Bluesound."""
+
+    def __init__(self):
+        """Initialize a new AppleTVConfigFlow."""
+        self.ip = None
+        self.name = None
+
     async def async_step_user(self, user_input=None):
         """Handle the initial step."""
         errors = {}
 
         return self.async_show_form(
-            step_id="user",
+            step_id="init",
             data_schema=vol.Schema(
                 {
                     vol.Required("Name"): str
@@ -15,20 +27,5 @@ class BluesoundConfigFlow(data_entry_flow.FlowHandler):
                     vol.Required("IP"): str
                 }
             ),
-            errors=errors,
+            errors=errors
         )
-    
-    async def async_create_player(self, user_input=None):
-        return self.async_create_entry(
-            title="Title of the entry",
-            data={
-                "username": user_input["username"],
-                "password": user_input["password"]
-            },
-            options={
-                "mobile_number": user_input["mobile_number"]
-            },
-        )
-    
-    async def create_player_object()
-    player = BluesoundPlayer(HomeAssistant, host, port, name, _add_player_cb)
