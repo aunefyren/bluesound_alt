@@ -12,6 +12,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.const import (
     CONF_HOST,
     CONF_NAME,
+    EVENT_HOMEASSISTANT_STOP,
 )
 import homeassistant.helpers.config_validation as cv
 
@@ -55,6 +56,7 @@ async def validate_input(hass: HomeAssistant, data: dict) -> dict[str, Any]:
     if len(data[CONF_NAME]) < 1:
         raise InvalidName
 
+    HomeAssistant.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, None)
     player = BluesoundPlayer(HomeAssistant, data[CONF_HOST], DEFAULT_PORT, data[CONF_NAME], None)
     result = await player.force_update_sync_status(None, raise_timeout=False)
     if result is not True:
