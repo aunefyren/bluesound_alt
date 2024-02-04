@@ -122,7 +122,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 class CannotConnect(exceptions.HomeAssistantError):
     """Error to indicate we cannot connect."""
 
-
 class InvalidHost(exceptions.HomeAssistantError):
     """Error to indicate there is an invalid hostname."""
 
