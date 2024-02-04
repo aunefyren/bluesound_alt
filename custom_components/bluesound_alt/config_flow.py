@@ -7,6 +7,7 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant import config_entries, exceptions
+from homeassistant import data_entry_flow
 from homeassistant.core import HomeAssistant
 from homeassistant.const import (
     CONF_HOST,
@@ -79,7 +80,7 @@ async def validate_input(hass: HomeAssistant, data: dict) -> dict[str, Any]:
     return {"title": data["host"]}
 
 
-class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class ConfigFlow(data_entry_flow.FlowHandler):
     """Handle a config flow for Hello World."""
 
     VERSION = 1
