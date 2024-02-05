@@ -9,7 +9,7 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up a config entry for Bluesound."""
-    _LOGGER.debug("Starting entry: %s", entry)
+    _LOGGER.debug("Starting entry: %s", entry.data)
 
-    await async_setup_platform(hass, entry, AddEntitiesCallback, None)
+    await async_setup_platform(hass, entry.data, AddEntitiesCallback, None)
     return True
