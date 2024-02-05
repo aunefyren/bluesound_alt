@@ -58,6 +58,8 @@ async def validate_input(hass: HomeAssistant, data: dict) -> dict[str, Any]:
         ]
     }
 
+    _LOGGER.debug("Adding new device.")
+
     result = await async_setup_platform(hass, hosts, True, None)
     if result is not True:
         # If there is an error, raise an exception to notify HA that there was a
@@ -79,7 +81,7 @@ async def validate_input(hass: HomeAssistant, data: dict) -> dict[str, Any]:
     # "Title" is what is displayed to the user for this hub device
     # It is stored internally in HA as part of the device config.
     # See `async_step_user` below for how this is used
-    return {"title": data["host"]}
+    return {"title": data[CONF_HOST]}
 
 
 class ExampleConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
