@@ -60,8 +60,7 @@ async def validate_input(hass: HomeAssistant, data: dict) -> dict[str, Any]:
 
     _LOGGER.debug("Adding new device.")
 
-    await async_setup_platform(hass, hosts, True, None)
-
+    await async_setup_platform(hass, hosts, False, None)
 
 class ExampleConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Hello World."""
@@ -84,7 +83,7 @@ class ExampleConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
         if user_input is not None:
             try:
-                info = await validate_input(self.hass, user_input)
+                await validate_input(self.hass, user_input)
 
                 data = {
                     CONF_NAME: user_input[CONF_NAME],
