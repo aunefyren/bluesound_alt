@@ -87,13 +87,13 @@ class ExampleConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 info = await validate_input(self.hass, user_input)
 
                 data = {
-                    CONF_NAME: user_input[CONF_HOST],
-                    CONF_HOST: user_input[CONF_NAME],
+                    CONF_NAME: user_input[CONF_NAME],
+                    CONF_HOST: user_input[CONF_HOST],
                     CONF_PORT: DEFAULT_PORT,
                 }
                 
                 return self.async_create_entry(
-                    title="bluesound_alt",
+                    title=user_input[CONF_NAME],
                     data=data,
                 )
             except CannotConnect:
