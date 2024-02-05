@@ -49,7 +49,7 @@ async def validate_input(hass: HomeAssistant, data: dict) -> dict[str, Any]:
     """
 
     hosts = {
-        "CONF_HOSTS": [
+        CONF_HOSTS: [
             {
                 "CONF_HOST": data[CONF_HOST],
                 "CONF_NAME": data[CONF_NAME],
@@ -86,9 +86,13 @@ class ExampleConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 await validate_input(self.hass, user_input)
 
                 data = {
-                    CONF_NAME: user_input[CONF_NAME],
-                    CONF_HOST: user_input[CONF_HOST],
-                    CONF_PORT: DEFAULT_PORT,
+                    CONF_HOSTS: [
+                        {
+                            CONF_NAME: user_input[CONF_NAME],
+                            CONF_HOST: user_input[CONF_HOST],
+                            CONF_PORT: DEFAULT_PORT,
+                        }
+                    ]
                 }
                 
                 return self.async_create_entry(
