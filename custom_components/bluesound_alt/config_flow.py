@@ -87,8 +87,8 @@ class ExampleConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 info = await validate_input(self.hass, user_input)
 
                 data = {
-                    CONF_NAME: data[CONF_HOST],
-                    CONF_HOST: data[CONF_NAME],
+                    CONF_NAME: user_input[CONF_HOST],
+                    CONF_HOST: user_input[CONF_NAME],
                     CONF_PORT: DEFAULT_PORT,
                 }
                 
