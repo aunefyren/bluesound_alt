@@ -161,6 +161,7 @@ async def async_setup_platform(
 
     if hosts := config.get(CONF_HOSTS):
         for host in hosts:
+            _LOGGER.info("Adding player device with name: %s", host.get(CONF_NAME))
             _add_player(
                 hass,
                 async_add_entities,
