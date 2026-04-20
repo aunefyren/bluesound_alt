@@ -1130,7 +1130,7 @@ class BluesoundPlayer(MediaPlayerEntity):
             volume = 0
         elif volume > 1:
             volume = 1
-        return await self.send_bluesound_command(f"Volume?level={float(volume) * 100}")
+        return await self.send_bluesound_command(f"Volume?level={int(volume * 100)}")
 
     async def async_mute_volume(self, mute: bool) -> None:
         """Send mute command to media player."""
