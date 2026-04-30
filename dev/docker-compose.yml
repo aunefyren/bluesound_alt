@@ -1,0 +1,12 @@
+services:
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: ha-bluesound-dev
+    ports:
+      - "8123:8123"
+    restart: unless-stopped
+    volumes:
+      - ./config:/config
+      - ../custom_components/bluesound_alt:/config/custom_components/bluesound_alt
+    environment:
+      - TZ=Europe/Oslo
