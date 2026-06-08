@@ -147,7 +147,9 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
 
     @property
     def source_list(self) -> list[str]:
-        return [s["name"] for s in self.coordinator.sources]
+        return [s["name"] for s in self.coordinator.sources] + [
+            p["name"] for p in self.coordinator.presets
+        ]
 
     @property
     def source(self) -> str | None:
@@ -248,6 +250,11 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         for s in self.coordinator.sources:
             if s["name"] == source:
                 await self.coordinator.async_request_api("/Play", url=s["play_url"])
+                await self.coordinator.async_request_refresh()
+                return
+        for p in self.coordinator.presets:
+            if p["name"] == source:
+                await self.coordinator.async_request_api("/Preset", id=p["id"])
                 await self.coordinator.async_request_refresh()
                 return
 
