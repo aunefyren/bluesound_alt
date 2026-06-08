@@ -34,6 +34,7 @@ class BluesoundData:
     position: float | None = None
     duration: float | None = None
     service: str | None = None
+    service_name: str | None = None
     stream_url: str | None = None
     group_name: str | None = None
     sync_stat: str | None = None
@@ -392,6 +393,7 @@ def _parse_status(xml_text: str) -> BluesoundData:
     data.muted = s.get("mute", "0") == "1"
     data.shuffle = s.get("shuffle", "0") == "1"
     data.service = s.get("service")
+    data.service_name = s.get("serviceName")
     data.title = s.get("title1")
     data.artist = s.get("title2")
     data.album = s.get("title3")
