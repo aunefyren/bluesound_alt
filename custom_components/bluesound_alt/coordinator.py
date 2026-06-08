@@ -80,6 +80,8 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
         self._last_sync_stat: str | None = None
         # Sources fetched once from /Browse: [{name, play_url}]
         self.sources: list[dict[str, str]] = []
+        # Presets (saved radio/favourites) fetched once from /Presets: [{id, name, image}]
+        self.presets: list[dict[str, str]] = []
         # Individual volume for this device (differs from group volume when slave)
         self.individual_volume: int | None = None
         self._session: aiohttp.ClientSession | None = None
@@ -231,6 +233,7 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
         if self._is_first_fetch:
             self._is_first_fetch = False
             self.sources = await _fetch_sources(self._get_session(), self.host, self.port)
+            self.presets = await _fetch_presets(self._get_session(), self.host, self.port)
             self._start_long_poll_loop()
 
         return data
@@ -380,6 +383,41 @@ async def _fetch_sources(
         return sources
     except Exception:
         _LOGGER.exception("Failed to parse Browse from %s", host)
+        return []
+
+
+async def _fetch_presets(
+    session: aiohttp.ClientSession, host: str, port: int
+) -> list[dict[str, str]]:
+    """Fetch /Presets and return saved radio/favourites: [{id, name, image}]."""
+    url = f"http://{host}:{port}/Presets"
+    try:
+        async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+            if resp.status != 200:
+                return []
+            text = await resp.text()
+    except (aiohttp.ClientError, asyncio.TimeoutError):
+        return []
+
+    try:
+        parsed = xmltodict.parse(text)
+        items = parsed.get("presets", {}).get("preset", [])
+        if isinstance(items, dict):
+            items = [items]
+
+        presets = []
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            pid = item.get("@id")
+            name = item.get("@name")
+            if pid is None or not name:
+                continue
+            presets.append({"id": pid, "name": name, "image": item.get("@image", "")})
+
+        return presets
+    except Exception:
+        _LOGGER.exception("Failed to parse Presets from %s", host)
         return []
 
 
