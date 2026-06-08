@@ -281,6 +281,26 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
         except (aiohttp.ClientError, asyncio.TimeoutError) as err:
             _LOGGER.error("Command %s failed: %s", url, err)
 
+    async def async_browse(self, key: str | None = None) -> list[dict[str, str | None]]:
+        """Fetch /Browse (optionally for a browseKey) and return parsed items."""
+        session = self._get_session()
+        url = f"{self._base_url()}/Browse"
+        params = {"key": key} if key else None
+        try:
+            async with session.get(
+                url,
+                params=params,
+                timeout=aiohttp.ClientTimeout(total=NODE_OFFLINE_CHECK_TIMEOUT),
+            ) as resp:
+                if resp.status != 200:
+                    _LOGGER.warning("Browse %s returned %s", key, resp.status)
+                    return []
+                text = await resp.text()
+        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+            _LOGGER.error("Browse %s failed: %s", key, err)
+            return []
+        return _parse_browse_items(text)
+
     def stop(self) -> None:
         if self._long_poll_task and not self._long_poll_task.done():
             self._long_poll_task.cancel()
@@ -419,6 +439,49 @@ async def _fetch_presets(
     except Exception:
         _LOGGER.exception("Failed to parse Presets from %s", host)
         return []
+
+
+def _parse_browse_items(xml_text: str) -> list[dict[str, str | None]]:
+    """Parse a /Browse response into [{name, image, browse_key, play_url}]."""
+    from urllib.parse import unquote
+
+    parsed = xmltodict.parse(xml_text)
+    root = parsed.get("browse") or parsed.get("radiotime") or {}
+    items = root.get("item", [])
+    if isinstance(items, dict):
+        items = [items]
+
+    result: list[dict[str, str | None]] = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        name = item.get("@text") or item.get("@title")
+        if not name:
+            continue
+
+        # playURL is like /Play?url=<enc>, extract and decode the url param so it
+        # can be replayed through async_request_api("/Play", url=...).
+        play_url: str | None = None
+        play_url_raw = item.get("@playURL")
+        if play_url_raw and "?url=" in play_url_raw:
+            play_url = unquote(play_url_raw.split("?url=", 1)[1])
+        elif item.get("@type") == "audio" and item.get("@URL"):
+            play_url = unquote(item["@URL"])
+
+        # browseKey marks a navigable node; @key is the legacy radiotime fallback.
+        browse_key = item.get("@browseKey")
+        if not browse_key and item.get("@type") == "link":
+            browse_key = item.get("@key")
+
+        result.append(
+            {
+                "name": name,
+                "image": item.get("@image"),
+                "browse_key": browse_key,
+                "play_url": play_url,
+            }
+        )
+    return result
 
 
 def _parse_status(xml_text: str) -> BluesoundData:
