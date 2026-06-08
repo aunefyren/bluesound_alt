@@ -57,6 +57,10 @@ _REPEAT_TO_HA: dict[int, RepeatMode] = {
 }
 _HA_TO_REPEAT: dict[RepeatMode, int] = {v: k for k, v in _REPEAT_TO_HA.items()}
 
+# Friendly labels for push inputs that have no /Browse source entry.
+# AirPlay self-labels via the BluOS serviceName field, so only "http" needs mapping.
+_SERVICE_LABELS: dict[str, str] = {"http": "Streaming"}
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -148,12 +152,16 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
     @property
     def source(self) -> str | None:
         stream_url = self.coordinator.data.stream_url
-        if not stream_url:
+        if stream_url:
+            for s in self.coordinator.sources:
+                if s["play_url"] == stream_url:
+                    return s["name"]
+        # Push inputs (AirPlay, URL/streaming) match no /Browse source, fall
+        # back to the active BluOS service so the UI shows what is playing.
+        data = self.coordinator.data
+        if not data.service:
             return None
-        for s in self.coordinator.sources:
-            if s["play_url"] == stream_url:
-                return s["name"]
-        return None
+        return _SERVICE_LABELS.get(data.service, data.service_name or data.service)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
