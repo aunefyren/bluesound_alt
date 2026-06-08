@@ -312,11 +312,12 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         self, media_type: str, media_id: str, **kwargs: Any
     ) -> None:
         """Play a URL on the device, resolving HA media_source IDs first."""
-        # Items picked from our own media browser carry a BluOS playURL.
+        # Items picked from our own media browser carry a BluOS playURL, which is
+        # replayed verbatim (it is already a complete, encoded relative URL).
         if media_id.startswith(_BLUESOUND_SCHEME):
             _, play_url = _decode_media_id(media_id)
             if play_url:
-                await self.coordinator.async_request_api("/Play", url=play_url)
+                await self.coordinator.async_play_path(play_url)
                 await self.coordinator.async_request_refresh()
             return
 

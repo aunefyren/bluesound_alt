@@ -8,6 +8,7 @@ from typing import Any
 
 import aiohttp
 import xmltodict
+from yarl import URL
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -301,6 +302,24 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
             return []
         return _parse_browse_items(text)
 
+    async def async_play_path(self, path: str) -> None:
+        """GET a device-provided relative URL (e.g. a browse playURL) verbatim.
+
+        The path is already percent-encoded by the device, so it is sent
+        unchanged (encoded=True) rather than decoded and rebuilt.
+        """
+        session = self._get_session()
+        url = URL(f"{self._base_url()}{path}", encoded=True)
+        try:
+            async with session.get(
+                url,
+                timeout=aiohttp.ClientTimeout(total=NODE_OFFLINE_CHECK_TIMEOUT),
+            ) as resp:
+                if resp.status != 200:
+                    _LOGGER.warning("Play %s returned %s", path, resp.status)
+        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+            _LOGGER.error("Play %s failed: %s", path, err)
+
     def stop(self) -> None:
         if self._long_poll_task and not self._long_poll_task.done():
             self._long_poll_task.cancel()
@@ -442,9 +461,11 @@ async def _fetch_presets(
 
 
 def _parse_browse_items(xml_text: str) -> list[dict[str, str | None]]:
-    """Parse a /Browse response into [{name, image, browse_key, play_url}]."""
-    from urllib.parse import unquote
+    """Parse a /Browse response into [{name, image, browse_key, play_url}].
 
+    play_url is the device-provided relative URL (e.g. /Play?url=...) kept
+    verbatim so it can be replayed exactly via async_play_path().
+    """
     parsed = xmltodict.parse(xml_text)
     root = parsed.get("browse") or parsed.get("radiotime") or {}
     items = root.get("item", [])
@@ -459,14 +480,11 @@ def _parse_browse_items(xml_text: str) -> list[dict[str, str | None]]:
         if not name:
             continue
 
-        # playURL is like /Play?url=<enc>, extract and decode the url param so it
-        # can be replayed through async_request_api("/Play", url=...).
-        play_url: str | None = None
-        play_url_raw = item.get("@playURL")
-        if play_url_raw and "?url=" in play_url_raw:
-            play_url = unquote(play_url_raw.split("?url=", 1)[1])
-        elif item.get("@type") == "audio" and item.get("@URL"):
-            play_url = unquote(item["@URL"])
+        # playURL marks a playable item; legacy radiotime audio uses @URL, which
+        # needs wrapping in /Play?url=.
+        play_url: str | None = item.get("@playURL")
+        if not play_url and item.get("@type") == "audio" and item.get("@URL"):
+            play_url = f"/Play?url={item['@URL']}"
 
         # browseKey marks a navigable node; @key is the legacy radiotime fallback.
         browse_key = item.get("@browseKey")
