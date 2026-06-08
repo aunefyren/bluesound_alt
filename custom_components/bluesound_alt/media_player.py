@@ -3,12 +3,17 @@ from __future__ import annotations
 
 import logging
 from typing import Any
+from urllib.parse import parse_qs, urlencode, urlsplit
 
 from homeassistant.components import media_source
 from homeassistant.components.media_player import (
+    BrowseError,
+    BrowseMedia,
+    MediaClass,
     MediaPlayerEntity,
     MediaPlayerEntityFeature,
     MediaPlayerState,
+    MediaType,
     RepeatMode,
     async_process_play_media_url,
 )
@@ -39,6 +44,7 @@ SUPPORT_BLUESOUND = (
     | MediaPlayerEntityFeature.PREVIOUS_TRACK
     | MediaPlayerEntityFeature.SEEK
     | MediaPlayerEntityFeature.REPEAT_SET
+    | MediaPlayerEntityFeature.BROWSE_MEDIA
 )
 
 _STATE_MAP: dict[str, MediaPlayerState] = {
@@ -60,6 +66,28 @@ _HA_TO_REPEAT: dict[RepeatMode, int] = {v: k for k, v in _REPEAT_TO_HA.items()}
 # Friendly labels for push inputs that have no /Browse source entry.
 # AirPlay self-labels via the BluOS serviceName field, so only "http" needs mapping.
 _SERVICE_LABELS: dict[str, str] = {"http": "Streaming"}
+
+# Media browser: media_content_id encodes a BluOS browseKey (b) and/or playURL (p).
+_BLUESOUND_SCHEME = "bluesound:"
+_BLUESOUND_ROOT = "bluesound:root"
+
+
+def _encode_media_id(browse_key: str | None, play_url: str | None) -> str:
+    """Encode a BluOS browseKey/playURL pair into a media_content_id."""
+    parts: list[tuple[str, str]] = []
+    if browse_key is not None:
+        parts.append(("b", browse_key))
+    if play_url is not None:
+        parts.append(("p", play_url))
+    return f"{_BLUESOUND_SCHEME}?{urlencode(parts)}"
+
+
+def _decode_media_id(content_id: str) -> tuple[str | None, str | None]:
+    """Return (browse_key, play_url) decoded from a media_content_id."""
+    qs = parse_qs(urlsplit(content_id).query, keep_blank_values=True)
+    browse_key = qs["b"][0] if "b" in qs else None
+    play_url = qs["p"][0] if "p" in qs else None
+    return browse_key, play_url
 
 
 async def async_setup_entry(
@@ -284,6 +312,14 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         self, media_type: str, media_id: str, **kwargs: Any
     ) -> None:
         """Play a URL on the device, resolving HA media_source IDs first."""
+        # Items picked from our own media browser carry a BluOS playURL.
+        if media_id.startswith(_BLUESOUND_SCHEME):
+            _, play_url = _decode_media_id(media_id)
+            if play_url:
+                await self.coordinator.async_request_api("/Play", url=play_url)
+                await self.coordinator.async_request_refresh()
+            return
+
         if media_source.is_media_source_id(media_id):
             play_item = await media_source.async_resolve_media(
                 self.hass, media_id, self.entity_id
@@ -294,6 +330,86 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
 
         await self.coordinator.async_request_api("/Play", url=media_id)
         await self.coordinator.async_request_refresh()
+
+    # --- Media browsing ---
+
+    async def async_browse_media(
+        self,
+        media_content_type: str | None = None,
+        media_content_id: str | None = None,
+    ) -> BrowseMedia:
+        """Browse the device's services/radio tree and HA media sources."""
+        if media_content_id is None or media_content_id == _BLUESOUND_ROOT:
+            return await self._build_browse_root()
+
+        if media_source.is_media_source_id(media_content_id):
+            return await media_source.async_browse_media(
+                self.hass,
+                media_content_id,
+                content_filter=lambda item: item.media_content_type.startswith(
+                    "audio/"
+                ),
+            )
+
+        browse_key, _ = _decode_media_id(media_content_id)
+        items = await self.coordinator.async_browse(browse_key or None)
+        return BrowseMedia(
+            title="Bluesound",
+            media_class=MediaClass.DIRECTORY,
+            media_content_type="bluesound",
+            media_content_id=media_content_id,
+            can_play=False,
+            can_expand=True,
+            children=[self._item_to_browse(i) for i in items],
+            children_media_class=MediaClass.DIRECTORY,
+        )
+
+    async def _build_browse_root(self) -> BrowseMedia:
+        """Top level: device services/inputs/radio plus HA media sources."""
+        items = await self.coordinator.async_browse(None)
+        children = [self._item_to_browse(i) for i in items]
+        try:
+            children.append(
+                await media_source.async_browse_media(
+                    self.hass,
+                    None,
+                    content_filter=lambda item: item.media_content_type.startswith(
+                        "audio/"
+                    ),
+                )
+            )
+        except BrowseError:
+            pass
+        return BrowseMedia(
+            title="Bluesound",
+            media_class=MediaClass.DIRECTORY,
+            media_content_type="bluesound",
+            media_content_id=_BLUESOUND_ROOT,
+            can_play=False,
+            can_expand=True,
+            children=children,
+            children_media_class=MediaClass.DIRECTORY,
+        )
+
+    def _item_to_browse(self, item: dict[str, str | None]) -> BrowseMedia:
+        browse_key = item.get("browse_key")
+        play_url = item.get("play_url")
+        return BrowseMedia(
+            title=item["name"],
+            media_class=MediaClass.MUSIC if play_url else MediaClass.DIRECTORY,
+            media_content_type=MediaType.MUSIC,
+            media_content_id=_encode_media_id(browse_key, play_url),
+            can_play=play_url is not None,
+            can_expand=browse_key is not None,
+            thumbnail=self._abs_image(item.get("image")),
+        )
+
+    def _abs_image(self, image: str | None) -> str | None:
+        if not image:
+            return None
+        if image.startswith("http"):
+            return image
+        return f"http://{self.coordinator.host}:{self.coordinator.port}{image}"
 
     # --- Grouping ---
 
