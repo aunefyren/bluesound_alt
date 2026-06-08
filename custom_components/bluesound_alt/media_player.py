@@ -4,10 +4,13 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+from homeassistant.components import media_source
 from homeassistant.components.media_player import (
     MediaPlayerEntity,
     MediaPlayerEntityFeature,
     MediaPlayerState,
+    RepeatMode,
+    async_process_play_media_url,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST
@@ -31,6 +34,11 @@ SUPPORT_BLUESOUND = (
     | MediaPlayerEntityFeature.SHUFFLE_SET
     | MediaPlayerEntityFeature.GROUPING
     | MediaPlayerEntityFeature.SELECT_SOURCE
+    | MediaPlayerEntityFeature.PLAY_MEDIA
+    | MediaPlayerEntityFeature.NEXT_TRACK
+    | MediaPlayerEntityFeature.PREVIOUS_TRACK
+    | MediaPlayerEntityFeature.SEEK
+    | MediaPlayerEntityFeature.REPEAT_SET
 )
 
 _STATE_MAP: dict[str, MediaPlayerState] = {
@@ -40,6 +48,14 @@ _STATE_MAP: dict[str, MediaPlayerState] = {
     "stop": MediaPlayerState.IDLE,
     "connecting": MediaPlayerState.BUFFERING,
 }
+
+# BluOS /Repeat?state=<n>: 0 = repeat queue, 1 = repeat track, 2 = repeat off
+_REPEAT_TO_HA: dict[int, RepeatMode] = {
+    0: RepeatMode.ALL,
+    1: RepeatMode.ONE,
+    2: RepeatMode.OFF,
+}
+_HA_TO_REPEAT: dict[RepeatMode, int] = {v: k for k, v in _REPEAT_TO_HA.items()}
 
 
 async def async_setup_entry(
@@ -93,6 +109,10 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
     @property
     def shuffle(self) -> bool:
         return self.coordinator.data.shuffle
+
+    @property
+    def repeat(self) -> RepeatMode | None:
+        return _REPEAT_TO_HA.get(self.coordinator.data.repeat)
 
     @property
     def media_title(self) -> str | None:
@@ -225,6 +245,39 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
 
     async def async_set_shuffle(self, shuffle: bool) -> None:
         await self.coordinator.async_request_api("/Shuffle", state=int(shuffle))
+        await self.coordinator.async_request_refresh()
+
+    async def async_set_repeat(self, repeat: RepeatMode) -> None:
+        await self.coordinator.async_request_api(
+            "/Repeat", state=_HA_TO_REPEAT[repeat]
+        )
+        await self.coordinator.async_request_refresh()
+
+    async def async_media_next_track(self) -> None:
+        await self.coordinator.async_request_api("/Skip")
+        await self.coordinator.async_request_refresh()
+
+    async def async_media_previous_track(self) -> None:
+        await self.coordinator.async_request_api("/Back")
+        await self.coordinator.async_request_refresh()
+
+    async def async_media_seek(self, position: float) -> None:
+        await self.coordinator.async_request_api("/Play", seek=int(position))
+        await self.coordinator.async_request_refresh()
+
+    async def async_play_media(
+        self, media_type: str, media_id: str, **kwargs: Any
+    ) -> None:
+        """Play a URL on the device, resolving HA media_source IDs first."""
+        if media_source.is_media_source_id(media_id):
+            play_item = await media_source.async_resolve_media(
+                self.hass, media_id, self.entity_id
+            )
+            media_id = play_item.url
+
+        media_id = async_process_play_media_url(self.hass, media_id)
+
+        await self.coordinator.async_request_api("/Play", url=media_id)
         await self.coordinator.async_request_refresh()
 
     # --- Grouping ---
