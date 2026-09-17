@@ -90,6 +90,6 @@ async def async_get_config_entry_diagnostics(
             "presets": coordinator.presets,
             "last_update_success": coordinator.last_update_success,
             "push_loop_running": _running(coordinator._long_poll_task),
-            "volume_loop_running": _running(coordinator._volume_poll_task),
+            "sync_loop_running": _running(coordinator._sync_poll_task),
         }
     )

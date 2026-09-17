@@ -24,7 +24,7 @@ that group's leader, and a selected player from another group moves over.
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any
@@ -176,6 +176,10 @@ async def async_join(
         missing = [
             address for address in adding if address not in added_players(answer)
         ]
+        if not missing:
+            # Leaders list new followers over a few updates; wait for all of
+            # them, so the refresh that follows sees the finished group.
+            await _wait_for(session, leader, lambda s: set(adding) <= set(s.slaves))
         if missing:
             names = {state.address: state.name for state in states}
             raise HomeAssistantError(
@@ -207,6 +211,7 @@ async def async_unjoin(session: aiohttp.ClientSession, player: Address) -> set[A
         await async_send_command(
             session, _url(state.master, "/RemoveSlave"), slave_params([player])
         )
+        await _wait_for(session, state.master, lambda s: player not in s.slaves)
         return {player, state.master}
     if state.slaves:
         await _break_up(session, state, BreakUp.HAND_OVER)
@@ -241,16 +246,25 @@ async def _wait_until_alone(session: aiohttp.ClientSession, address: Address) ->
 
     Adding it before then would nest whatever it still leads.
     """
+    if not await _wait_for(session, address, lambda state: not state.slaves):
+        raise HomeAssistantError(
+            translation_domain=DOMAIN, translation_key="not_regrouped"
+        )
+
+
+async def _wait_for(
+    session: aiohttp.ClientSession,
+    address: Address,
+    condition: Callable[[PlayerState], bool],
+) -> bool:
+    """Re-read a player until its /SyncStatus meets a condition, or time is up."""
     loop = asyncio.get_running_loop()
     deadline = loop.time() + GROUPING_WAIT_SECONDS
     while True:
-        state = await _read(session, address)
-        if not state.slaves:
-            return
+        if condition(await _read(session, address)):
+            return True
         if loop.time() >= deadline:
-            raise HomeAssistantError(
-                translation_domain=DOMAIN, translation_key="not_regrouped"
-            )
+            return False
         await asyncio.sleep(GROUPING_POLL_SECONDS)
 
 

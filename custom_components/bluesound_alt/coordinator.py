@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import Coroutine
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 import logging
 from typing import Any
 from xml.parsers.expat import ExpatError
@@ -13,13 +13,14 @@ import xmltodict
 from yarl import URL
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import (
     DOMAIN,
+    LONG_POLL_MIN_INTERVAL,
     LONG_POLL_TIMEOUT,
     MAX_BROWSE_PAGES,
     NODE_OFFLINE_CHECK_TIMEOUT,
@@ -68,6 +69,9 @@ class BluesoundSyncInfo:
     # The secondary player of a fixed group (a stereo pair, say), which only
     # moves with its primary and must not be regrouped on its own.
     fixed_secondary: bool = False
+    # This player's own volume (0..100), None for fixed volume or unknown.
+    volume: int | None = None
+    etag: str | None = None
 
 
 class BluesoundCommandError(HomeAssistantError):
@@ -126,19 +130,19 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
         self.host = host
         self.port = port
         self.sync_info = sync_info
-        # Group topology, kept current by re-fetching /SyncStatus when syncStat changes
+        # Group topology, kept current by long-polling /SyncStatus
         self.group_master_ip: str | None = sync_info.master_ip
+        self.group_master_port: int = sync_info.master_port
         self.group_slaves: list[dict[str, Any]] = sync_info.slaves
-        self._last_sync_stat: str | None = None
         # Sources fetched once from /Browse: [{name, play_url}]
         self.sources: list[dict[str, str]] = []
         # Presets (saved radio/favourites) fetched once from /Presets: [{id, name, image}]
         self.presets: list[dict[str, str]] = []
         # Individual volume for this device (differs from group volume when slave)
-        self.individual_volume: int | None = None
+        self.individual_volume: int | None = sync_info.volume
         self._session: aiohttp.ClientSession | None = None
         self._long_poll_task: asyncio.Task | None = None
-        self._volume_poll_task: asyncio.Task | None = None
+        self._sync_poll_task: asyncio.Task | None = None
         self._is_first_fetch = True
 
     def _base_url(self) -> str:
@@ -174,55 +178,6 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
         except ExpatError as err:
             raise UpdateFailed(f"Malformed status from {url}: {err}") from err
 
-    async def _fetch_volume(self) -> int | None:
-        """Fetch /Volume and return the device's individual volume level."""
-        session = self._get_session()
-        url = f"{self._base_url()}/Volume"
-        try:
-            async with session.get(
-                url, timeout=aiohttp.ClientTimeout(total=NODE_OFFLINE_CHECK_TIMEOUT)
-            ) as resp:
-                if resp.status != 200:
-                    return None
-                text = await resp.text()
-            parsed = xmltodict.parse(text)
-            vol = parsed.get("volume")
-            if isinstance(vol, dict):
-                return _safe_int(vol.get("#text"))
-            return _safe_int(vol)
-        except Exception:
-            return None
-
-    async def async_refresh_individual_volume(self) -> None:
-        """Fetch /Volume, store individual volume, notify listeners."""
-        vol = await self._fetch_volume()
-        if vol is None:
-            return
-        # Kept even before the first status arrives, which is exactly when
-        # this runs during setup; otherwise a slave starts on the group volume.
-        self.individual_volume = vol
-        if self.data is not None:
-            self.async_set_updated_data(self.data)
-
-    async def _refresh_group_topology(self) -> None:
-        """Re-fetch /SyncStatus to update group master/slave info."""
-        session = self._get_session()
-        info = await _fetch_sync_info(session, self.host, self.port)
-        if info:
-            self.group_master_ip = info.master_ip
-            self.group_slaves = info.slaves
-            _LOGGER.debug(
-                "%s group topology: master=%s slaves=%s",
-                self.host,
-                self.group_master_ip,
-                [s["ip"] for s in self.group_slaves],
-            )
-            await self.async_refresh_individual_volume()
-            if self.group_master_ip:
-                self._start_volume_poll_loop()
-            else:
-                self._stop_volume_poll_loop()
-
     def _start_background(
         self, target: Coroutine[Any, Any, None], name: str
     ) -> asyncio.Task[None]:
@@ -235,65 +190,98 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
             self.hass, target, name=f"{DOMAIN}_{name}_{self.host}"
         )
 
-    def _start_volume_poll_loop(self) -> None:
-        if self._volume_poll_task and not self._volume_poll_task.done():
+    def _start_sync_poll_loop(self) -> None:
+        if self._sync_poll_task and not self._sync_poll_task.done():
             return
-        self._volume_poll_task = self._start_background(
-            self._volume_poll_loop(), "volume"
-        )
+        self._sync_poll_task = self._start_background(self._sync_poll_loop(), "sync")
 
-    def _stop_volume_poll_loop(self) -> None:
-        if self._volume_poll_task and not self._volume_poll_task.done():
-            self._volume_poll_task.cancel()
-            self._volume_poll_task = None
+    async def _sync_poll_loop(self) -> None:
+        """Follow /SyncStatus: who this player is grouped with, and its volume.
 
-    async def _volume_poll_loop(self) -> None:
-        """Long-poll /Volume to track individual slave volume changes from any source."""
-        session = self._get_session()
-        url = f"{self._base_url()}/Volume"
+        Long-polled, as the BluOS API recommends for grouping and per-player
+        volume. A leader reports a regroup over several updates, and the
+        syncStat hint in /Status does not reliably come with the last of them,
+        so /SyncStatus itself is followed rather than re-read on hints.
+        """
+        loop = asyncio.get_running_loop()
         etag: str | None = None
-
         while True:
+            started = loop.time()
             try:
-                if etag:
-                    params = {"timeout": LONG_POLL_TIMEOUT, "etag": etag}
-                    request_timeout = LONG_POLL_TIMEOUT + NODE_OFFLINE_CHECK_TIMEOUT
-                else:
-                    params = {}
-                    request_timeout = NODE_OFFLINE_CHECK_TIMEOUT
-
-                async with session.get(
-                    url,
-                    params=params,
-                    timeout=aiohttp.ClientTimeout(total=request_timeout),
-                ) as resp:
-                    if resp.status != 200:
-                        raise UpdateFailed(f"Bad status {resp.status} from {url}")
-                    text = await resp.text()
-
-                vol_data = xmltodict.parse(text).get("volume")
-                if isinstance(vol_data, dict):
-                    new_etag = vol_data.get("@etag")
-                    vol = _safe_int(vol_data.get("#text"))
-                else:
-                    new_etag = None
-                    vol = _safe_int(vol_data)
-            except (aiohttp.ClientError, TimeoutError, UpdateFailed, ExpatError) as err:
-                _LOGGER.debug("Volume poll error for %s: %s", self.host, err)
-                etag = None
-                await asyncio.sleep(RETRY_DELAY)
-                continue
+                info = await _fetch_sync_info(
+                    self._get_session(), self.host, self.port, etag=etag
+                )
+                if info is None:
+                    etag = None
+                    await asyncio.sleep(RETRY_DELAY)
+                    continue
+                etag = info.etag
+                self._apply_sync_info(info)
             except Exception:
-                # Whatever goes wrong, a dead loop would freeze the volume.
-                _LOGGER.exception("Unexpected error polling volume on %s", self.host)
+                # A dead loop would freeze grouping and volume for good.
+                _LOGGER.exception("Unexpected error following %s", self.host)
                 etag = None
                 await asyncio.sleep(RETRY_DELAY)
                 continue
+            # The API asks for at least a second between long polls of one
+            # resource, even when an answer comes back sooner.
+            if (wait := LONG_POLL_MIN_INTERVAL - (loop.time() - started)) > 0:
+                await asyncio.sleep(wait)
 
-            etag = new_etag
-            self.individual_volume = vol
-            if self.data is not None:
-                self.async_set_updated_data(self.data)
+    @callback
+    def _apply_sync_info(self, info: BluesoundSyncInfo) -> None:
+        """Take on the grouping and volume a /SyncStatus answer reports."""
+        before = (
+            self.group_master_ip,
+            self.group_master_port,
+            self.group_slaves,
+            self.individual_volume,
+        )
+        self.group_master_ip = info.master_ip
+        self.group_master_port = info.master_port
+        self.group_slaves = info.slaves
+        if info.volume is not None:
+            self.individual_volume = info.volume
+        after = (
+            self.group_master_ip,
+            self.group_master_port,
+            self.group_slaves,
+            self.individual_volume,
+        )
+        if after == before:
+            return
+        _LOGGER.debug(
+            "%s group topology: master=%s slaves=%s",
+            self.host,
+            self.group_master_ip,
+            [s["ip"] for s in self.group_slaves],
+        )
+        if self.data is not None:
+            self.async_set_updated_data(self.data)
+
+    @callback
+    def async_apply_volume_answer(self, answer: str) -> None:
+        """Show the volume and mute a /Volume answer reports, straight away.
+
+        /Status and /SyncStatus catch up a moment later; until then the level
+        just set would otherwise flash back to the previous one.
+        """
+        try:
+            volume = xmltodict.parse(answer).get("volume")
+        except ExpatError:
+            return
+        if not isinstance(volume, dict):
+            return
+        level = _safe_int(volume.get("#text"), -1)
+        muted = volume.get("@mute") == "1"
+        if level < 0 or self.data is None:
+            return
+        if self.group_master_ip:
+            # A follower's /Status is its leader's; only its own level changed.
+            self.individual_volume = level
+            self.async_set_updated_data(self.data)
+        else:
+            self.async_set_updated_data(replace(self.data, volume=level, muted=muted))
 
     async def _async_update_data(self) -> BluesoundData:
         try:
@@ -301,20 +289,14 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
         except (aiohttp.ClientError, TimeoutError) as err:
             raise UpdateFailed(f"Cannot connect to {self.host}: {err}") from err
 
-        await self._maybe_refresh_topology(data)
-
         if self._is_first_fetch:
             self._is_first_fetch = False
             self.sources = await _fetch_sources(self._get_session(), self.host, self.port)
             self.presets = await _fetch_presets(self._get_session(), self.host, self.port)
             self._start_long_poll_loop()
+            self._start_sync_poll_loop()
 
         return data
-
-    async def _maybe_refresh_topology(self, data: BluesoundData) -> None:
-        if data.sync_stat != self._last_sync_stat:
-            self._last_sync_stat = data.sync_stat
-            await self._refresh_group_topology()
 
     def _start_long_poll_loop(self) -> None:
         if self._long_poll_task and not self._long_poll_task.done():
@@ -332,7 +314,6 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
         while True:
             try:
                 data = await self._fetch_status(etag=etag)
-                await self._maybe_refresh_topology(data)
             except (aiohttp.ClientError, TimeoutError, UpdateFailed) as err:
                 _LOGGER.debug("Long-poll error for %s: %s, retrying", self.host, err)
                 self.async_set_update_error(err)
@@ -411,9 +392,9 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
         )
 
     def stop(self) -> None:
-        if self._long_poll_task and not self._long_poll_task.done():
-            self._long_poll_task.cancel()
-        self._stop_volume_poll_loop()
+        for task in (self._long_poll_task, self._sync_poll_task):
+            if task and not task.done():
+                task.cancel()
 
 
 async def async_send_command(
@@ -457,13 +438,27 @@ def _error_reason(text: str) -> str | None:
 
 
 async def _fetch_sync_info(
-    session: aiohttp.ClientSession, host: str, port: int
+    session: aiohttp.ClientSession,
+    host: str,
+    port: int,
+    etag: str | None = None,
 ) -> BluesoundSyncInfo | None:
-    """Fetch /SyncStatus and return device identity + group topology."""
+    """Fetch /SyncStatus and return device identity + group topology.
+
+    With an etag, long-polls: the player answers once something changes.
+    """
     url = f"http://{host}:{port}/SyncStatus"
+    if etag:
+        params: dict[str, Any] = {"timeout": LONG_POLL_TIMEOUT, "etag": etag}
+        request_timeout = LONG_POLL_TIMEOUT + NODE_OFFLINE_CHECK_TIMEOUT
+    else:
+        params = {}
+        request_timeout = NODE_OFFLINE_CHECK_TIMEOUT
     try:
         async with session.get(
-            url, timeout=aiohttp.ClientTimeout(total=10)
+            url,
+            params=params or None,
+            timeout=aiohttp.ClientTimeout(total=request_timeout),
         ) as resp:
             if resp.status != 200:
                 return None
@@ -513,6 +508,8 @@ async def _fetch_sync_info(
             master_port=master_port,
             slaves=slaves,
             fixed_secondary=sync.get("@zoneSlave") == "true",
+            volume=volume if (volume := _safe_int(sync.get("@volume"), -1)) >= 0 else None,
+            etag=sync.get("@etag"),
         )
     except Exception:
         _LOGGER.exception("Failed to parse SyncStatus from %s", host)

@@ -50,6 +50,12 @@ on the [GitHub releases page](https://github.com/aunefyren/bluesound_alt/release
     instead of being split from its pair.
 - Commands a player refuses (it answers with an error while reporting success)
   now fail visibly in Home Assistant instead of appearing to work.
+- A group leader's card shows speakers added to its group, including from the
+  BluOS app; it could keep showing the old group until the next regroup.
+  Grouping and each speaker's own volume are now followed through /SyncStatus,
+  as the BluOS API recommends.
+- The volume slider no longer jumps back to the old level for a moment after
+  being moved.
 
 ### Development
 - Test suite running against responses captured from real players, with a

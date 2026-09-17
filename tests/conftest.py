@@ -13,6 +13,7 @@ from collections.abc import Awaitable, Callable, Iterator
 from dataclasses import dataclass, field
 import json
 import pathlib
+import re
 from typing import Any
 from unittest.mock import patch
 
@@ -114,6 +115,9 @@ class FakePlayer:
     _long_polls: dict[str, asyncio.Queue[tuple[int, str]]] = field(default_factory=dict)
     # Answers grouping requests, and /SyncStatus and /Status once regrouped.
     model: GroupModel | None = None
+    # Volume and mute as last set through /Volume, once they have been.
+    volume: int | None = None
+    muted: bool | None = None
 
     def push(self, path: str, body: str, status: int = 200) -> None:
         """Answer the next long poll on a path, e.g. "/Status"."""
@@ -140,18 +144,49 @@ class FakePlayer:
         if (request.path, query) in self.overrides:
             return FakeResponse(*self.overrides[(request.path, query)])
 
+        if request.path == "/Volume" and ({"level", "mute"} & set(request.query)):
+            return FakeResponse(200, self._set_volume(request.query))
+
         if self.model is not None and (grouped := self._grouping(request)):
-            return grouped
+            return self._with_volume(request, grouped)
 
         if "etag" in request.query:
             return FakeResponse(pending=self._long_poll_queue(request.path).get())
 
         for entry in self.responses:
             if entry["path"] == request.path and entry["params"] == request.query:
-                return self._from_entry(entry)
+                return self._with_volume(request, self._from_entry(entry))
         if request.path in COMMANDS:
             return FakeResponse(200, '<?xml version="1.0" encoding="UTF-8"?>\n<ok/>')
         return FakeResponse(404, "")
+
+    def _set_volume(self, query: dict[str, str]) -> str:
+        """Change volume or mute, answering as players do with the new level."""
+        if "level" in query:
+            self.volume = int(query["level"])
+        if "mute" in query:
+            self.muted = query["mute"] == "1"
+        volume = self.volume if self.volume is not None else 0
+        return (
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            f'<volume db="-40" mute="{int(bool(self.muted))}" offsetDb="0" '
+            f'etag="set-{volume}">{volume}</volume>'
+        )
+
+    def _with_volume(self, request: Request, response: FakeResponse) -> FakeResponse:
+        """Show a volume set through /Volume in later /Status and /SyncStatus."""
+        body = response._body
+        if self.volume is not None:
+            body = re.sub(
+                r"(<volume\b[^>]*>)\d+(</volume>)", rf"\g<1>{self.volume}\g<2>", body
+            )
+            body = re.sub(
+                r'(<SyncStatus\b[^>]*?\bvolume=")\d+', rf"\g<1>{self.volume}", body
+            )
+        if self.muted is not None:
+            body = re.sub(r"<mute>\d</mute>", f"<mute>{int(self.muted)}</mute>", body)
+        response._body = body
+        return response
 
     def _grouping(self, request: Request) -> FakeResponse | None:
         """Answer from the group model where it has taken over."""
@@ -161,6 +196,8 @@ class FakePlayer:
             return FakeResponse(200, self.model.add_slave(address, request.query))
         if request.path == "/RemoveSlave":
             return FakeResponse(200, self.model.remove_slave(address, request.query))
+        if request.path == "/SyncStatus":
+            self.model.note_sync_read(address)
         if address in self.model.changed and "etag" not in request.query:
             if request.path == "/SyncStatus":
                 return FakeResponse(200, self.model.sync_status(address))
@@ -269,6 +306,8 @@ def patch_session(bluos: FakeBluOS) -> Iterator[FakeBluOS]:
         patch(
             "custom_components.bluesound_alt.coordinator.RETRY_DELAY", 0, create=True
         ),
+        patch("custom_components.bluesound_alt.coordinator.LONG_POLL_MIN_INTERVAL", 0),
+        patch("custom_components.bluesound_alt.grouping.GROUPING_POLL_SECONDS", 0),
     ):
         yield bluos
 

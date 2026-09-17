@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 from homeassistant.components.media_player import BrowseMedia
-from homeassistant.core import HomeAssistant
+from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback
 from homeassistant.helpers.entity_component import EntityComponent
+from homeassistant.helpers.event import async_track_state_change_event
+import pytest
 
 from custom_components.bluesound_alt.media_player import (
     BluesoundMediaPlayer,
@@ -170,3 +172,51 @@ def test_media_id_round_trip() -> None:
     )
     assert _decode_media_id(_encode_media_id(browse_key, None)) == (browse_key, None)
     assert _decode_media_id(_encode_media_id(None, play_url)) == (None, play_url)
+
+
+# -- volume -----------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("players", "entity_id"),
+    [
+        ([(SOUNDBAR, SOUNDBAR_MAC)], "media_player.player_4"),
+        ([(MASTER, MASTER_MAC)], "media_player.player_1"),
+        ([(MASTER, MASTER_MAC), (SLAVE_1, SLAVE_1_MAC)], "media_player.player_2"),
+    ],
+    ids=["standalone", "leader", "follower"],
+)
+async def test_volume_change_does_not_flash_back(
+    hass: HomeAssistant,
+    patch_session: FakeBluOS,
+    players: list,
+    entity_id: str,
+) -> None:
+    """The slider stays where it was set, without jumping back in between.
+
+    Reported from real use: the slider flashed back to the old level for a
+    moment before settling where it was dragged.
+    """
+    for player, mac in players:
+        await setup_player(hass, player, mac)
+    await hass.async_block_till_done()
+    before = hass.states.get(entity_id).attributes["volume_level"]
+    levels: list[float] = []
+
+    @callback
+    def record(event: Event[EventStateChangedData]) -> None:
+        if new_state := event.data["new_state"]:
+            levels.append(new_state.attributes.get("volume_level"))
+
+    async_track_state_change_event(hass, [entity_id], record)
+    await hass.services.async_call(
+        "media_player",
+        "volume_set",
+        {"entity_id": entity_id, "volume_level": 0.2},
+        blocking=True,
+    )
+    await hass.async_block_till_done()
+
+    assert before != 0.2
+    assert levels, "the new level was never shown"
+    assert all(level == 0.2 for level in levels), levels

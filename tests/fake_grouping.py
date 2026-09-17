@@ -22,6 +22,10 @@ the BluOS Custom Integration API v1.7:
   <error>no slave available as new master</error> and nothing changes.
 - A player that leaves a group stops.
 - /Status of a player that follows is its leader's (documented).
+- A leader reports a new follower in steps: its syncStat moves on before its
+  /SyncStatus lists everyone (see add_batched in tests/fixtures/grouping).
+  With staged_adds set, the last player added is left out of the leader's
+  /SyncStatus for one more read, and only /SyncStatus announces the rest.
 """
 
 from __future__ import annotations
@@ -65,6 +69,10 @@ class GroupModel:
         self.members: dict[Address, Member] = {}
         # Refuse every add, as a player does that cannot take more followers.
         self.refuse_adds = False
+        # Report adds in two steps, as real leaders do.
+        self.staged_adds = False
+        # Followers a leader does not list yet, with reads left until it does.
+        self._unlisted: dict[Address, tuple[Address, int]] = {}
         # Players whose responses no longer match their capture.
         self.changed: set[Address] = set()
         for address, player in players.items():
@@ -162,6 +170,8 @@ class GroupModel:
                     self.members[slave].source = None
             self._attach(candidate, receiver)
             accepted.append(candidate)
+        if self.staged_adds and accepted:
+            self._unlisted[receiver] = (accepted[-1], 1)
         self._publish(before)
         return (
             "<addSlave>"
@@ -189,6 +199,28 @@ class GroupModel:
         self._publish(before)
         return self.sync_status(receiver)
 
+    def note_sync_read(self, address: Address) -> None:
+        """Count a /SyncStatus request, completing a staged add when it is due."""
+        if address not in self._unlisted:
+            return
+        follower, reads_left = self._unlisted[address]
+        if reads_left > 0:
+            self._unlisted[address] = (follower, reads_left - 1)
+            return
+        self._complete_add(address)
+
+    def settle(self) -> None:
+        """Complete every staged add now, as time passing would."""
+        for address in list(self._unlisted):
+            self._complete_add(address)
+
+    def _complete_add(self, address: Address) -> None:
+        del self._unlisted[address]
+        # The rest of the add lands: only /SyncStatus says so.
+        self.members[address].sync_stat += 1
+        self.changed.add(address)
+        self.players[address].push("/SyncStatus", self.sync_status(address))
+
     # -- responses ------------------------------------------------------------
 
     def sync_status(self, address: Address) -> str:
@@ -207,7 +239,10 @@ class GroupModel:
         children = ""
         if member.master:
             children += f'<master port="{member.master[1]}">{member.master[0]}</master>'
+        unlisted = self._unlisted.get(address, (None, 0))[0]
         for ip, port in member.slaves:
+            if (ip, port) == unlisted:
+                continue
             name = self._name((ip, port))
             children += f'<slave id="{ip}" port="{port}" name="{name}"></slave>'
 
@@ -300,7 +335,7 @@ class GroupModel:
     def _publish(
         self, before: dict[Address, tuple[str, str]], push: bool = True
     ) -> None:
-        """Bump what changed and push the new /Status to waiting long polls.
+        """Bump what changed and push new /Status and /SyncStatus to long polls.
 
         A leader's /Status carries its syncStat, which is how the integration
         notices a regroup; followers see their leader's.
@@ -318,6 +353,7 @@ class GroupModel:
                 self.changed.add(address)
                 if push:
                     self.players[address].push("/Status", self.status(address))
+                    self.players[address].push("/SyncStatus", self.sync_status(address))
 
 
 def _addresses(query: dict[str, str]) -> list[Address]:

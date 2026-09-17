@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 from homeassistant.core import HomeAssistant
 
 from .conftest import FakeBluOS, fixture_text, setup_player, wait_for
@@ -111,7 +113,11 @@ async def test_slave_volume_is_its_own(
 
     await wait_for(lambda: volume() == 0.31)
 
-    patch_session.player(SLAVE_1).push(
-        "/Volume", '<volume db="-30" mute="0" etag="new">40</volume>'
-    )
+    # Its own volume changes, from the BluOS app say: /SyncStatus reports it.
+    changed = re.sub(
+        r'(<SyncStatus\b[^>]*?)\bvolume="\d+"',
+        r'\1volume="40"',
+        fixture_text(LABEL, SLAVE_1, "sync_status"),
+    ).replace('etag="108"', 'etag="109"')
+    patch_session.player(SLAVE_1).push("/SyncStatus", changed)
     await wait_for(lambda: volume() == 0.40)

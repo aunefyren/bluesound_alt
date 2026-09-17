@@ -19,7 +19,7 @@ from homeassistant.components.media_player import (
 )
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.exceptions import ServiceValidationError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.dispatcher import (
     async_dispatcher_connect,
@@ -306,16 +306,27 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         await self.coordinator.async_request_refresh()
 
     async def async_set_volume_level(self, volume: float) -> None:
+        """Set this player's volume, showing the new level right away."""
         self._optimistic_volume = volume
         self.async_write_ha_state()
-        await self.coordinator.async_request_api("/Volume", level=int(volume * 100))
-        await self.coordinator.async_refresh_individual_volume()
+        await self._send_volume(level=round(volume * 100))
 
     async def async_mute_volume(self, mute: bool) -> None:
+        """Mute or unmute this player, showing the change right away."""
         self._optimistic_muted = mute
         self.async_write_ha_state()
-        await self.coordinator.async_request_api("/Volume", mute=int(mute))
-        await self.coordinator.async_request_refresh()
+        await self._send_volume(mute=int(mute))
+
+    async def _send_volume(self, **params: int) -> None:
+        """Send a /Volume change and show what the player says it now is."""
+        try:
+            answer = await self.coordinator.async_request_api("/Volume", **params)
+        except HomeAssistantError:
+            self._optimistic_volume = None
+            self._optimistic_muted = None
+            self.async_write_ha_state()
+            raise
+        self.coordinator.async_apply_volume_answer(answer)
 
     async def async_select_source(self, source: str) -> None:
         for s in self.coordinator.sources:

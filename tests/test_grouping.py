@@ -122,6 +122,52 @@ async def test_add_speaker_from_a_follower(
     assert_not_nested(patch_session)
 
 
+async def test_leader_shows_follower_added_in_steps(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """The leader's card catches up when a player lists a new follower late.
+
+    Reported from real use: after adding the soundbar, its own card showed the
+    group but the C700's never did, not even after reloading.
+    """
+    await setup_home(hass)
+    patch_session.grouping.staged_adds = True
+
+    await join(hass, C700, [FLEX_1, FLEX_2, SOUNDBAR_ENTITY])
+
+    await wait_for(
+        lambda: (
+            sorted(group_members(hass, C700))
+            == sorted([C700, FLEX_1, FLEX_2, SOUNDBAR_ENTITY])
+        )
+    )
+
+
+async def test_leader_shows_follower_added_outside_home_assistant(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """A speaker grouped from the BluOS app shows up on the leader's card.
+
+    The leader's /Status says a regroup began, but only /SyncStatus reports
+    the new follower once the player has finished listing it.
+    """
+    await setup_home(hass)
+    model = patch_session.grouping
+    model.staged_adds = True
+
+    # As the BluOS app would: straight to the player, not through Home Assistant.
+    model.add_slave(MASTER, {"slave": SOUNDBAR[0], "port": str(SOUNDBAR[1])})
+    await hass.async_block_till_done()
+    model.settle()
+
+    await wait_for(
+        lambda: (
+            sorted(group_members(hass, C700))
+            == sorted([C700, FLEX_1, FLEX_2, SOUNDBAR_ENTITY])
+        )
+    )
+
+
 async def test_move_follower_to_another_speaker(
     hass: HomeAssistant, patch_session: FakeBluOS
 ) -> None:

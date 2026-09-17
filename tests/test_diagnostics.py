@@ -98,7 +98,7 @@ async def test_slave(hass: HomeAssistant, patch_session: FakeBluOS) -> None:
     assert result["group"]["role"] == "slave"
     assert result["group"]["master_ip"] == "**REDACTED**"
     assert result["individual_volume"] == 31
-    assert result["volume_loop_running"] is True
+    assert result["sync_loop_running"] is True
     dumped = json.dumps(result)
     for value in [*identifiers(SLAVE_1, SLAVE_1_MAC), MASTER[0]]:
         assert value not in dumped

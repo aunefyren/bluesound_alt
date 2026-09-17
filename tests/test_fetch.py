@@ -290,10 +290,10 @@ async def test_play_path_sent_verbatim(
 
 
 async def test_individual_volume(hass: HomeAssistant, patch_session: FakeBluOS) -> None:
-    """A slave's own volume is read from /Volume."""
+    """A player's own volume comes from /SyncStatus, grouped or not."""
     coordinator = await coordinator_for(hass, patch_session, SLAVE_1)
 
-    assert await coordinator._fetch_volume() == 31
-
-    patch_session.player(SLAVE_1).offline = True
-    assert await coordinator._fetch_volume() is None
+    assert coordinator.individual_volume == 31
+    info = await _fetch_sync_info(patch_session, *SOUNDBAR)
+    assert info is not None
+    assert info.volume == 61

@@ -5,6 +5,9 @@ DOMAIN = "bluesound_alt"
 DEFAULT_PORT = 11000
 POLL_INTERVAL = 1
 LONG_POLL_TIMEOUT = 100
+# The BluOS API asks for at least this many seconds between long polls of one
+# resource, even when an answer comes back sooner.
+LONG_POLL_MIN_INTERVAL = 1
 NODE_OFFLINE_CHECK_TIMEOUT = 10
 # Seconds to wait before retrying after a player stops answering.
 RETRY_DELAY = 10
