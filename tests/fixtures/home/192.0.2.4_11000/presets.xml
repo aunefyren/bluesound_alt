@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<presets prid="0">
+  <preset id="1" name="Soundbar" url="Capture:spdif-input?id=input2" image="/images/capture/ic_tv.png" volume="57"></preset>
+</presets>

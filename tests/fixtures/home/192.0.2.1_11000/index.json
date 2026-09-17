@@ -1,0 +1,143 @@
+{
+  "label": "home",
+  "probedAt": "2026-09-17T14:34:16",
+  "host": "192.0.2.1",
+  "port": 11000,
+  "requests": [
+    {
+      "name": "sync_status",
+      "path": "/SyncStatus",
+      "params": {},
+      "status": 200,
+      "file": "sync_status.xml"
+    },
+    {
+      "name": "status",
+      "path": "/Status",
+      "params": {},
+      "status": 200,
+      "file": "status.xml"
+    },
+    {
+      "name": "volume",
+      "path": "/Volume",
+      "params": {},
+      "status": 200,
+      "file": "volume.xml"
+    },
+    {
+      "name": "presets",
+      "path": "/Presets",
+      "params": {},
+      "status": 200,
+      "file": "presets.xml"
+    },
+    {
+      "name": "status_long_poll",
+      "path": "/Status",
+      "params": {
+        "timeout": "3",
+        "etag": "f2dcb25b54c99beec284a0151d02e6e6"
+      },
+      "status": 200,
+      "file": "status_long_poll.xml"
+    },
+    {
+      "name": "browse_root",
+      "path": "/Browse",
+      "params": {},
+      "status": 200,
+      "file": "browse_root.xml"
+    },
+    {
+      "name": "browse_d1_01",
+      "path": "/Browse",
+      "params": {
+        "key": "BluOS:"
+      },
+      "status": 200,
+      "file": "browse_d1_01.xml"
+    },
+    {
+      "name": "browse_d1_02",
+      "path": "/Browse",
+      "params": {
+        "key": "Airable:"
+      },
+      "status": 200,
+      "file": "browse_d1_02.xml"
+    },
+    {
+      "name": "browse_d1_03",
+      "path": "/Browse",
+      "params": {
+        "key": "RadioParadise:"
+      },
+      "status": 200,
+      "file": "browse_d1_03.xml"
+    },
+    {
+      "name": "browse_d1_04",
+      "path": "/Browse",
+      "params": {
+        "key": "TuneIn:"
+      },
+      "status": 200,
+      "file": "browse_d1_04.xml"
+    },
+    {
+      "name": "browse_d2_05",
+      "path": "/Browse",
+      "params": {
+        "key": "Airable:BrowseMenu/%2FRadioBrowse%3Fservice=Airable&url=https%253A%252F%252F0000000000.airable.io%252Fradio%252Fstations%252Fcharts"
+      },
+      "status": 200,
+      "file": "browse_d2_05.xml"
+    },
+    {
+      "name": "browse_d2_06",
+      "path": "/Browse",
+      "params": {
+        "key": "Airable:BrowseMenu/%2FRadioBrowse%3Fservice=Airable&url=https%253A%252F%252F0000000000.airable.io%252Fradio%252Fplace%252F9852856029290707"
+      },
+      "status": 200,
+      "file": "browse_d2_06.xml"
+    },
+    {
+      "name": "browse_d2_07",
+      "path": "/Browse",
+      "params": {
+        "key": "Airable:BrowseMenu/%2FRadioBrowse%3Fservice=Airable&url=https%253A%252F%252F0000000000.airable.io%252Fradio%252Flocal"
+      },
+      "status": 200,
+      "file": "browse_d2_07.xml"
+    },
+    {
+      "name": "browse_d2_11",
+      "path": "/Browse",
+      "params": {
+        "key": "TuneIn:BrowseMenu/%2FRadioBrowse%3Fservice=TuneIn&url=https%253A%252F%252Fapi.radiotime.com%252Fcategories%252Fhome%253Fserial%253DREDACTED%2526partnerId%253D8OeGua6y%2526version%253D2%2526formats%253Dwma%25252cmp3%25252caac%25252cogg%25252chls%2526viewModel%253DFalse%2526itemToken%253DBggIAAEAAQABAAEAAQEAAQgAAA"
+      },
+      "status": 200,
+      "file": "browse_d2_11.xml"
+    },
+    {
+      "name": "browse_d2_12",
+      "path": "/Browse",
+      "params": {
+        "key": "TuneIn:BrowseMenu/%2FRadioBrowse%3Fservice=TuneIn&url=presets"
+      },
+      "status": 200,
+      "file": "browse_d2_12.xml"
+    },
+    {
+      "name": "browse_d2_13",
+      "path": "/Browse",
+      "params": {
+        "key": "TuneIn:BrowseMenu/%2FRadioBrowse%3Fservice=TuneIn&url=https%253A%252F%252Fapi.radiotime.com%252Fcategories%252Flocal%253Fserial%253DREDACTED%2526partnerId%253D8OeGua6y%2526version%253D2%2526formats%253Dwma%25252cmp3%25252caac%25252cogg%25252chls%2526viewModel%253DFalse%2526itemToken%253DBggIAAMAAwABAAEAAQEAAQgAAA"
+      },
+      "status": 200,
+      "file": "browse_d2_13.xml"
+    }
+  ]
+}

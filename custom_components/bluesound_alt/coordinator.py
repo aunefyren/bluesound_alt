@@ -2,19 +2,28 @@
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Coroutine
 from dataclasses import dataclass, field
 import logging
 from typing import Any
+from xml.parsers.expat import ExpatError
 
 import aiohttp
 import xmltodict
 from yarl import URL
 
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import DOMAIN, LONG_POLL_TIMEOUT, NODE_OFFLINE_CHECK_TIMEOUT
+from .const import (
+    DOMAIN,
+    LONG_POLL_TIMEOUT,
+    MAX_BROWSE_PAGES,
+    NODE_OFFLINE_CHECK_TIMEOUT,
+    RETRY_DELAY,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -59,9 +68,12 @@ class BluesoundSyncInfo:
 class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
     """Coordinator for a single Bluesound player."""
 
+    config_entry: ConfigEntry
+
     def __init__(
         self,
         hass: HomeAssistant,
+        config_entry: ConfigEntry,
         host: str,
         port: int,
         sync_info: BluesoundSyncInfo,
@@ -69,6 +81,7 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
         super().__init__(
             hass,
             _LOGGER,
+            config_entry=config_entry,
             name=f"{DOMAIN}_{host}",
             update_interval=None,
         )
@@ -118,7 +131,10 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
                 raise UpdateFailed(f"Bad status {resp.status} from {url}")
             text = await resp.text()
 
-        return _parse_status(text)
+        try:
+            return _parse_status(text)
+        except ExpatError as err:
+            raise UpdateFailed(f"Malformed status from {url}: {err}") from err
 
     async def _fetch_volume(self) -> int | None:
         """Fetch /Volume and return the device's individual volume level."""
@@ -142,8 +158,12 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
     async def async_refresh_individual_volume(self) -> None:
         """Fetch /Volume, store individual volume, notify listeners."""
         vol = await self._fetch_volume()
-        if vol is not None and self.data is not None:
-            self.individual_volume = vol
+        if vol is None:
+            return
+        # Kept even before the first status arrives, which is exactly when
+        # this runs during setup; otherwise a slave starts on the group volume.
+        self.individual_volume = vol
+        if self.data is not None:
             self.async_set_updated_data(self.data)
 
     async def _refresh_group_topology(self) -> None:
@@ -165,11 +185,23 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
             else:
                 self._stop_volume_poll_loop()
 
+    def _start_background(
+        self, target: Coroutine[Any, Any, None], name: str
+    ) -> asyncio.Task[None]:
+        """Run a loop for as long as the player is set up.
+
+        A background task, so Home Assistant does not wait on it as if it were
+        setup work, and it is cancelled when the entry unloads.
+        """
+        return self.config_entry.async_create_background_task(
+            self.hass, target, name=f"{DOMAIN}_{name}_{self.host}"
+        )
+
     def _start_volume_poll_loop(self) -> None:
         if self._volume_poll_task and not self._volume_poll_task.done():
             return
-        self._volume_poll_task = self.hass.async_create_task(
-            self._volume_poll_loop(), name=f"bluesound_alt_volume_{self.host}"
+        self._volume_poll_task = self._start_background(
+            self._volume_poll_loop(), "volume"
         )
 
     def _stop_volume_poll_loop(self) -> None:
@@ -198,35 +230,37 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
                     timeout=aiohttp.ClientTimeout(total=request_timeout),
                 ) as resp:
                     if resp.status != 200:
-                        await asyncio.sleep(NODE_OFFLINE_CHECK_TIMEOUT)
-                        continue
+                        raise UpdateFailed(f"Bad status {resp.status} from {url}")
                     text = await resp.text()
 
-                parsed = xmltodict.parse(text)
-                vol_data = parsed.get("volume", {})
+                vol_data = xmltodict.parse(text).get("volume")
                 if isinstance(vol_data, dict):
                     new_etag = vol_data.get("@etag")
                     vol = _safe_int(vol_data.get("#text"))
                 else:
                     new_etag = None
                     vol = _safe_int(vol_data)
-
-                etag = new_etag
-                if self.data is not None:
-                    self.individual_volume = vol
-                    self.async_set_updated_data(self.data)
-
-            except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+            except (aiohttp.ClientError, TimeoutError, UpdateFailed, ExpatError) as err:
                 _LOGGER.debug("Volume poll error for %s: %s", self.host, err)
                 etag = None
-                await asyncio.sleep(NODE_OFFLINE_CHECK_TIMEOUT)
-            except asyncio.CancelledError:
-                return
+                await asyncio.sleep(RETRY_DELAY)
+                continue
+            except Exception:
+                # Whatever goes wrong, a dead loop would freeze the volume.
+                _LOGGER.exception("Unexpected error polling volume on %s", self.host)
+                etag = None
+                await asyncio.sleep(RETRY_DELAY)
+                continue
+
+            etag = new_etag
+            self.individual_volume = vol
+            if self.data is not None:
+                self.async_set_updated_data(self.data)
 
     async def _async_update_data(self) -> BluesoundData:
         try:
             data = await self._fetch_status(etag=None)
-        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+        except (aiohttp.ClientError, TimeoutError) as err:
             raise UpdateFailed(f"Cannot connect to {self.host}: {err}") from err
 
         await self._maybe_refresh_topology(data)
@@ -247,26 +281,35 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
     def _start_long_poll_loop(self) -> None:
         if self._long_poll_task and not self._long_poll_task.done():
             return
-        self._long_poll_task = self.hass.async_create_task(
-            self._long_poll_loop(), name=f"bluesound_alt_poll_{self.host}"
-        )
+        self._long_poll_task = self._start_background(self._long_poll_loop(), "poll")
 
     async def _long_poll_loop(self) -> None:
+        """Follow the player's state until the entry unloads.
+
+        Any failure marks the player unavailable and retries after a pause;
+        the loop only ends when it is cancelled.
+        """
         etag: str | None = self.data.etag if self.data else None
 
         while True:
             try:
                 data = await self._fetch_status(etag=etag)
                 await self._maybe_refresh_topology(data)
-                etag = data.etag
-                self.async_set_updated_data(data)
-            except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+            except (aiohttp.ClientError, TimeoutError, UpdateFailed) as err:
                 _LOGGER.debug("Long-poll error for %s: %s, retrying", self.host, err)
-                self.async_set_update_error(UpdateFailed(str(err)))
+                self.async_set_update_error(err)
                 etag = None
-                await asyncio.sleep(NODE_OFFLINE_CHECK_TIMEOUT)
-            except asyncio.CancelledError:
-                return
+                await asyncio.sleep(RETRY_DELAY)
+                continue
+            except Exception as err:
+                _LOGGER.exception("Unexpected error polling %s", self.host)
+                self.async_set_update_error(err)
+                etag = None
+                await asyncio.sleep(RETRY_DELAY)
+                continue
+
+            etag = data.etag
+            self.async_set_updated_data(data)
 
     async def async_request_api(self, path: str, **params: Any) -> None:
         session = self._get_session()
@@ -279,11 +322,30 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
             ) as resp:
                 if resp.status != 200:
                     _LOGGER.warning("Command %s returned %s", url, resp.status)
-        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+        except (aiohttp.ClientError, TimeoutError) as err:
             _LOGGER.error("Command %s failed: %s", url, err)
 
     async def async_browse(self, key: str | None = None) -> list[dict[str, str | None]]:
-        """Fetch /Browse (optionally for a browseKey) and return parsed items."""
+        """Fetch /Browse (optionally for a browseKey) and return parsed items.
+
+        Long menus come a page at a time, each pointing to the next with a
+        nextKey; pages are followed up to MAX_BROWSE_PAGES.
+        """
+        items: list[dict[str, str | None]] = []
+        for _ in range(MAX_BROWSE_PAGES):
+            page = await self._browse_page(key)
+            if page is None:
+                break
+            page_items, key = page
+            items.extend(page_items)
+            if not key:
+                break
+        return items
+
+    async def _browse_page(
+        self, key: str | None
+    ) -> tuple[list[dict[str, str | None]], str | None] | None:
+        """Fetch one page of a browse menu, returning its items and nextKey."""
         session = self._get_session()
         url = f"{self._base_url()}/Browse"
         params = {"key": key} if key else None
@@ -295,12 +357,14 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
             ) as resp:
                 if resp.status != 200:
                     _LOGGER.warning("Browse %s returned %s", key, resp.status)
-                    return []
+                    return None
                 text = await resp.text()
-        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+            return _parse_browse(text)
+        except (aiohttp.ClientError, TimeoutError) as err:
             _LOGGER.error("Browse %s failed: %s", key, err)
-            return []
-        return _parse_browse_items(text)
+        except ExpatError as err:
+            _LOGGER.error("Browse %s returned malformed XML: %s", key, err)
+        return None
 
     async def async_play_path(self, path: str) -> None:
         """GET a device-provided relative URL (e.g. a browse playURL) verbatim.
@@ -317,7 +381,7 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
             ) as resp:
                 if resp.status != 200:
                     _LOGGER.warning("Play %s returned %s", path, resp.status)
-        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+        except (aiohttp.ClientError, TimeoutError) as err:
             _LOGGER.error("Play %s failed: %s", path, err)
 
     def stop(self) -> None:
@@ -338,7 +402,7 @@ async def _fetch_sync_info(
             if resp.status != 200:
                 return None
             text = await resp.text()
-    except (aiohttp.ClientError, asyncio.TimeoutError):
+    except (aiohttp.ClientError, TimeoutError):
         return None
 
     try:
@@ -395,7 +459,7 @@ async def _fetch_sources(
             if resp.status != 200:
                 return []
             text = await resp.text()
-    except (aiohttp.ClientError, asyncio.TimeoutError):
+    except (aiohttp.ClientError, TimeoutError):
         return []
 
     try:
@@ -435,7 +499,7 @@ async def _fetch_presets(
             if resp.status != 200:
                 return []
             text = await resp.text()
-    except (aiohttp.ClientError, asyncio.TimeoutError):
+    except (aiohttp.ClientError, TimeoutError):
         return []
 
     try:
@@ -460,17 +524,35 @@ async def _fetch_presets(
         return []
 
 
+def _as_list(value: Any) -> list[Any]:
+    """Normalise xmltodict's one-or-many child elements to a list."""
+    if value is None:
+        return []
+    return value if isinstance(value, list) else [value]
+
+
 def _parse_browse_items(xml_text: str) -> list[dict[str, str | None]]:
-    """Parse a /Browse response into [{name, image, browse_key, play_url}].
+    """Parse a /Browse response into [{name, image, browse_key, play_url}]."""
+    return _parse_browse(xml_text)[0]
+
+
+def _parse_browse(
+    xml_text: str,
+) -> tuple[list[dict[str, str | None]], str | None]:
+    """Parse one /Browse page into its items and the key of the next page.
 
     play_url is the device-provided relative URL (e.g. /Play?url=...) kept
     verbatim so it can be replayed exactly via async_play_path().
     """
     parsed = xmltodict.parse(xml_text)
     root = parsed.get("browse") or parsed.get("radiotime") or {}
-    items = root.get("item", [])
-    if isinstance(items, dict):
-        items = [items]
+
+    # Menus either list items directly or group them into categories
+    # ("Recents", "MQA"), which are flattened in order.
+    items = _as_list(root.get("item"))
+    for category in _as_list(root.get("category")):
+        if isinstance(category, dict):
+            items.extend(_as_list(category.get("item")))
 
     result: list[dict[str, str | None]] = []
     for item in items:
@@ -499,12 +581,13 @@ def _parse_browse_items(xml_text: str) -> list[dict[str, str | None]]:
                 "play_url": play_url,
             }
         )
-    return result
+    return result, root.get("@nextKey") or None
 
 
 def _parse_status(xml_text: str) -> BluesoundData:
     parsed = xmltodict.parse(xml_text)
-    s = parsed.get("status", {})
+    # An element with no attributes or children parses to None, not a dict.
+    s = parsed.get("status") or {}
 
     data = BluesoundData()
     data.etag = s.get("@etag")

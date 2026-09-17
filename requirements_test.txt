@@ -1,0 +1,9 @@
+# Test and lint tooling. pytest-homeassistant-custom-component pulls in
+# Home Assistant itself along with the pytest plugins it needs, and tracks
+# Home Assistant releases -- bump it when targeting a newer HA.
+pytest-homeassistant-custom-component
+ruff
+
+# The integration's own requirements, from manifest.json. Home Assistant
+# installs these at runtime; tests import the code directly, so they don't.
+xmltodict==0.13.0

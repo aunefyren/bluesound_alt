@@ -1,0 +1,12 @@
+# Test runner for machines without Home Assistant's Python.
+#   docker compose -f dev/docker-compose.yml run --rm tests
+#   docker compose -f dev/docker-compose.yml run --rm tests ruff check .
+# Not -slim: a few of Home Assistant's dependencies build from source.
+FROM python:3.13
+
+WORKDIR /work
+COPY requirements_test.txt /tmp/requirements_test.txt
+RUN pip install --no-cache-dir -r /tmp/requirements_test.txt
+
+# The repository is mounted at /work, so tests always see the working tree.
+CMD ["pytest"]

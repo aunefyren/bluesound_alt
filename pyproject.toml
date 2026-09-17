@@ -1,0 +1,42 @@
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+norecursedirs = ["dev"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # import sorting
+    "B",    # bugbear
+    "UP",   # pyupgrade
+    "SIM",  # simplify
+    "RUF",  # ruff-specific
+    "ASYNC",
+    "D",    # docstrings, as Home Assistant requires
+]
+ignore = [
+    "D202",  # no blank lines after docstring, conflicts with formatting
+    "D203",
+    "D213",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# The probe scripts run on whatever Python the user has, down to 3.8, so they
+# keep `from __future__ import annotations` and the typing that goes with it.
+"dev/*" = ["UP"]
+
+[tool.ruff.lint.isort]
+# Home Assistant's import style, which the integration already follows.
+force-sort-within-sections = true
+combine-as-imports = true
+split-on-trailing-comma = false
+known-first-party = ["custom_components"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"

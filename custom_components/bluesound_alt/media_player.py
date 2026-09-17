@@ -17,15 +17,19 @@ from homeassistant.components.media_player import (
     RepeatMode,
     async_process_play_media_url,
 )
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_HOST
+from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.dispatcher import (
+    async_dispatcher_connect,
+    async_dispatcher_send,
+)
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 import homeassistant.util.dt as dt_util
 
-from .const import DEFAULT_PORT, DOMAIN
+from . import BluesoundConfigEntry
+from .const import DOMAIN
 from .coordinator import BluesoundCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -71,6 +75,10 @@ _SERVICE_LABELS: dict[str, str] = {"http": "Streaming"}
 _BLUESOUND_SCHEME = "bluesound:"
 _BLUESOUND_ROOT = "bluesound:root"
 
+# Sent when a player entity comes or goes. Group membership is resolved
+# through the other players' entities, so theirs may have changed too.
+_SIGNAL_PLAYERS_CHANGED = f"{DOMAIN}_players_changed"
+
 
 def _encode_media_id(browse_key: str | None, play_url: str | None) -> str:
     """Encode a BluOS browseKey/playURL pair into a media_content_id."""
@@ -92,11 +100,11 @@ def _decode_media_id(content_id: str) -> tuple[str | None, str | None]:
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: ConfigEntry,
+    entry: BluesoundConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    coordinator: BluesoundCoordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities([BluesoundMediaPlayer(coordinator, entry)])
+    """Add the media player for a configured player."""
+    async_add_entities([BluesoundMediaPlayer(entry.runtime_data, entry)])
 
 
 class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerEntity):
@@ -183,7 +191,7 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
     def source(self) -> str | None:
         stream_url = self.coordinator.data.stream_url
         if stream_url:
-            for s in self.coordinator.sources:
+            for s in self._playable_sources():
                 if s["play_url"] == stream_url:
                     return s["name"]
         # Push inputs (AirPlay, URL/streaming) match no /Browse source, fall
@@ -193,6 +201,18 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
             return None
         return _SERVICE_LABELS.get(data.service, data.service_name or data.service)
 
+    def _playable_sources(self) -> list[dict[str, str]]:
+        """Sources whose stream this player may be reporting.
+
+        A slave reports whatever the group plays, which is usually one of the
+        master's inputs rather than one of its own.
+        """
+        sources = self.coordinator.sources
+        master_ip = self.coordinator.group_master_ip
+        if master_ip and (master := self._find_coordinator_by_ip(master_ip)):
+            return [*sources, *master.sources]
+        return sources
+
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         return {"bluesound_group": self.group_members}
@@ -200,6 +220,27 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
     @property
     def group_members(self) -> list[str]:
         return self._resolve_group_members()
+
+    async def async_added_to_hass(self) -> None:
+        """Start following other players, and tell them about this one."""
+        await super().async_added_to_hass()
+        self.async_on_remove(
+            async_dispatcher_connect(
+                self.hass, _SIGNAL_PLAYERS_CHANGED, self._handle_players_changed
+            )
+        )
+        async_dispatcher_send(self.hass, _SIGNAL_PLAYERS_CHANGED, self)
+
+    async def async_will_remove_from_hass(self) -> None:
+        """Tell the other players this one is going."""
+        await super().async_will_remove_from_hass()
+        async_dispatcher_send(self.hass, _SIGNAL_PLAYERS_CHANGED, self)
+
+    @callback
+    def _handle_players_changed(self, sender: BluesoundMediaPlayer) -> None:
+        """Re-resolve group members after another player came or went."""
+        if sender is not self:
+            self.async_write_ha_state()
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -471,10 +512,17 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         await coord.async_refresh()
 
     def _all_coordinators(self) -> dict[str, BluesoundCoordinator]:
+        """Coordinators of every set-up player, by config entry id.
+
+        Includes players still finishing setup: their entities are added (and
+        announce themselves to the others) before the entry counts as loaded.
+        """
         return {
-            entry_id: coord
-            for entry_id, coord in self.hass.data.get(DOMAIN, {}).items()
-            if isinstance(coord, BluesoundCoordinator)
+            entry.entry_id: entry.runtime_data
+            for entry in self.hass.config_entries.async_entries(DOMAIN)
+            if entry.state
+            in (ConfigEntryState.LOADED, ConfigEntryState.SETUP_IN_PROGRESS)
+            and isinstance(getattr(entry, "runtime_data", None), BluesoundCoordinator)
         }
 
     def _find_coordinator_by_ip(self, ip: str) -> BluesoundCoordinator | None:

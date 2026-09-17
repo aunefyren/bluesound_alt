@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<browse serviceIcon="/Sources/images/BluOSRadioIcon.png" serviceName="Radio" searchKey="Airable:Search" type="items">
+  <item browseKey="Airable:BrowseMenu/%2FRadioBrowse%3Fservice=Airable&amp;url=https%253A%252F%252F0000000000.airable.io%252Fradio%252Fplace%252F9852856029290707%252Fpopular" text="Popular in Norway" type="link"></item>
+  <item browseKey="Airable:BrowseMenu/%2FRadioBrowse%3Fservice=Airable&amp;url=https%253A%252F%252F0000000000.airable.io%252Fradio%252Fplace%252F9852856029290707%252Ftrending" text="Trending" type="link"></item>
+  <item browseKey="Airable:BrowseMenu/%2FRadioBrowse%3Fservice=Airable&amp;url=https%253A%252F%252F0000000000.airable.io%252Fradio%252Fplace%252F9852856029290707%252Fupdated" text="Latest changes" type="link"></item>
+  <item browseKey="Airable:BrowseMenu/%2FRadioBrowse%3Fservice=Airable&amp;url=https%253A%252F%252F0000000000.airable.io%252Fradio%252Fplace%252F9852856029290707%252Ffeatured" text="Featured stations" type="link"></item>
+  <item browseKey="Airable:BrowseMenu/%2FRadioBrowse%3Fservice=Airable&amp;url=https%253A%252F%252F0000000000.airable.io%252Fradio%252Fnetwork%252F9415699675679208" text="NRK - Norsk rikskringkasting" image="http://static.airable.io/80/24/650422.png" type="link"></item>
+  <item browseKey="Airable:BrowseMenu/%2FRadioBrowse%3Fservice=Airable&amp;url=https%253A%252F%252F0000000000.airable.io%252Fradio%252Fplace%252F9852856029290707%252Fdab" text="DAB" type="link"></item>
+  <item browseKey="Airable:BrowseMenu/%2FRadioBrowse%3Fservice=Airable&amp;url=https%253A%252F%252F0000000000.airable.io%252Fradio%252Fplace%252F9852856029290707%252Fgenres" text="Genres" type="link"></item>
+  <item browseKey="Airable:BrowseMenu/%2FRadioBrowse%3Fservice=Airable&amp;url=https%253A%252F%252F0000000000.airable.io%252Fradio%252Fplace%252F9852856029290707%252Fcities" text="Cities" type="link"></item>
+</browse>

@@ -1,0 +1,53 @@
+name: Lint and test
+
+on:
+  push:
+  pull_request:
+  schedule:
+    # Nightly, so a Home Assistant release that breaks the integration shows
+    # up before users report it.
+    - cron: "0 0 * * *"
+
+jobs:
+  lint:
+    name: Ruff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python -m pip install ruff
+      - run: ruff check tests dev
+      - run: ruff format --check tests dev
+      # The integration predates the ruff config and still lacks docstrings
+      # and formatting, so only rules that catch real bugs are enforced there.
+      # Widen this to a plain `ruff check` once that clean-up lands.
+      - run: ruff check custom_components --select F,E9,B,ASYNC
+
+  test:
+    name: Pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements_test.txt
+      - run: python -m pip install -r requirements_test.txt
+      - run: pytest --timeout=60 --cov=custom_components.bluesound_alt --cov-report=term-missing
+
+  probe:
+    name: Probe scripts on Python 3.8
+    # dev/probe_api.py is run by users on whatever Python their machine has,
+    # so it has to keep working on old interpreters. It is standard library
+    # only, which makes a byte-compile a meaningful check.
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.8"
+      - run: python -m py_compile dev/probe_api.py dev/make_fixtures.py
+      - run: python dev/probe_api.py --help > /dev/null

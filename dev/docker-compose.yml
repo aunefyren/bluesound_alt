@@ -10,3 +10,16 @@ services:
       - ../custom_components/bluesound_alt:/config/custom_components/bluesound_alt
     environment:
       - TZ=Europe/Oslo
+
+  # Only started on demand: docker compose -f dev/docker-compose.yml run --rm tests
+  tests:
+    profiles: ["tests"]
+    build:
+      context: ..
+      dockerfile: dev/Dockerfile.test
+    volumes:
+      - ..:/work
+    # Keep caches out of the mounted repository.
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+    command: pytest -p no:cacheprovider

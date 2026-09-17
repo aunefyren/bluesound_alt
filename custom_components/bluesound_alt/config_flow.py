@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 from typing import Any
+from xml.parsers.expat import ExpatError
 
 import aiohttp
 import voluptuous as vol
@@ -40,8 +41,11 @@ class BluesoundConfigFlow(ConfigFlow, domain=DOMAIN):
 
             try:
                 sync_status = await self._fetch_sync_status(host, port)
-            except aiohttp.ClientError:
+            except (aiohttp.ClientError, TimeoutError):
                 errors["base"] = "cannot_connect"
+            except ExpatError:
+                # Something answered, but not with XML: not a BluOS player.
+                errors["base"] = "invalid_response"
             except Exception:
                 _LOGGER.exception("Unexpected error during config flow")
                 errors["base"] = "unknown"

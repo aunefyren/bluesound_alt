@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<browse type="menu">
+  <item browseKey="BluOS:" text="Playlists" image="/images/ci_myplaylists.png" type="link"></item>
+  <item playURL="/Play?url=Capture%3Abluez%3Abluetooth" text="Bluetooth" image="/images/BluetoothIcon.png" type="audio" inputType="bluetooth"></item>
+  <item browseKey="Airable:" text="Radio" image="/Sources/images/BluOSRadioIcon.png" type="link"></item>
+  <item browseKey="RadioParadise:" text="Radio Paradise" image="/Sources/images/RadioParadiseIcon.png" type="link"></item>
+  <item browseKey="TuneIn:" text="TuneIn" image="/Sources/images/TuneInIcon.png" type="link"></item>
+</browse>
