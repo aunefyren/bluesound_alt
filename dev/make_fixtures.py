@@ -115,6 +115,7 @@ def write_dump(src: pathlib.Path) -> bool:
                     "probedAt": dump["probedAt"],
                     "host": player["host"],
                     "port": player["port"],
+                    **({"role": player["role"]} if "role" in player else {}),
                     "requests": index,
                 },
                 indent=2,
@@ -124,6 +125,21 @@ def write_dump(src: pathlib.Path) -> bool:
             encoding="utf-8",
         )
         print(f"wrote {player_dir} ({len(index)} responses)")
+
+    # Grouping captures (dev/probe_grouping.py) are a sequence of changes, each
+    # with what every player reported as it settled; kept whole, in order.
+    if "steps" in dump:
+        steps_file = label_dir / "steps.json"
+        steps_file.write_text(
+            json.dumps(
+                {"probedAt": dump["probedAt"], "steps": dump["steps"]},
+                indent=2,
+                ensure_ascii=False,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        print(f"wrote {steps_file} ({len(dump['steps'])} steps)")
     return True
 
 

@@ -1,0 +1,23 @@
+{
+  "label": "grouping-leader-leaves",
+  "probedAt": "2026-09-17T15:42:37",
+  "host": "192.0.2.3",
+  "port": 11000,
+  "role": "C",
+  "requests": [
+    {
+      "name": "sync_status",
+      "path": "/SyncStatus",
+      "params": {},
+      "status": 200,
+      "file": "sync_status.xml"
+    },
+    {
+      "name": "status",
+      "path": "/Status",
+      "params": {},
+      "status": 200,
+      "file": "status.xml"
+    }
+  ]
+}

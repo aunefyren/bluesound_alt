@@ -14,6 +14,7 @@ from yarl import URL
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
@@ -62,7 +63,44 @@ class BluesoundSyncInfo:
     port: int = 11000
     # Group topology, master_ip set means this player is a slave
     master_ip: str | None = None
+    master_port: int = 11000
     slaves: list[dict[str, Any]] = field(default_factory=list)
+    # The secondary player of a fixed group (a stereo pair, say), which only
+    # moves with its primary and must not be regrouped on its own.
+    fixed_secondary: bool = False
+
+
+class BluesoundCommandError(HomeAssistantError):
+    """A player refused a command.
+
+    Players answer most failures with HTTP 200 and an <error> body, so the
+    reason is kept for callers that can recover from particular refusals.
+    """
+
+    def __init__(self, host: str, command: str, reason: str) -> None:
+        """Describe which player refused which command, and why."""
+        super().__init__(
+            translation_domain=DOMAIN,
+            translation_key="command_failed",
+            translation_placeholders={
+                "host": host,
+                "command": command,
+                "reason": reason,
+            },
+        )
+        self.reason = reason
+
+
+class BluesoundUnreachableError(HomeAssistantError):
+    """A player did not answer a command."""
+
+    def __init__(self, host: str, error: str) -> None:
+        """Describe which player could not be reached."""
+        super().__init__(
+            translation_domain=DOMAIN,
+            translation_key="cannot_reach",
+            translation_placeholders={"host": host, "error": error},
+        )
 
 
 class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
@@ -311,19 +349,15 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
             etag = data.etag
             self.async_set_updated_data(data)
 
-    async def async_request_api(self, path: str, **params: Any) -> None:
-        session = self._get_session()
-        url = f"{self._base_url()}{path}"
-        try:
-            async with session.get(
-                url,
-                params=params or None,
-                timeout=aiohttp.ClientTimeout(total=NODE_OFFLINE_CHECK_TIMEOUT),
-            ) as resp:
-                if resp.status != 200:
-                    _LOGGER.warning("Command %s returned %s", url, resp.status)
-        except (aiohttp.ClientError, TimeoutError) as err:
-            _LOGGER.error("Command %s failed: %s", url, err)
+    async def async_request_api(self, path: str, **params: Any) -> str:
+        """Send a command to the player and return its answer.
+
+        Raises BluesoundCommandError when the player refuses it, and
+        BluesoundUnreachableError when it does not answer.
+        """
+        return await async_send_command(
+            self._get_session(), f"{self._base_url()}{path}", params
+        )
 
     async def async_browse(self, key: str | None = None) -> list[dict[str, str | None]]:
         """Fetch /Browse (optionally for a browseKey) and return parsed items.
@@ -372,22 +406,54 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
         The path is already percent-encoded by the device, so it is sent
         unchanged (encoded=True) rather than decoded and rebuilt.
         """
-        session = self._get_session()
-        url = URL(f"{self._base_url()}{path}", encoded=True)
-        try:
-            async with session.get(
-                url,
-                timeout=aiohttp.ClientTimeout(total=NODE_OFFLINE_CHECK_TIMEOUT),
-            ) as resp:
-                if resp.status != 200:
-                    _LOGGER.warning("Play %s returned %s", path, resp.status)
-        except (aiohttp.ClientError, TimeoutError) as err:
-            _LOGGER.error("Play %s failed: %s", path, err)
+        await async_send_command(
+            self._get_session(), URL(f"{self._base_url()}{path}", encoded=True)
+        )
 
     def stop(self) -> None:
         if self._long_poll_task and not self._long_poll_task.done():
             self._long_poll_task.cancel()
         self._stop_volume_poll_loop()
+
+
+async def async_send_command(
+    session: aiohttp.ClientSession,
+    url: str | URL,
+    params: dict[str, Any] | None = None,
+) -> str:
+    """Send a command to a player and return its answer, raising on refusal."""
+    target = URL(url) if isinstance(url, str) else url
+    host, command = target.host or "", target.path
+    try:
+        async with session.get(
+            url,
+            params=params or None,
+            timeout=aiohttp.ClientTimeout(total=NODE_OFFLINE_CHECK_TIMEOUT),
+        ) as resp:
+            status = resp.status
+            text = await resp.text()
+    except (aiohttp.ClientError, TimeoutError) as err:
+        raise BluesoundUnreachableError(host, str(err) or type(err).__name__) from err
+
+    if status != 200:
+        raise BluesoundCommandError(host, command, f"HTTP {status}")
+    if (reason := _error_reason(text)) is not None:
+        raise BluesoundCommandError(host, command, reason)
+    return text
+
+
+def _error_reason(text: str) -> str | None:
+    """Return the reason from an <error> answer, or None for anything else."""
+    try:
+        parsed = xmltodict.parse(text)
+    except ExpatError:
+        return None
+    if not isinstance(parsed, dict) or "error" not in parsed:
+        return None
+    error = parsed["error"]
+    if isinstance(error, dict):
+        error = error.get("#text")
+    return (error or "").strip() or "unknown error"
 
 
 async def _fetch_sync_info(
@@ -428,10 +494,12 @@ async def _fetch_sync_info(
 
         # Master, text content of <master> element, not an attribute
         master_ip: str | None = None
+        master_port = 11000
         master_raw = sync.get("master")
         if master_raw:
             if isinstance(master_raw, dict):
                 master_ip = master_raw.get("#text") or None
+                master_port = _safe_int(master_raw.get("@port"), 11000)
             elif isinstance(master_raw, str) and master_raw.strip():
                 master_ip = master_raw.strip()
 
@@ -442,7 +510,9 @@ async def _fetch_sync_info(
             ip=host,
             port=port,
             master_ip=master_ip,
+            master_port=master_port,
             slaves=slaves,
+            fixed_secondary=sync.get("@zoneSlave") == "true",
         )
     except Exception:
         _LOGGER.exception("Failed to parse SyncStatus from %s", host)

@@ -108,3 +108,74 @@ def test_encoding_is_preserved(scrubber) -> None:
     )
 
     assert scrubber.scrub_xml(body) == body
+
+
+@pytest.fixture(scope="module")
+def probe_grouping(probe: ModuleType) -> ModuleType:
+    """Import dev/probe_grouping.py, which imports probe_api by plain name."""
+    spec = importlib.util.spec_from_file_location(
+        "probe_grouping", DEV / "probe_grouping.py"
+    )
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_grouping_dump_is_scrubbed_throughout(probe_grouping: ModuleType) -> None:
+    """Identifiers go from every part of a grouping step, not just the baseline."""
+    sync = (
+        '<SyncStatus name="Kari&apos;s Office" mac="02:AA:BB:CC:DD:EE" '
+        'id="192.168.1.20:11000" group="Kari&apos;s Office + 1">'
+        '<slave id="192.168.1.21" port="11000" name="Kitchen"/></SyncStatus>'
+    )
+
+    def record(name: str, body: str, **extra) -> dict:
+        return {
+            "name": name,
+            "path": "/x",
+            "params": {},
+            "status": 200,
+            "body": body,
+            "host": "192.168.1.20",
+            "port": 11000,
+            **extra,
+        }
+
+    status = record(
+        "status", "<status><groupName>Kari's Office + 1</groupName></status>"
+    )
+    raw = {
+        "probedAt": "2026-09-17T12:00:00",
+        "label": "grouping",
+        "players": [
+            {
+                "host": "192.168.1.20",
+                "port": 11000,
+                "role": "A",
+                "requests": [record("sync_status", sync)],
+            },
+        ],
+        "steps": [
+            {
+                "name": "add_single",
+                "action": record(
+                    "add_single",
+                    '<addSlave><slave port="11000" id="192.168.1.21"/></addSlave>',
+                    params={"slave": "192.168.1.21", "port": 11000},
+                ),
+                "timeline": [record("sync_status", sync, t_ms=5)],
+                "status_before": [status],
+                "status_after": [status],
+            }
+        ],
+    }
+
+    scrubbed, leaks = probe_grouping.scrub(raw)
+
+    dumped = str(scrubbed)
+    for identifier in ("192.168.1.2", "Kari", "Kitchen", "02:AA:BB"):
+        assert identifier not in dumped
+    assert leaks == []
+    assert scrubbed["steps"][0]["timeline"][0]["t_ms"] == 5
+    assert scrubbed["players"][0]["role"] == "A"

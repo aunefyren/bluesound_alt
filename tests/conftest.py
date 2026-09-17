@@ -26,8 +26,14 @@ from yarl import URL
 from custom_components.bluesound_alt.const import DOMAIN
 
 from .const import LABEL
+from .fake_grouping import GroupModel
 
 FIXTURES = pathlib.Path(__file__).parent / "fixtures"
+
+# Commands the probe never captures, as it only reads. Players accept them
+# with a short XML answer.
+COMMANDS = {"/Play", "/Pause", "/Stop", "/Skip", "/Back", "/Shuffle", "/Repeat"}
+COMMANDS |= {"/Preset", "/Volume"}
 
 
 @pytest.fixture(autouse=True)
@@ -106,10 +112,17 @@ class FakePlayer:
     # poll waits until the test pushes something, as a real player waits
     # until something changes.
     _long_polls: dict[str, asyncio.Queue[tuple[int, str]]] = field(default_factory=dict)
+    # Answers grouping requests, and /SyncStatus and /Status once regrouped.
+    model: GroupModel | None = None
 
     def push(self, path: str, body: str, status: int = 200) -> None:
         """Answer the next long poll on a path, e.g. "/Status"."""
         self._long_poll_queue(path).put_nowait((status, body))
+
+    def captured(self, name: str) -> str:
+        """Return a captured response body by request name."""
+        entry = next(e for e in self.responses if e["name"] == name)
+        return (self.directory / entry["file"]).read_text(encoding="utf-8")
 
     def _long_poll_queue(self, path: str) -> asyncio.Queue[tuple[int, str]]:
         return self._long_polls.setdefault(path, asyncio.Queue())
@@ -127,13 +140,33 @@ class FakePlayer:
         if (request.path, query) in self.overrides:
             return FakeResponse(*self.overrides[(request.path, query)])
 
+        if self.model is not None and (grouped := self._grouping(request)):
+            return grouped
+
         if "etag" in request.query:
             return FakeResponse(pending=self._long_poll_queue(request.path).get())
 
         for entry in self.responses:
             if entry["path"] == request.path and entry["params"] == request.query:
                 return self._from_entry(entry)
+        if request.path in COMMANDS:
+            return FakeResponse(200, '<?xml version="1.0" encoding="UTF-8"?>\n<ok/>')
         return FakeResponse(404, "")
+
+    def _grouping(self, request: Request) -> FakeResponse | None:
+        """Answer from the group model where it has taken over."""
+        assert self.model is not None
+        address = (self.host, self.port)
+        if request.path == "/AddSlave":
+            return FakeResponse(200, self.model.add_slave(address, request.query))
+        if request.path == "/RemoveSlave":
+            return FakeResponse(200, self.model.remove_slave(address, request.query))
+        if address in self.model.changed and "etag" not in request.query:
+            if request.path == "/SyncStatus":
+                return FakeResponse(200, self.model.sync_status(address))
+            if request.path == "/Status":
+                return FakeResponse(200, self.model.status(address))
+        return None
 
     def _named(self, name: str) -> FakeResponse:
         entry = next(e for e in self.responses if e["name"] == name)
@@ -162,6 +195,9 @@ class FakeBluOS:
                 responses=index["requests"],
                 directory=index_file.parent,
             )
+        self.grouping = GroupModel(self.players)
+        for player in self.players.values():
+            player.model = self.grouping
 
     @property
     def closed(self) -> bool:

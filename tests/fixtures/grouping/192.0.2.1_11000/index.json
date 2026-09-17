@@ -1,0 +1,23 @@
+{
+  "label": "grouping",
+  "probedAt": "2026-09-17T15:35:07",
+  "host": "192.0.2.1",
+  "port": 11000,
+  "role": "A",
+  "requests": [
+    {
+      "name": "sync_status",
+      "path": "/SyncStatus",
+      "params": {},
+      "status": 200,
+      "file": "sync_status.xml"
+    },
+    {
+      "name": "status",
+      "path": "/Status",
+      "params": {},
+      "status": 200,
+      "file": "status.xml"
+    }
+  ]
+}

@@ -1,0 +1,2379 @@
+{
+  "probedAt": "2026-09-17T15:35:07",
+  "steps": [
+    {
+      "name": "setup_dissolve_A",
+      "description": "A removes all its secondaries in one request",
+      "action": {
+        "path": "/RemoveSlave",
+        "params": {
+          "slaves": "192.0.2.2,192.0.2.3",
+          "ports": "11000,11000"
+        },
+        "status": 200,
+        "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"39\" syncStat=\"39\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.1\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 1 + 2\" mac=\"00:00:5E:00:53:01\"><slave id=\"192.0.2.2\" port=\"11000\" name=\"Player 2\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><slave id=\"192.0.2.3\" port=\"11000\" name=\"Player 3\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><bluetoothOutput></bluetoothOutput></SyncStatus>",
+        "elapsed_ms": 9,
+        "host": "192.0.2.1",
+        "port": 11000,
+        "name": "setup_dissolve_A"
+      },
+      "timeline": [
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"39\" syncStat=\"39\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.1\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 1 + 2\" mac=\"00:00:5E:00:53:01\"><slave id=\"192.0.2.2\" port=\"11000\" name=\"Player 2\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><slave id=\"192.0.2.3\" port=\"11000\" name=\"Player 3\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 20,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 20
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"110\" syncStat=\"110\" version=\"4.16.22\" id=\"192.0.2.2:11000\" db=\"-44.8\" volume=\"16\" name=\"Player 2\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:02\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.1</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 18,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 39
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"27\" syncStat=\"27\" version=\"4.16.22\" id=\"192.0.2.3:11000\" db=\"-41.2\" volume=\"20\" name=\"Player 3\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:03\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.1</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 11,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 49
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"841\" syncStat=\"841\" version=\"4.16.22\" id=\"192.0.2.4:11000\" db=\"-28.9\" volume=\"61\" name=\"Player 4\" model=\"P430\" modelName=\"PULSE SOUNDBAR+\" class=\"soundbar\" icon=\"/images/players/P425_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:04\"><zoneOptions><option zoneMaster=\"true\">front</option></zoneOptions><pairWithSub></pairWithSub><bluetoothOutput></bluetoothOutput><audioPresetUrl url=\"/audioPreset\"></audioPresetUrl></SyncStatus>",
+          "elapsed_ms": 10,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 60
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"43\" syncStat=\"43\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.1\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:01\"><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 8,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 568
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"111\" syncStat=\"111\" version=\"4.16.22\" id=\"192.0.2.2:11000\" db=\"-44.8\" volume=\"16\" name=\"Player 2\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:02\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 9,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 577
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"28\" syncStat=\"28\" version=\"4.16.22\" id=\"192.0.2.3:11000\" db=\"-41.2\" volume=\"20\" name=\"Player 3\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:03\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 50,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 628
+        }
+      ],
+      "settled": true,
+      "status_before": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"6fb3de04a51522fe6b246c4d9ca4a6f8\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>5906</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>39</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 8,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"6fb3de04a51522fe6b246c4d9ca4a6f8\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>5906</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>39</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 37,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"6fb3de04a51522fe6b246c4d9ca4a6f8\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>5906</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>39</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 56,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"f6bb39db112db10eccee54803659d6c8\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_tvNP.png</currentImage><cursor>0</cursor><db>-28.9</db><image>/images/capture/ic_tvNP.png</image><indexing>0</indexing><inputId>input4</inputId><inputTypeIndex>earc-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><repeat>0</repeat><secs>3</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>105</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_tvNP.png</stationImage><streamUrl>Capture:hdmi-input?id=input4</streamUrl><syncStat>841</syncStat><title1>HDMI eARC</title1><twoline_title1>HDMI eARC</twoline_title1><volume>61</volume></status>",
+          "elapsed_ms": 10,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ],
+      "status_after": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"5cf442cc41c1f8ae4a201757135f1b7e\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>5911</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>43</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 8,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"7c7b8e72c0521d1f1c54cbe2ad9b4f77\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-44.8</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>10</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>111</syncStat><volume>16</volume></status>",
+          "elapsed_ms": 9,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"573349e58fd119dfbafaa0d66c441dd3\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-41.2</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>28</syncStat><volume>20</volume></status>",
+          "elapsed_ms": 12,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"f6bb39db112db10eccee54803659d6c8\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_tvNP.png</currentImage><cursor>0</cursor><db>-28.9</db><image>/images/capture/ic_tvNP.png</image><indexing>0</indexing><inputId>input4</inputId><inputTypeIndex>earc-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><repeat>0</repeat><secs>2</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>105</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_tvNP.png</stationImage><streamUrl>Capture:hdmi-input?id=input4</streamUrl><syncStat>841</syncStat><title1>HDMI eARC</title1><twoline_title1>HDMI eARC</twoline_title1><volume>61</volume></status>",
+          "elapsed_ms": 10,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ]
+    },
+    {
+      "name": "add_single",
+      "description": "A adds B",
+      "action": {
+        "path": "/AddSlave",
+        "params": {
+          "slave": "192.0.2.2",
+          "port": "11000"
+        },
+        "status": 200,
+        "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<addSlave><slave id=\"192.0.2.2\" port=\"11000\"></slave></addSlave>",
+        "elapsed_ms": 147,
+        "host": "192.0.2.1",
+        "port": 11000,
+        "name": "add_single"
+      },
+      "timeline": [
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"43\" syncStat=\"43\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.1\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:01\"><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 18,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 18
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"114\" syncStat=\"114\" version=\"4.16.22\" id=\"192.0.2.2:11000\" db=\"-44.9\" volume=\"15\" name=\"Player 2\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:02\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.1</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 17,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 35
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"28\" syncStat=\"28\" version=\"4.16.22\" id=\"192.0.2.3:11000\" db=\"-41.2\" volume=\"20\" name=\"Player 3\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:03\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 14,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 49
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"841\" syncStat=\"841\" version=\"4.16.22\" id=\"192.0.2.4:11000\" db=\"-28.9\" volume=\"61\" name=\"Player 4\" model=\"P430\" modelName=\"PULSE SOUNDBAR+\" class=\"soundbar\" icon=\"/images/players/P425_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:04\"><zoneOptions><option zoneMaster=\"true\">front</option></zoneOptions><pairWithSub></pairWithSub><bluetoothOutput></bluetoothOutput><audioPresetUrl url=\"/audioPreset\"></audioPresetUrl></SyncStatus>",
+          "elapsed_ms": 9,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 58
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"47\" syncStat=\"47\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.1\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 1+Player 2\" mac=\"00:00:5E:00:53:01\"><slave id=\"192.0.2.2\" port=\"11000\" name=\"Player 2\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 565
+        }
+      ],
+      "settled": true,
+      "status_before": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"5cf442cc41c1f8ae4a201757135f1b7e\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>5913</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>43</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"7c7b8e72c0521d1f1c54cbe2ad9b4f77\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-44.8</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>10</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>111</syncStat><volume>16</volume></status>",
+          "elapsed_ms": 10,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"573349e58fd119dfbafaa0d66c441dd3\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-41.2</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>28</syncStat><volume>20</volume></status>",
+          "elapsed_ms": 13,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"f6bb39db112db10eccee54803659d6c8\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_tvNP.png</currentImage><cursor>0</cursor><db>-28.9</db><image>/images/capture/ic_tvNP.png</image><indexing>0</indexing><inputId>input4</inputId><inputTypeIndex>earc-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>105</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_tvNP.png</stationImage><streamUrl>Capture:hdmi-input?id=input4</streamUrl><syncStat>841</syncStat><title1>HDMI eARC</title1><twoline_title1>HDMI eARC</twoline_title1><volume>61</volume></status>",
+          "elapsed_ms": 9,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ],
+      "status_after": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"e0bdb3221d068416f34da5a09a37536a\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1+Player 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>3</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>47</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"e0bdb3221d068416f34da5a09a37536a\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1+Player 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>3</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>47</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 29,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"573349e58fd119dfbafaa0d66c441dd3\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-41.2</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>28</syncStat><volume>20</volume></status>",
+          "elapsed_ms": 11,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"f6bb39db112db10eccee54803659d6c8\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_tvNP.png</currentImage><cursor>0</cursor><db>-28.9</db><image>/images/capture/ic_tvNP.png</image><indexing>0</indexing><inputId>input4</inputId><inputTypeIndex>earc-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><repeat>0</repeat><secs>4</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>105</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_tvNP.png</stationImage><streamUrl>Capture:hdmi-input?id=input4</streamUrl><syncStat>841</syncStat><title1>HDMI eARC</title1><twoline_title1>HDMI eARC</twoline_title1><volume>61</volume></status>",
+          "elapsed_ms": 9,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ]
+    },
+    {
+      "name": "add_batched",
+      "description": "A adds C and D in one request",
+      "action": {
+        "path": "/AddSlave",
+        "params": {
+          "slaves": "192.0.2.3,192.0.2.4",
+          "ports": "11000,11000"
+        },
+        "status": 200,
+        "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<addSlave><slave id=\"192.0.2.3\" port=\"11000\"></slave><slave id=\"192.0.2.4\" port=\"11000\"></slave></addSlave>",
+        "elapsed_ms": 172,
+        "host": "192.0.2.1",
+        "port": 11000,
+        "name": "add_batched"
+      },
+      "timeline": [
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"50\" syncStat=\"50\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.1\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 1 + 2\" mac=\"00:00:5E:00:53:01\"><slave id=\"192.0.2.2\" port=\"11000\" name=\"Player 2\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><slave id=\"192.0.2.3\" port=\"11000\" name=\"Player 3\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 9,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 9
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"114\" syncStat=\"114\" version=\"4.16.22\" id=\"192.0.2.2:11000\" db=\"-44.9\" volume=\"15\" name=\"Player 2\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:02\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.1</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 28,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 38
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"31\" syncStat=\"31\" version=\"4.16.22\" id=\"192.0.2.3:11000\" db=\"-41.3\" volume=\"19\" name=\"Player 3\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:03\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.1</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 14,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 52
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"844\" syncStat=\"844\" version=\"4.16.22\" id=\"192.0.2.4:11000\" db=\"-29\" volume=\"60\" name=\"Player 4\" model=\"P430\" modelName=\"PULSE SOUNDBAR+\" class=\"soundbar\" icon=\"/images/players/P425_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:04\"><zoneOptions><option zoneMaster=\"true\">front</option></zoneOptions><master port=\"11000\">192.0.2.1</master><pairWithSub></pairWithSub><bluetoothOutput></bluetoothOutput><audioPresetUrl url=\"/audioPreset\"></audioPresetUrl></SyncStatus>",
+          "elapsed_ms": 27,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 79
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"53\" syncStat=\"53\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.1\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 1 + 3\" mac=\"00:00:5E:00:53:01\"><slave id=\"192.0.2.2\" port=\"11000\" name=\"Player 2\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><slave id=\"192.0.2.3\" port=\"11000\" name=\"Player 3\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><slave id=\"192.0.2.4\" port=\"11000\" name=\"Player 4\" model=\"P430\" icon=\"/images/players/P425_nt.png\"></slave><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 15,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 594
+        }
+      ],
+      "settled": true,
+      "status_before": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"e0bdb3221d068416f34da5a09a37536a\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1+Player 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>6</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>47</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 12,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"e0bdb3221d068416f34da5a09a37536a\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1+Player 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>6</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>47</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 25,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"573349e58fd119dfbafaa0d66c441dd3\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-41.2</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>28</syncStat><volume>20</volume></status>",
+          "elapsed_ms": 9,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"f6bb39db112db10eccee54803659d6c8\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_tvNP.png</currentImage><cursor>0</cursor><db>-28.9</db><image>/images/capture/ic_tvNP.png</image><indexing>0</indexing><inputId>input4</inputId><inputTypeIndex>earc-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><repeat>0</repeat><secs>1</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>105</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_tvNP.png</stationImage><streamUrl>Capture:hdmi-input?id=input4</streamUrl><syncStat>841</syncStat><title1>HDMI eARC</title1><twoline_title1>HDMI eARC</twoline_title1><volume>61</volume></status>",
+          "elapsed_ms": 10,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ],
+      "status_after": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"2e13596c6fd94ea5d6219bc0c5380942\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 3</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>3</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>53</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 9,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"2e13596c6fd94ea5d6219bc0c5380942\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 3</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>3</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>53</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 39,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"2e13596c6fd94ea5d6219bc0c5380942\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 3</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>3</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>53</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 36,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"2e13596c6fd94ea5d6219bc0c5380942\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 3</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>4</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>53</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 44,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ]
+    },
+    {
+      "name": "remove_secondary",
+      "description": "A removes D",
+      "action": {
+        "path": "/RemoveSlave",
+        "params": {
+          "slave": "192.0.2.4",
+          "port": "11000"
+        },
+        "status": 200,
+        "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"53\" syncStat=\"53\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.1\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 1 + 3\" mac=\"00:00:5E:00:53:01\"><slave id=\"192.0.2.2\" port=\"11000\" name=\"Player 2\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><slave id=\"192.0.2.3\" port=\"11000\" name=\"Player 3\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><slave id=\"192.0.2.4\" port=\"11000\" name=\"Player 4\" model=\"P430\" icon=\"/images/players/P425_nt.png\"></slave><bluetoothOutput></bluetoothOutput></SyncStatus>",
+        "elapsed_ms": 1032,
+        "host": "192.0.2.1",
+        "port": 11000,
+        "name": "remove_secondary"
+      },
+      "timeline": [
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"53\" syncStat=\"53\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.1\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 1 + 3\" mac=\"00:00:5E:00:53:01\"><slave id=\"192.0.2.2\" port=\"11000\" name=\"Player 2\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><slave id=\"192.0.2.3\" port=\"11000\" name=\"Player 3\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><slave id=\"192.0.2.4\" port=\"11000\" name=\"Player 4\" model=\"P430\" icon=\"/images/players/P425_nt.png\"></slave><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 6,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 6
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"114\" syncStat=\"114\" version=\"4.16.22\" id=\"192.0.2.2:11000\" db=\"-44.9\" volume=\"15\" name=\"Player 2\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:02\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.1</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 14,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 20
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"31\" syncStat=\"31\" version=\"4.16.22\" id=\"192.0.2.3:11000\" db=\"-41.3\" volume=\"19\" name=\"Player 3\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:03\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.1</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 19,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 39
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"844\" syncStat=\"844\" version=\"4.16.22\" id=\"192.0.2.4:11000\" db=\"-29\" volume=\"60\" name=\"Player 4\" model=\"P430\" modelName=\"PULSE SOUNDBAR+\" class=\"soundbar\" icon=\"/images/players/P425_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:04\"><zoneOptions><option zoneMaster=\"true\">front</option></zoneOptions><master port=\"11000\">192.0.2.1</master><pairWithSub></pairWithSub><bluetoothOutput></bluetoothOutput><audioPresetUrl url=\"/audioPreset\"></audioPresetUrl></SyncStatus>",
+          "elapsed_ms": 8,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 47
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"55\" syncStat=\"55\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.1\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 1 + 2\" mac=\"00:00:5E:00:53:01\"><slave id=\"192.0.2.2\" port=\"11000\" name=\"Player 2\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><slave id=\"192.0.2.3\" port=\"11000\" name=\"Player 3\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 9,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 556
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"845\" syncStat=\"845\" version=\"4.16.22\" id=\"192.0.2.4:11000\" db=\"-29\" volume=\"60\" name=\"Player 4\" model=\"P430\" modelName=\"PULSE SOUNDBAR+\" class=\"soundbar\" icon=\"/images/players/P425_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:04\"><zoneOptions><option zoneMaster=\"true\">front</option></zoneOptions><pairWithSub></pairWithSub><bluetoothOutput></bluetoothOutput><audioPresetUrl url=\"/audioPreset\"></audioPresetUrl></SyncStatus>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 600
+        }
+      ],
+      "settled": true,
+      "status_before": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"2e13596c6fd94ea5d6219bc0c5380942\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 3</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>5</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>53</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 11,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"2e13596c6fd94ea5d6219bc0c5380942\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 3</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>5</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>53</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 38,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"2e13596c6fd94ea5d6219bc0c5380942\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 3</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>5</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>53</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 38,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"2e13596c6fd94ea5d6219bc0c5380942\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 3</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>5</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>53</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 30,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ],
+      "status_after": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"e74835f2903d272b1910f3f847c9c625\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>10</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>55</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 6,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"e74835f2903d272b1910f3f847c9c625\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>10</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>55</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 37,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"e74835f2903d272b1910f3f847c9c625\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>10</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>55</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 42,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"b4ca2f617bc1e9497d40bb86631c2bd7\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>845</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 8,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ]
+    },
+    {
+      "name": "add_to_secondary",
+      "description": "B, which follows A, is asked to add D",
+      "action": {
+        "path": "/AddSlave",
+        "params": {
+          "slave": "192.0.2.4",
+          "port": "11000"
+        },
+        "status": 200,
+        "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<addSlave></addSlave>",
+        "elapsed_ms": 46,
+        "host": "192.0.2.2",
+        "port": 11000,
+        "name": "add_to_secondary"
+      },
+      "timeline": [
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"55\" syncStat=\"55\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.1\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 1 + 2\" mac=\"00:00:5E:00:53:01\"><slave id=\"192.0.2.2\" port=\"11000\" name=\"Player 2\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><slave id=\"192.0.2.3\" port=\"11000\" name=\"Player 3\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 11,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 11
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"114\" syncStat=\"114\" version=\"4.16.22\" id=\"192.0.2.2:11000\" db=\"-44.9\" volume=\"15\" name=\"Player 2\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:02\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.1</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 9,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 21
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"31\" syncStat=\"31\" version=\"4.16.22\" id=\"192.0.2.3:11000\" db=\"-41.3\" volume=\"19\" name=\"Player 3\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:03\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.1</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 11,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 31
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"845\" syncStat=\"845\" version=\"4.16.22\" id=\"192.0.2.4:11000\" db=\"-29\" volume=\"60\" name=\"Player 4\" model=\"P430\" modelName=\"PULSE SOUNDBAR+\" class=\"soundbar\" icon=\"/images/players/P425_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:04\"><zoneOptions><option zoneMaster=\"true\">front</option></zoneOptions><pairWithSub></pairWithSub><bluetoothOutput></bluetoothOutput><audioPresetUrl url=\"/audioPreset\"></audioPresetUrl></SyncStatus>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 39
+        }
+      ],
+      "settled": true,
+      "status_before": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"e74835f2903d272b1910f3f847c9c625\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>15</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>55</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 13,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"e74835f2903d272b1910f3f847c9c625\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>15</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>55</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 33,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"e74835f2903d272b1910f3f847c9c625\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>15</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>55</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 59,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"b4ca2f617bc1e9497d40bb86631c2bd7\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>845</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ],
+      "status_after": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"efe67b781697cebf5827ef53627e40ed\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>2</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>55</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"efe67b781697cebf5827ef53627e40ed\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>2</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>55</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 52,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"efe67b781697cebf5827ef53627e40ed\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>3</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>55</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 37,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"b4ca2f617bc1e9497d40bb86631c2bd7\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>845</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 8,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ]
+    },
+    {
+      "name": "add_secondary_of_other_group",
+      "description": "D is asked to add C, which follows A",
+      "action": {
+        "path": "/AddSlave",
+        "params": {
+          "slave": "192.0.2.3",
+          "port": "11000"
+        },
+        "status": 200,
+        "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<addSlave><slave id=\"192.0.2.3\" port=\"11000\"></slave></addSlave>",
+        "elapsed_ms": 335,
+        "host": "192.0.2.4",
+        "port": 11000,
+        "name": "add_secondary_of_other_group"
+      },
+      "timeline": [
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"57\" syncStat=\"57\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.1\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 1+Player 2\" mac=\"00:00:5E:00:53:01\"><slave id=\"192.0.2.2\" port=\"11000\" name=\"Player 2\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 8,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 8
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"114\" syncStat=\"114\" version=\"4.16.22\" id=\"192.0.2.2:11000\" db=\"-44.9\" volume=\"15\" name=\"Player 2\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:02\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.1</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 17,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 25
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"34\" syncStat=\"34\" version=\"4.16.22\" id=\"192.0.2.3:11000\" db=\"-41.4\" volume=\"19\" name=\"Player 3\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:03\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.4</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 14,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 39
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"850\" syncStat=\"850\" version=\"4.16.22\" id=\"192.0.2.4:11000\" db=\"-29\" volume=\"60\" name=\"Player 4\" model=\"P430\" modelName=\"PULSE SOUNDBAR+\" class=\"soundbar\" icon=\"/images/players/P425_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 4+Player 3\" mac=\"00:00:5E:00:53:04\"><zoneOptions><option zoneMaster=\"true\">front</option></zoneOptions><slave id=\"192.0.2.3\" port=\"11000\" name=\"Player 3\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><pairWithSub></pairWithSub><bluetoothOutput></bluetoothOutput><audioPresetUrl url=\"/audioPreset\"></audioPresetUrl></SyncStatus>",
+          "elapsed_ms": 8,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 48
+        }
+      ],
+      "settled": true,
+      "status_before": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"efe67b781697cebf5827ef53627e40ed\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>5</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>55</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"efe67b781697cebf5827ef53627e40ed\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>5</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>55</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 29,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"efe67b781697cebf5827ef53627e40ed\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>5</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>55</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 41,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"b4ca2f617bc1e9497d40bb86631c2bd7\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>845</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 8,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ],
+      "status_after": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"4442d6f41fe63b919af8be1e40641049\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1+Player 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>9</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>57</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"4442d6f41fe63b919af8be1e40641049\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1+Player 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>9</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>57</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 31,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"5ae80c26913a51ecce53d81d62fa7f5e\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><groupName>Player 4+Player 3</groupName><groupVolume>60</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>850</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 31,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"5ae80c26913a51ecce53d81d62fa7f5e\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><groupName>Player 4+Player 3</groupName><groupVolume>60</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>850</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 8,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ]
+    },
+    {
+      "name": "add_leader_of_other_group",
+      "description": "D is asked to add A, which leads B and C",
+      "action": {
+        "path": "/AddSlave",
+        "params": {
+          "slave": "192.0.2.1",
+          "port": "11000"
+        },
+        "status": 200,
+        "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<addSlave><slave id=\"192.0.2.1\" port=\"11000\"></slave></addSlave>",
+        "elapsed_ms": 122,
+        "host": "192.0.2.4",
+        "port": 11000,
+        "name": "add_leader_of_other_group"
+      },
+      "timeline": [
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"60\" syncStat=\"60\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.2\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 1+Player 2\" mac=\"00:00:5E:00:53:01\"><master port=\"11000\">192.0.2.4</master><slave id=\"192.0.2.2\" port=\"11000\" name=\"Player 2\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 10,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 10
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"114\" syncStat=\"114\" version=\"4.16.22\" id=\"192.0.2.2:11000\" db=\"-44.9\" volume=\"15\" name=\"Player 2\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:02\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.1</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 9,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 19
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"34\" syncStat=\"34\" version=\"4.16.22\" id=\"192.0.2.3:11000\" db=\"-41.4\" volume=\"19\" name=\"Player 3\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:03\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.4</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 11,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 30
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"853\" syncStat=\"853\" version=\"4.16.22\" id=\"192.0.2.4:11000\" db=\"-29\" volume=\"60\" name=\"Player 4\" model=\"P430\" modelName=\"PULSE SOUNDBAR+\" class=\"soundbar\" icon=\"/images/players/P425_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 4 + 2\" mac=\"00:00:5E:00:53:04\"><zoneOptions><option zoneMaster=\"true\">front</option></zoneOptions><slave id=\"192.0.2.1\" port=\"11000\" name=\"Player 1\" model=\"C700\" icon=\"/images/players/C700_nt.png\"></slave><slave id=\"192.0.2.3\" port=\"11000\" name=\"Player 3\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><pairWithSub></pairWithSub><bluetoothOutput></bluetoothOutput><audioPresetUrl url=\"/audioPreset\"></audioPresetUrl></SyncStatus>",
+          "elapsed_ms": 8,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 39
+        }
+      ],
+      "settled": true,
+      "status_before": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"4442d6f41fe63b919af8be1e40641049\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1+Player 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>13</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>57</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 8,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"4442d6f41fe63b919af8be1e40641049\"><actions><action name=\"back\" state=\"0\"></action></actions><canSeek>0</canSeek><currentImage>/images/capture/ic_streamingNP.png</currentImage><cursor>0</cursor><db>-58.1</db><groupName>Player 1+Player 2</groupName><groupVolume>24</groupVolume><image>/images/capture/ic_streamingNP.png</image><indexing>0</indexing><inputId>input2</inputId><inputTypeIndex>spdif-1</inputTypeIndex><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>13</secs><service>Capture</service><serviceType>AudioInputs</serviceType><settingsGroupId>capture-input2</settingsGroupId><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stream</state><stationImage>/images/capture/ic_streamingNP.png</stationImage><streamUrl>Capture:hw:imxspdif,0/1/25/2?id=input2</streamUrl><syncStat>57</syncStat><title1>PlexAmp</title1><twoline_title1>PlexAmp</twoline_title1><volume>24</volume></status>",
+          "elapsed_ms": 25,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"5ae80c26913a51ecce53d81d62fa7f5e\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><groupName>Player 4+Player 3</groupName><groupVolume>60</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>850</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 23,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"5ae80c26913a51ecce53d81d62fa7f5e\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><groupName>Player 4+Player 3</groupName><groupVolume>60</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>850</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 9,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ],
+      "status_after": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"14854f61212eb46e0064e62912e30604\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><groupName>Player 4 + 2</groupName><groupVolume>60</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>853</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 17,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"14854f61212eb46e0064e62912e30604\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><groupName>Player 4 + 2</groupName><groupVolume>60</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>853</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 29,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"14854f61212eb46e0064e62912e30604\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><groupName>Player 4 + 2</groupName><groupVolume>60</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>853</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 24,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"14854f61212eb46e0064e62912e30604\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><groupName>Player 4 + 2</groupName><groupVolume>60</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>853</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ]
+    },
+    {
+      "name": "leader_removes_nested_leader",
+      "description": "D removes A; does A still lead its own group after?",
+      "action": {
+        "path": "/RemoveSlave",
+        "params": {
+          "slave": "192.0.2.1",
+          "port": "11000"
+        },
+        "status": 200,
+        "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"853\" syncStat=\"853\" version=\"4.16.22\" id=\"192.0.2.4:11000\" db=\"-29\" volume=\"60\" name=\"Player 4\" model=\"P430\" modelName=\"PULSE SOUNDBAR+\" class=\"soundbar\" icon=\"/images/players/P425_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 4 + 2\" mac=\"00:00:5E:00:53:04\"><zoneOptions><option zoneMaster=\"true\">front</option></zoneOptions><slave id=\"192.0.2.1\" port=\"11000\" name=\"Player 1\" model=\"C700\" icon=\"/images/players/C700_nt.png\"></slave><slave id=\"192.0.2.3\" port=\"11000\" name=\"Player 3\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><pairWithSub></pairWithSub><bluetoothOutput></bluetoothOutput><audioPresetUrl url=\"/audioPreset\"></audioPresetUrl></SyncStatus>",
+        "elapsed_ms": 8,
+        "host": "192.0.2.4",
+        "port": 11000,
+        "name": "leader_removes_nested_leader"
+      },
+      "timeline": [
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"60\" syncStat=\"60\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.2\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 1+Player 2\" mac=\"00:00:5E:00:53:01\"><master port=\"11000\">192.0.2.4</master><slave id=\"192.0.2.2\" port=\"11000\" name=\"Player 2\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 6,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 7
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"116\" syncStat=\"116\" version=\"4.16.22\" id=\"192.0.2.2:11000\" db=\"-45\" volume=\"15\" name=\"Player 2\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:02\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.1</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 10,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 16
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"34\" syncStat=\"34\" version=\"4.16.22\" id=\"192.0.2.3:11000\" db=\"-41.4\" volume=\"19\" name=\"Player 3\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:03\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.4</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 10,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 26
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"855\" syncStat=\"855\" version=\"4.16.22\" id=\"192.0.2.4:11000\" db=\"-29\" volume=\"60\" name=\"Player 4\" model=\"P430\" modelName=\"PULSE SOUNDBAR+\" class=\"soundbar\" icon=\"/images/players/P425_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 4+Player 3\" mac=\"00:00:5E:00:53:04\"><zoneOptions><option zoneMaster=\"true\">front</option></zoneOptions><slave id=\"192.0.2.3\" port=\"11000\" name=\"Player 3\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><pairWithSub></pairWithSub><bluetoothOutput></bluetoothOutput><audioPresetUrl url=\"/audioPreset\"></audioPresetUrl></SyncStatus>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 33
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"61\" syncStat=\"61\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.2\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 1+Player 2\" mac=\"00:00:5E:00:53:01\"><slave id=\"192.0.2.2\" port=\"11000\" name=\"Player 2\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 9,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 542
+        }
+      ],
+      "settled": true,
+      "status_before": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"14854f61212eb46e0064e62912e30604\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><groupName>Player 4 + 2</groupName><groupVolume>60</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>853</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 12,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"14854f61212eb46e0064e62912e30604\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><groupName>Player 4 + 2</groupName><groupVolume>60</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>853</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 33,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"14854f61212eb46e0064e62912e30604\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><groupName>Player 4 + 2</groupName><groupVolume>60</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>853</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 24,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"14854f61212eb46e0064e62912e30604\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><groupName>Player 4 + 2</groupName><groupVolume>60</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>853</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 10,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ],
+      "status_after": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"33c7726c13866c8581b5d6c54fb0881b\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><groupName>Player 1+Player 2</groupName><groupVolume>24</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>61</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 6,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"33c7726c13866c8581b5d6c54fb0881b\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><groupName>Player 1+Player 2</groupName><groupVolume>24</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>61</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 36,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"6f879e7f10f6f50d10d4cf735c55d60c\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><groupName>Player 4+Player 3</groupName><groupVolume>60</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>855</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 22,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"6f879e7f10f6f50d10d4cf735c55d60c\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><groupName>Player 4+Player 3</groupName><groupVolume>60</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>855</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ]
+    },
+    {
+      "name": "recover_A",
+      "description": "A removes all its secondaries in one request",
+      "action": {
+        "path": "/RemoveSlave",
+        "params": {
+          "slaves": "192.0.2.2",
+          "ports": "11000"
+        },
+        "status": 200,
+        "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"61\" syncStat=\"61\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.2\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 1+Player 2\" mac=\"00:00:5E:00:53:01\"><slave id=\"192.0.2.2\" port=\"11000\" name=\"Player 2\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><bluetoothOutput></bluetoothOutput></SyncStatus>",
+        "elapsed_ms": 6,
+        "host": "192.0.2.1",
+        "port": 11000,
+        "name": "recover_A"
+      },
+      "timeline": [
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"61\" syncStat=\"61\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.2\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 1+Player 2\" mac=\"00:00:5E:00:53:01\"><slave id=\"192.0.2.2\" port=\"11000\" name=\"Player 2\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 7
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"116\" syncStat=\"116\" version=\"4.16.22\" id=\"192.0.2.2:11000\" db=\"-45\" volume=\"15\" name=\"Player 2\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:02\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.1</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 14,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 21
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"34\" syncStat=\"34\" version=\"4.16.22\" id=\"192.0.2.3:11000\" db=\"-41.4\" volume=\"19\" name=\"Player 3\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:03\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.4</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 1029,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 1050
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"855\" syncStat=\"855\" version=\"4.16.22\" id=\"192.0.2.4:11000\" db=\"-29\" volume=\"60\" name=\"Player 4\" model=\"P430\" modelName=\"PULSE SOUNDBAR+\" class=\"soundbar\" icon=\"/images/players/P425_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 4+Player 3\" mac=\"00:00:5E:00:53:04\"><zoneOptions><option zoneMaster=\"true\">front</option></zoneOptions><slave id=\"192.0.2.3\" port=\"11000\" name=\"Player 3\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><pairWithSub></pairWithSub><bluetoothOutput></bluetoothOutput><audioPresetUrl url=\"/audioPreset\"></audioPresetUrl></SyncStatus>",
+          "elapsed_ms": 10,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 1061
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"63\" syncStat=\"63\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.2\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:01\"><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 9,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 1571
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"117\" syncStat=\"117\" version=\"4.16.22\" id=\"192.0.2.2:11000\" db=\"-45\" volume=\"15\" name=\"Player 2\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:02\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 25,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 1596
+        }
+      ],
+      "settled": true,
+      "status_before": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"33c7726c13866c8581b5d6c54fb0881b\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><groupName>Player 1+Player 2</groupName><groupVolume>24</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>61</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 11,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"33c7726c13866c8581b5d6c54fb0881b\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><groupName>Player 1+Player 2</groupName><groupVolume>24</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>61</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 24,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"6f879e7f10f6f50d10d4cf735c55d60c\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><groupName>Player 4+Player 3</groupName><groupVolume>60</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>855</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 23,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"6f879e7f10f6f50d10d4cf735c55d60c\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><groupName>Player 4+Player 3</groupName><groupVolume>60</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>855</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 11,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ],
+      "status_after": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"486f4408a635e614f29b222281b11fc1\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>63</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 5,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"013fe0b61952e9a645fbe842dd5c477e\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-45</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>12</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>117</syncStat><volume>15</volume></status>",
+          "elapsed_ms": 9,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"6f879e7f10f6f50d10d4cf735c55d60c\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><groupName>Player 4+Player 3</groupName><groupVolume>60</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>855</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 46,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"6f879e7f10f6f50d10d4cf735c55d60c\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><groupName>Player 4+Player 3</groupName><groupVolume>60</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>855</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ]
+    },
+    {
+      "name": "recover_D",
+      "description": "D removes all its secondaries in one request",
+      "action": {
+        "path": "/RemoveSlave",
+        "params": {
+          "slaves": "192.0.2.3",
+          "ports": "11000"
+        },
+        "status": 200,
+        "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"855\" syncStat=\"855\" version=\"4.16.22\" id=\"192.0.2.4:11000\" db=\"-29\" volume=\"60\" name=\"Player 4\" model=\"P430\" modelName=\"PULSE SOUNDBAR+\" class=\"soundbar\" icon=\"/images/players/P425_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 4+Player 3\" mac=\"00:00:5E:00:53:04\"><zoneOptions><option zoneMaster=\"true\">front</option></zoneOptions><slave id=\"192.0.2.3\" port=\"11000\" name=\"Player 3\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><pairWithSub></pairWithSub><bluetoothOutput></bluetoothOutput><audioPresetUrl url=\"/audioPreset\"></audioPresetUrl></SyncStatus>",
+        "elapsed_ms": 8,
+        "host": "192.0.2.4",
+        "port": 11000,
+        "name": "recover_D"
+      },
+      "timeline": [
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"63\" syncStat=\"63\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.2\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:01\"><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 6,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 6
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"117\" syncStat=\"117\" version=\"4.16.22\" id=\"192.0.2.2:11000\" db=\"-45\" volume=\"15\" name=\"Player 2\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:02\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 9,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 15
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"34\" syncStat=\"34\" version=\"4.16.22\" id=\"192.0.2.3:11000\" db=\"-41.4\" volume=\"19\" name=\"Player 3\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:03\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.4</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 17,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 32
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"857\" syncStat=\"857\" version=\"4.16.22\" id=\"192.0.2.4:11000\" db=\"-29\" volume=\"60\" name=\"Player 4\" model=\"P430\" modelName=\"PULSE SOUNDBAR+\" class=\"soundbar\" icon=\"/images/players/P425_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:04\"><zoneOptions><option zoneMaster=\"true\">front</option></zoneOptions><pairWithSub></pairWithSub><bluetoothOutput></bluetoothOutput><audioPresetUrl url=\"/audioPreset\"></audioPresetUrl></SyncStatus>",
+          "elapsed_ms": 8,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 40
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"35\" syncStat=\"35\" version=\"4.16.22\" id=\"192.0.2.3:11000\" db=\"-41.4\" volume=\"19\" name=\"Player 3\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:03\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 11,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 569
+        }
+      ],
+      "settled": true,
+      "status_before": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"486f4408a635e614f29b222281b11fc1\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>63</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"013fe0b61952e9a645fbe842dd5c477e\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-45</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>12</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>117</syncStat><volume>15</volume></status>",
+          "elapsed_ms": 11,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"6f879e7f10f6f50d10d4cf735c55d60c\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><groupName>Player 4+Player 3</groupName><groupVolume>60</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>855</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 23,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"6f879e7f10f6f50d10d4cf735c55d60c\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><groupName>Player 4+Player 3</groupName><groupVolume>60</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>855</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ],
+      "status_after": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"486f4408a635e614f29b222281b11fc1\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>63</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 6,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"013fe0b61952e9a645fbe842dd5c477e\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-45</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>12</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>117</syncStat><volume>15</volume></status>",
+          "elapsed_ms": 9,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"af259f34875871bd45ae2e75657358f3\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-41.4</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>35</syncStat><volume>19</volume></status>",
+          "elapsed_ms": 11,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"0167e0042efc8646045c7ee807e87284\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>857</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ]
+    },
+    {
+      "name": "regroup_three",
+      "description": "A leads B and C again",
+      "action": {
+        "path": "/AddSlave",
+        "params": {
+          "slaves": "192.0.2.2,192.0.2.3",
+          "ports": "11000,11000"
+        },
+        "status": 200,
+        "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<addSlave><slave id=\"192.0.2.3\" port=\"11000\"></slave><slave id=\"192.0.2.2\" port=\"11000\"></slave></addSlave>",
+        "elapsed_ms": 152,
+        "host": "192.0.2.1",
+        "port": 11000,
+        "name": "regroup_three"
+      },
+      "timeline": [
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"67\" syncStat=\"67\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.2\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 1+Player 3\" mac=\"00:00:5E:00:53:01\"><slave id=\"192.0.2.3\" port=\"11000\" name=\"Player 3\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 9,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 9
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"120\" syncStat=\"120\" version=\"4.16.22\" id=\"192.0.2.2:11000\" db=\"-45.1\" volume=\"15\" name=\"Player 2\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:02\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.1</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 14,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 23
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"38\" syncStat=\"38\" version=\"4.16.22\" id=\"192.0.2.3:11000\" db=\"-41.5\" volume=\"19\" name=\"Player 3\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:03\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.1</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 11,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 34
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"857\" syncStat=\"857\" version=\"4.16.22\" id=\"192.0.2.4:11000\" db=\"-29\" volume=\"60\" name=\"Player 4\" model=\"P430\" modelName=\"PULSE SOUNDBAR+\" class=\"soundbar\" icon=\"/images/players/P425_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:04\"><zoneOptions><option zoneMaster=\"true\">front</option></zoneOptions><pairWithSub></pairWithSub><bluetoothOutput></bluetoothOutput><audioPresetUrl url=\"/audioPreset\"></audioPresetUrl></SyncStatus>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 41
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"70\" syncStat=\"70\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.2\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 1 + 2\" mac=\"00:00:5E:00:53:01\"><slave id=\"192.0.2.2\" port=\"11000\" name=\"Player 2\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><slave id=\"192.0.2.3\" port=\"11000\" name=\"Player 3\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 548
+        }
+      ],
+      "settled": true,
+      "status_before": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"486f4408a635e614f29b222281b11fc1\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>63</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 9,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"013fe0b61952e9a645fbe842dd5c477e\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-45</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>12</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>117</syncStat><volume>15</volume></status>",
+          "elapsed_ms": 12,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"af259f34875871bd45ae2e75657358f3\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-41.4</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>35</syncStat><volume>19</volume></status>",
+          "elapsed_ms": 11,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"0167e0042efc8646045c7ee807e87284\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>857</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ],
+      "status_after": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"847f3716299e4d68544acc3672726f9f\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>70</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 5,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"847f3716299e4d68544acc3672726f9f\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>70</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 24,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"847f3716299e4d68544acc3672726f9f\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>70</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 21,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"0167e0042efc8646045c7ee807e87284\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>857</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ]
+    },
+    {
+      "name": "leader_removes_itself",
+      "description": "A, leading B and C, removes itself (who leads, what plays?)",
+      "action": {
+        "path": "/RemoveSlave",
+        "params": {
+          "slave": "192.0.2.1",
+          "port": "11000"
+        },
+        "status": 200,
+        "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"74\" syncStat=\"74\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.2\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:01\"><bluetoothOutput></bluetoothOutput></SyncStatus>",
+        "elapsed_ms": 336,
+        "host": "192.0.2.1",
+        "port": 11000,
+        "name": "leader_removes_itself"
+      },
+      "timeline": [
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"74\" syncStat=\"74\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.2\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:01\"><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 7
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"124\" syncStat=\"124\" version=\"4.16.22\" id=\"192.0.2.2:11000\" db=\"-45.2\" volume=\"15\" name=\"Player 2\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:02\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.3</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 64,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 71
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"44\" syncStat=\"44\" version=\"4.16.22\" id=\"192.0.2.3:11000\" db=\"-41.5\" volume=\"19\" name=\"Player 3\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 3+Player 2\" mac=\"00:00:5E:00:53:03\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><slave id=\"192.0.2.2\" port=\"11000\" name=\"Player 2\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 15,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 85
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"857\" syncStat=\"857\" version=\"4.16.22\" id=\"192.0.2.4:11000\" db=\"-29\" volume=\"60\" name=\"Player 4\" model=\"P430\" modelName=\"PULSE SOUNDBAR+\" class=\"soundbar\" icon=\"/images/players/P425_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:04\"><zoneOptions><option zoneMaster=\"true\">front</option></zoneOptions><pairWithSub></pairWithSub><bluetoothOutput></bluetoothOutput><audioPresetUrl url=\"/audioPreset\"></audioPresetUrl></SyncStatus>",
+          "elapsed_ms": 10,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 96
+        }
+      ],
+      "settled": true,
+      "status_before": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"847f3716299e4d68544acc3672726f9f\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>70</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 10,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"847f3716299e4d68544acc3672726f9f\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>70</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 23,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"847f3716299e4d68544acc3672726f9f\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>70</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 27,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"0167e0042efc8646045c7ee807e87284\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>857</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 8,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ],
+      "status_after": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"b98b79b245ecf726108a7ddde7720f34\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>74</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"2960737f9eecb4b412dafa3e1f9536eb\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-41.5</db><groupName>Player 3+Player 2</groupName><groupVolume>19</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>44</syncStat><volume>19</volume></status>",
+          "elapsed_ms": 32,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"2960737f9eecb4b412dafa3e1f9536eb\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-41.5</db><groupName>Player 3+Player 2</groupName><groupVolume>19</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>44</syncStat><volume>19</volume></status>",
+          "elapsed_ms": 11,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"0167e0042efc8646045c7ee807e87284\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>857</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 11,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ]
+    },
+    {
+      "name": "secondary_removes_itself",
+      "description": "B asks itself to remove itself",
+      "action": {
+        "path": "/RemoveSlave",
+        "params": {
+          "slave": "192.0.2.2",
+          "port": "11000"
+        },
+        "status": 200,
+        "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<error>no slave available as new master</error>",
+        "elapsed_ms": 11,
+        "host": "192.0.2.2",
+        "port": 11000,
+        "name": "secondary_removes_itself"
+      },
+      "timeline": [
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"74\" syncStat=\"74\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.2\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:01\"><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 7
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"124\" syncStat=\"124\" version=\"4.16.22\" id=\"192.0.2.2:11000\" db=\"-45.2\" volume=\"15\" name=\"Player 2\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:02\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.3</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 8,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 15
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"44\" syncStat=\"44\" version=\"4.16.22\" id=\"192.0.2.3:11000\" db=\"-41.5\" volume=\"19\" name=\"Player 3\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 3+Player 2\" mac=\"00:00:5E:00:53:03\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><slave id=\"192.0.2.2\" port=\"11000\" name=\"Player 2\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 12,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 28
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"857\" syncStat=\"857\" version=\"4.16.22\" id=\"192.0.2.4:11000\" db=\"-29\" volume=\"60\" name=\"Player 4\" model=\"P430\" modelName=\"PULSE SOUNDBAR+\" class=\"soundbar\" icon=\"/images/players/P425_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:04\"><zoneOptions><option zoneMaster=\"true\">front</option></zoneOptions><pairWithSub></pairWithSub><bluetoothOutput></bluetoothOutput><audioPresetUrl url=\"/audioPreset\"></audioPresetUrl></SyncStatus>",
+          "elapsed_ms": 8,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 36
+        }
+      ],
+      "settled": true,
+      "status_before": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"b98b79b245ecf726108a7ddde7720f34\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>74</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 6,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"2960737f9eecb4b412dafa3e1f9536eb\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-41.5</db><groupName>Player 3+Player 2</groupName><groupVolume>19</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>44</syncStat><volume>19</volume></status>",
+          "elapsed_ms": 24,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"2960737f9eecb4b412dafa3e1f9536eb\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-41.5</db><groupName>Player 3+Player 2</groupName><groupVolume>19</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>44</syncStat><volume>19</volume></status>",
+          "elapsed_ms": 11,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"0167e0042efc8646045c7ee807e87284\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>857</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 8,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ],
+      "status_after": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"b98b79b245ecf726108a7ddde7720f34\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>74</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 5,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"2960737f9eecb4b412dafa3e1f9536eb\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-41.5</db><groupName>Player 3+Player 2</groupName><groupVolume>19</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>44</syncStat><volume>19</volume></status>",
+          "elapsed_ms": 21,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"2960737f9eecb4b412dafa3e1f9536eb\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-41.5</db><groupName>Player 3+Player 2</groupName><groupVolume>19</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>44</syncStat><volume>19</volume></status>",
+          "elapsed_ms": 9,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"0167e0042efc8646045c7ee807e87284\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>857</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 6,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ]
+    },
+    {
+      "name": "restore_dissolve_C",
+      "description": "C removes all its secondaries in one request",
+      "action": {
+        "path": "/RemoveSlave",
+        "params": {
+          "slaves": "192.0.2.2",
+          "ports": "11000"
+        },
+        "status": 200,
+        "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"44\" syncStat=\"44\" version=\"4.16.22\" id=\"192.0.2.3:11000\" db=\"-41.5\" volume=\"19\" name=\"Player 3\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 3+Player 2\" mac=\"00:00:5E:00:53:03\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><slave id=\"192.0.2.2\" port=\"11000\" name=\"Player 2\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><pairWithSub></pairWithSub></SyncStatus>",
+        "elapsed_ms": 14,
+        "host": "192.0.2.3",
+        "port": 11000,
+        "name": "restore_dissolve_C"
+      },
+      "timeline": [
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"74\" syncStat=\"74\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.2\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:01\"><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 6,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 6
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"124\" syncStat=\"124\" version=\"4.16.22\" id=\"192.0.2.2:11000\" db=\"-45.2\" volume=\"15\" name=\"Player 2\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:02\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.3</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 8,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 14
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"46\" syncStat=\"46\" version=\"4.16.22\" id=\"192.0.2.3:11000\" db=\"-41.5\" volume=\"19\" name=\"Player 3\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:03\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 14,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 29
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"857\" syncStat=\"857\" version=\"4.16.22\" id=\"192.0.2.4:11000\" db=\"-29\" volume=\"60\" name=\"Player 4\" model=\"P430\" modelName=\"PULSE SOUNDBAR+\" class=\"soundbar\" icon=\"/images/players/P425_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:04\"><zoneOptions><option zoneMaster=\"true\">front</option></zoneOptions><pairWithSub></pairWithSub><bluetoothOutput></bluetoothOutput><audioPresetUrl url=\"/audioPreset\"></audioPresetUrl></SyncStatus>",
+          "elapsed_ms": 11,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 40
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"125\" syncStat=\"125\" version=\"4.16.22\" id=\"192.0.2.2:11000\" db=\"-45.2\" volume=\"15\" name=\"Player 2\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:02\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 10,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 558
+        }
+      ],
+      "settled": true,
+      "status_before": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"b98b79b245ecf726108a7ddde7720f34\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>74</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 5,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"2960737f9eecb4b412dafa3e1f9536eb\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-41.5</db><groupName>Player 3+Player 2</groupName><groupVolume>19</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>44</syncStat><volume>19</volume></status>",
+          "elapsed_ms": 25,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"2960737f9eecb4b412dafa3e1f9536eb\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-41.5</db><groupName>Player 3+Player 2</groupName><groupVolume>19</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>44</syncStat><volume>19</volume></status>",
+          "elapsed_ms": 12,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"0167e0042efc8646045c7ee807e87284\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>857</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 8,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ],
+      "status_after": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"b98b79b245ecf726108a7ddde7720f34\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>74</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 4,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"06002dc3bc64198ca0012b53c5158252\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-45.2</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>14</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>125</syncStat><volume>15</volume></status>",
+          "elapsed_ms": 8,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"5dbbab4d9fa4b9eb5542f42ebeeda60d\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-41.5</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>46</syncStat><volume>19</volume></status>",
+          "elapsed_ms": 10,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"0167e0042efc8646045c7ee807e87284\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>857</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ]
+    },
+    {
+      "name": "restore_A",
+      "description": "A takes back its original secondaries",
+      "action": {
+        "path": "/AddSlave",
+        "params": {
+          "slaves": "192.0.2.2,192.0.2.3",
+          "ports": "11000,11000"
+        },
+        "status": 200,
+        "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<addSlave><slave id=\"192.0.2.3\" port=\"11000\"></slave><slave id=\"192.0.2.2\" port=\"11000\"></slave></addSlave>",
+        "elapsed_ms": 194,
+        "host": "192.0.2.1",
+        "port": 11000,
+        "name": "restore_A"
+      },
+      "timeline": [
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"78\" syncStat=\"78\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.2\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 1+Player 3\" mac=\"00:00:5E:00:53:01\"><slave id=\"192.0.2.3\" port=\"11000\" name=\"Player 3\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 8
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"128\" syncStat=\"128\" version=\"4.16.22\" id=\"192.0.2.2:11000\" db=\"-45.3\" volume=\"15\" name=\"Player 2\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:02\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.1</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 12,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 19
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"49\" syncStat=\"49\" version=\"4.16.22\" id=\"192.0.2.3:11000\" db=\"-41.6\" volume=\"19\" name=\"Player 3\" model=\"P125\" modelName=\"PULSE FLEX 2i\" class=\"speaker\" icon=\"/images/players/P125_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:03\"><zoneOptions><option zoneMaster=\"true\">left</option><option zoneMaster=\"true\">right</option><option zoneMaster=\"true\">side_left</option><option zoneMaster=\"true\">side_right</option></zoneOptions><master port=\"11000\">192.0.2.1</master><pairWithSub></pairWithSub></SyncStatus>",
+          "elapsed_ms": 11,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 31
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"857\" syncStat=\"857\" version=\"4.16.22\" id=\"192.0.2.4:11000\" db=\"-29\" volume=\"60\" name=\"Player 4\" model=\"P430\" modelName=\"PULSE SOUNDBAR+\" class=\"soundbar\" icon=\"/images/players/P425_nt.png\" brand=\"Bluesound\" schemaVersion=\"34\" initialized=\"true\" mac=\"00:00:5E:00:53:04\"><zoneOptions><option zoneMaster=\"true\">front</option></zoneOptions><pairWithSub></pairWithSub><bluetoothOutput></bluetoothOutput><audioPresetUrl url=\"/audioPreset\"></audioPresetUrl></SyncStatus>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 38
+        },
+        {
+          "path": "/SyncStatus",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SyncStatus etag=\"81\" syncStat=\"81\" version=\"4.16.22\" id=\"192.0.2.1:11000\" db=\"-58.2\" volume=\"24\" name=\"Player 1\" model=\"C700\" modelName=\"C700\" class=\"streamer-amplifier\" icon=\"/images/players/C700_nt.png\" brand=\"NAD\" schemaVersion=\"34\" initialized=\"true\" group=\"Player 1 + 2\" mac=\"00:00:5E:00:53:01\"><slave id=\"192.0.2.3\" port=\"11000\" name=\"Player 3\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><slave id=\"192.0.2.2\" port=\"11000\" name=\"Player 2\" model=\"P125\" icon=\"/images/players/P125_nt.png\"></slave><bluetoothOutput></bluetoothOutput></SyncStatus>",
+          "elapsed_ms": 5,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "sync_status",
+          "t_ms": 544
+        }
+      ],
+      "settled": true,
+      "status_before": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"b98b79b245ecf726108a7ddde7720f34\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>74</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"06002dc3bc64198ca0012b53c5158252\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-45.2</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>14</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>125</syncStat><volume>15</volume></status>",
+          "elapsed_ms": 10,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"5dbbab4d9fa4b9eb5542f42ebeeda60d\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-41.5</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>5</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>46</syncStat><volume>19</volume></status>",
+          "elapsed_ms": 12,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"0167e0042efc8646045c7ee807e87284\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>857</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ],
+      "status_after": [
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"44166c4bcb8e921ae240f51bc56dd169\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>81</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.1",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"44166c4bcb8e921ae240f51bc56dd169\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>81</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 25,
+          "host": "192.0.2.2",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"44166c4bcb8e921ae240f51bc56dd169\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-58.2</db><groupName>Player 1 + 2</groupName><groupVolume>24</groupVolume><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>3</pid><prid>0</prid><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>7</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>81</syncStat><volume>24</volume></status>",
+          "elapsed_ms": 24,
+          "host": "192.0.2.3",
+          "port": 11000,
+          "name": "status"
+        },
+        {
+          "path": "/Status",
+          "params": {},
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status etag=\"0167e0042efc8646045c7ee807e87284\"><canMovePlayback>true</canMovePlayback><canSeek>0</canSeek><cursor>0</cursor><db>-29</db><indexing>0</indexing><mid>0</mid><mode>1</mode><mute>0</mute><pid>2</pid><prid>0</prid><quality>0</quality><repeat>0</repeat><secs>0</secs><shuffle>0</shuffle><sid>107</sid><sleep></sleep><song>0</song><state>stop</state><syncStat>857</syncStat><volume>60</volume></status>",
+          "elapsed_ms": 7,
+          "host": "192.0.2.4",
+          "port": 11000,
+          "name": "status"
+        }
+      ]
+    }
+  ]
+}

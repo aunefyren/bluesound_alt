@@ -19,6 +19,7 @@ from homeassistant.components.media_player import (
 )
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.dispatcher import (
     async_dispatcher_connect,
@@ -31,6 +32,7 @@ import homeassistant.util.dt as dt_util
 from . import BluesoundConfigEntry
 from .const import DOMAIN
 from .coordinator import BluesoundCoordinator
+from .grouping import async_join, async_unjoin
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -456,60 +458,42 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
     # --- Grouping ---
 
     async def async_join_players(self, group_members: list[str]) -> None:
-        """Make this player the master and join group_members as slaves."""
-        all_coordinators = self._all_coordinators()
-        ent_reg = er.async_get(self.hass)
+        """Group the selected players with this one.
 
+        Home Assistant's group dialog sends the whole selection, including
+        players already in the group; see grouping.py for how each is handled.
+        """
+        ent_reg = er.async_get(self.hass)
+        all_coordinators = self._all_coordinators()
+        members = []
         for member_entity_id in group_members:
             if member_entity_id == self.entity_id:
                 continue
             entry = ent_reg.async_get(member_entity_id)
-            if not entry:
-                continue
-            coord = all_coordinators.get(entry.config_entry_id)
-            if not coord:
-                continue
-            await self.coordinator.async_request_api(
-                "/AddSlave",
-                slave=coord.host,
-                port=coord.port,
-            )
+            coord = all_coordinators.get(entry.config_entry_id) if entry else None
+            if coord is None:
+                raise ServiceValidationError(
+                    translation_domain=DOMAIN,
+                    translation_key="unknown_member",
+                    translation_placeholders={"entity_id": member_entity_id},
+                )
+            members.append((coord.host, coord.port))
 
-        await self._refresh_all(group_members)
+        coord = self.coordinator
+        touched = await async_join(
+            coord._get_session(), (coord.host, coord.port), members
+        )
+        await self._refresh_players(touched)
 
     async def async_unjoin_player(self) -> None:
-        """Remove this player from its group."""
+        """Take this player out of its group.
+
+        A leader hands its group to the others where its playback can move to
+        them, and lets them all go where it cannot.
+        """
         coord = self.coordinator
-
-        if coord.group_master_ip:
-            # This player is a slave, ask master to remove us
-            master_coord = self._find_coordinator_by_ip(coord.group_master_ip)
-            if master_coord:
-                await master_coord.async_request_api(
-                    "/RemoveSlave",
-                    slave=coord.host,
-                    port=coord.port,
-                )
-                await master_coord.async_refresh()
-            else:
-                await coord.async_request_api(
-                    "/RemoveSlave",
-                    slave=coord.host,
-                    port=coord.port,
-                )
-        else:
-            # This player is master, unjoin all slaves
-            for slave in coord.group_slaves:
-                await coord.async_request_api(
-                    "/RemoveSlave",
-                    slave=slave["ip"],
-                    port=slave["port"],
-                )
-                slave_coord = self._find_coordinator_by_ip(slave["ip"])
-                if slave_coord:
-                    await slave_coord.async_refresh()
-
-        await coord.async_refresh()
+        touched = await async_unjoin(coord._get_session(), (coord.host, coord.port))
+        await self._refresh_players(touched)
 
     def _all_coordinators(self) -> dict[str, BluesoundCoordinator]:
         """Coordinators of every set-up player, by config entry id.
@@ -531,16 +515,8 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
                 return coord
         return None
 
-    async def _refresh_all(self, entity_ids: list[str]) -> None:
-        ent_reg = er.async_get(self.hass)
-        all_coords = self._all_coordinators()
-        await self.coordinator.async_refresh()
-        for eid in entity_ids:
-            if eid == self.entity_id:
-                continue
-            entry = ent_reg.async_get(eid)
-            if not entry:
-                continue
-            coord = all_coords.get(entry.config_entry_id)
-            if coord:
+    async def _refresh_players(self, addresses: set[tuple[str, int]]) -> None:
+        """Refresh every set-up player at one of these addresses."""
+        for coord in self._all_coordinators().values():
+            if (coord.host, coord.port) in addresses:
                 await coord.async_refresh()

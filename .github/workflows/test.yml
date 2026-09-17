@@ -49,5 +49,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.8"
-      - run: python -m py_compile dev/probe_api.py dev/make_fixtures.py
+      - run: python -m py_compile dev/probe_api.py dev/probe_grouping.py dev/make_fixtures.py
       - run: python dev/probe_api.py --help > /dev/null
+      - run: cd dev && python probe_grouping.py --help > /dev/null

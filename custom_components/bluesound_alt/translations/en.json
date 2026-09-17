@@ -21,5 +21,25 @@
     "abort": {
       "already_configured": "This player is already configured."
     }
+  },
+  "exceptions": {
+    "cannot_reach": {
+      "message": "Could not reach the player at {host}: {error}"
+    },
+    "command_failed": {
+      "message": "The player at {host} refused {command}: {reason}"
+    },
+    "fixed_group": {
+      "message": "{name} is part of a fixed group, such as a stereo pair, and cannot be grouped on its own."
+    },
+    "not_added": {
+      "message": "{leader} did not take {names} into its group."
+    },
+    "not_regrouped": {
+      "message": "The players did not confirm the regrouping in time. Check the group in the BluOS app and try again."
+    },
+    "unknown_member": {
+      "message": "{entity_id} is not a Bluesound Alt player."
+    }
   }
 }
