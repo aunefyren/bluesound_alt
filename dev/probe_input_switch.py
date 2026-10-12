@@ -134,9 +134,7 @@ def setting_candidates(settings: list[ET.Element], target: dict) -> list[dict]:
     found = []
     for root in settings:
         for setting in root.iter("setting"):
-            label = " ".join(
-                setting.get(k, "") for k in ("id", "name", "displayName")
-            )
+            label = " ".join(setting.get(k, "") for k in ("id", "name", "displayName"))
             url, name = setting.get("url"), setting.get("name")
             if not url or not name:
                 continue
@@ -147,13 +145,15 @@ def setting_candidates(settings: list[ET.Element], target: dict) -> list[dict]:
                 for option in setting.iter()
                 if option is not setting
                 and option.get("value")
-                and target["name"].lower()
-                in " ".join(option.attrib.values()).lower()
+                and target["name"].lower() in " ".join(option.attrib.values()).lower()
             ]
             for value in values or [target["id"]]:
                 found.append(
-                    {"source": f"setting {setting.get('id')}", "path": url,
-                     "params": {name: value}}
+                    {
+                        "source": f"setting {setting.get('id')}",
+                        "path": url,
+                        "params": {name: value},
+                    }
                 )
     return found
 
@@ -168,8 +168,11 @@ def capture_candidates(capture: ET.Element | None, target: dict) -> list[dict]:
         url = item.get("URL") or item.get("url")
         if url and text.lower() == target["name"].lower():
             found.append(
-                {"source": "RadioBrowse Capture", "path": "/Play",
-                 "params": {"url": urllib.parse.unquote(url)}}
+                {
+                    "source": "RadioBrowse Capture",
+                    "path": "/Play",
+                    "params": {"url": urllib.parse.unquote(url)},
+                }
             )
     return found
 
@@ -247,7 +250,8 @@ def scrubber(player: Player):
         if root is not None and root.tag == "SyncStatus":
             # A player left at its default name is called after its model.
             names += [
-                n for n in (root.get("name"), root.get("group"))
+                n
+                for n in (root.get("name"), root.get("group"))
                 if n and n not in (root.get("model"), root.get("modelName"))
             ]
 
@@ -315,7 +319,8 @@ def main() -> int:
     parser.add_argument("--target", help="input to switch to while testing (name)")
     parser.add_argument("--yes", action="store_true", help="do not ask to confirm")
     parser.add_argument(
-        "--all", action="store_true",
+        "--all",
+        action="store_true",
         help="keep trying after a command works, to find every one that does",
     )
     args = parser.parse_args()
@@ -332,18 +337,25 @@ def main() -> int:
     settings = [
         root
         for root in (
-            parse(player.read("settings_capture", "/Settings",
-                              {"id": "capture", "schemaVersion": schema})),
-            parse(player.read("settings_root", "/Settings",
-                              {"schemaVersion": schema})),
+            parse(
+                player.read(
+                    "settings_capture",
+                    "/Settings",
+                    {"id": "capture", "schemaVersion": schema},
+                )
+            ),
+            parse(player.read("settings_root", "/Settings", {"schemaVersion": schema})),
         )
         if root is not None
     ]
 
     source = sync.find("externalSource")
     inputs = [
-        {"id": item.get("id"), "name": item.get("name", ""),
-         "bluos": item.get("isBluos") == "true"}
+        {
+            "id": item.get("id"),
+            "name": item.get("name", ""),
+            "bluos": item.get("isBluos") == "true",
+        }
         for item in (source if source is not None else [])
     ]
     report: dict = {
@@ -389,21 +401,34 @@ def main() -> int:
         current = original["id"]
         for n, cand in enumerate(candidates, 1):
             query = urllib.parse.urlencode(cand["params"])
-            print(f"[{n}/{len(candidates)}] {cand['path']}?{query} ... ", end="",
-                  flush=True)
+            print(
+                f"[{n}/{len(candidates)}] {cand['path']}?{query} ... ",
+                end="",
+                flush=True,
+            )
             before = current
             record = get(host, port, cand["path"], cand["params"], REQUEST_TIMEOUT)
             after, waited = player.wait_for_input(before)
             current = after
             worked = after == target["id"]
-            print("switched!" if worked else
-                  f"changed to {after}" if after != before else "no change")
-            report["attempts"].append({
-                **cand, "status": record.get("status"),
-                "body": (record.get("body") or record.get("error") or "")[:500],
-                "before": before, "after": after, "waited": waited,
-                "worked": worked,
-            })
+            print(
+                "switched!"
+                if worked
+                else f"changed to {after}"
+                if after != before
+                else "no change"
+            )
+            report["attempts"].append(
+                {
+                    **cand,
+                    "status": record.get("status"),
+                    "body": (record.get("body") or record.get("error") or "")[:500],
+                    "before": before,
+                    "after": after,
+                    "waited": waited,
+                    "worked": worked,
+                }
+            )
             if not worked:
                 continue
 
@@ -413,21 +438,27 @@ def main() -> int:
             get(host, port, back["path"], back["params"], REQUEST_TIMEOUT)
             current, _ = player.wait_for_input(target["id"])
             confirmed = current == original["id"]
-            print(f"    switching back to {original['name']}: "
-                  + ("confirmed" if confirmed else "did not work"))
+            print(
+                f"    switching back to {original['name']}: "
+                + ("confirmed" if confirmed else "did not work")
+            )
             report["working"].append({**cand, "back": back, "confirmed": confirmed})
             if confirmed and not args.all:
                 break
 
         if current != original["id"]:
-            print(f"\nThe receiver is not on {original['name']} any more; "
-                  "please switch it back in the BluOS app.")
+            print(
+                f"\nThe receiver is not on {original['name']} any more; "
+                "please switch it back in the BluOS app."
+            )
         if report["working"]:
             w = report["working"][0]
             print(f"\nFound it: {w['path']}?{urllib.parse.urlencode(w['params'])}")
         else:
-            print("\nNone of the commands switched the input. The report still "
-                  "helps: it shows what the receiver answered to each one.")
+            print(
+                "\nNone of the commands switched the input. The report still "
+                "helps: it shows what the receiver answered to each one."
+            )
 
     report["reads"] = player.reads
     scrubbed = scrub_obj(report, scrubber(player))

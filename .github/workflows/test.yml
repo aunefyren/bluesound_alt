@@ -20,10 +20,9 @@ jobs:
       - run: python -m pip install ruff
       - run: ruff check tests dev
       - run: ruff format --check tests dev
-      # The integration predates the ruff config and still lacks docstrings
-      # and formatting, so only rules that catch real bugs are enforced there.
-      # Widen this to a plain `ruff check` once that clean-up lands.
-      - run: ruff check custom_components --select F,E9,B,ASYNC
+      # The integration predates the ruff formatter, so only linting is
+      # enforced there.
+      - run: ruff check custom_components
 
   test:
     name: Pytest

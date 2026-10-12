@@ -145,8 +145,7 @@ async def test_receiver_on_bluos_input_is_not_named_bluos(
 
     player.push("/SyncStatus", with_external_input(player.captured("sync_status"), "6"))
     await wait_for(
-        lambda: entity(hass, "media_player.player_1").coordinator.external_input
-        == "6"
+        lambda: entity(hass, "media_player.player_1").coordinator.external_input == "6"
     )
     assert hass.states.get("media_player.player_1").attributes.get("source") != "BluOS"
 
