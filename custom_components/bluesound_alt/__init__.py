@@ -40,9 +40,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: BluesoundConfigEntry) ->
     await coordinator.async_config_entry_first_refresh()
 
     entry.runtime_data = coordinator
+    entry.async_on_unload(entry.add_update_listener(_async_options_updated))
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
+
+
+async def _async_options_updated(
+    hass: HomeAssistant, entry: BluesoundConfigEntry
+) -> None:
+    """Show changed options, such as hidden sources, without a reload."""
+    entry.runtime_data.async_update_listeners()
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: BluesoundConfigEntry) -> bool:

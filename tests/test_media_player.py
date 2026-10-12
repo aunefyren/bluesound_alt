@@ -94,6 +94,71 @@ async def test_slave_shows_the_group_source(
     assert hass.states.get("media_player.player_2").attributes["source"] == "PlexAmp"
 
 
+async def test_sources_follow_the_player(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """Sources and presets are re-read when /Status says they changed.
+
+    The player counts every change to its sources in sid, and to its presets
+    in prid, as an input renamed in the BluOS app.
+    """
+    await setup_player(hass, MASTER, MASTER_MAC)
+    player = patch_session.player(MASTER)
+    browse = player.captured("browse_root").replace('text="Vinyl"', 'text="Records"')
+    presets = player.captured("presets").replace("P4 Lyden av Norge", "NRK P4")
+    player.overrides[("/Browse", frozenset())] = (200, browse)
+    player.overrides[("/Presets", frozenset())] = (200, presets)
+
+    status = player.captured("status")
+    player.push("/Status", status.replace("<sid>4</sid>", "<sid>5</sid>"))
+    await wait_for(
+        lambda: (
+            "Records"
+            in hass.states.get("media_player.player_1").attributes["source_list"]
+        )
+    )
+    assert (
+        "NRK P4"
+        not in hass.states.get("media_player.player_1").attributes["source_list"]
+    )
+
+    player.push(
+        "/Status",
+        status.replace("<sid>4</sid>", "<sid>5</sid>").replace(
+            "<prid>0</prid>", "<prid>1</prid>"
+        ),
+    )
+    await wait_for(
+        lambda: (
+            hass.states.get("media_player.player_1").attributes["source_list"]
+            == ["PlexAmp", "Records", "Spotify", "NRK P4"]
+        )
+    )
+
+
+async def test_unchanged_status_does_not_reread_sources(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """Ordinary playback updates leave the source lists alone."""
+    await setup_player(hass, MASTER, MASTER_MAC)
+    player = patch_session.player(MASTER)
+    before = sum(r.path in ("/Browse", "/Presets") for r in patch_session.requests)
+
+    player.push(
+        "/Status",
+        player.captured("status").replace("<title1>PlexAmp", "<title1>Still PlexAmp"),
+    )
+    await wait_for(
+        lambda: (
+            hass.states.get("media_player.player_1").attributes["media_title"]
+            == "Still PlexAmp"
+        )
+    )
+
+    after = sum(r.path in ("/Browse", "/Presets") for r in patch_session.requests)
+    assert after == before
+
+
 def with_external_input(sync_status: str, input_id: str) -> str:
     """Rewrite a captured /SyncStatus as it reads once another input is active."""
     names = dict(re.findall(r'<item id="(\d+)" name="([^"]*)"', sync_status))
@@ -126,6 +191,22 @@ async def test_receiver_inputs_are_sources(
         "PS3",
         "BluOS",
     ]
+
+
+@pytest.mark.parametrize("bluos", [T758_LABEL], indirect=True)
+async def test_receiver_input_is_the_title(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """On a receiver input the input is the title, not "External Source".
+
+    Reported in issue #13: cards that show only the title said "External
+    Source", and others "External Source - Squeeze".
+    """
+    await setup_player(hass, T758, T758_MAC)
+
+    state = hass.states.get("media_player.player_1")
+    assert state.attributes["media_title"] == "Squeeze"
+    assert "media_artist" not in state.attributes
 
 
 @pytest.mark.parametrize("bluos", [T758_LABEL], indirect=True)

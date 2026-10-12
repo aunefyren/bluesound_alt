@@ -54,6 +54,10 @@ class BluesoundData:
     stream_url: str | None = None
     group_name: str | None = None
     sync_stat: str | None = None
+    # Counters that move whenever the player's sources or presets change,
+    # as the BluOS app watches them to know when to re-read its lists.
+    source_list_id: str | None = None
+    preset_list_id: str | None = None
     etag: str | None = None
 
 
@@ -175,10 +179,11 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
         # A receiver's own inputs, kept current by long-polling /SyncStatus
         self.external_inputs: list[dict[str, Any]] = sync_info.external_inputs
         self.external_input: str | None = sync_info.external_input
-        # Sources fetched once from /Browse: [{name, play_url}]
+        # Sources from /Browse: [{name, play_url}], re-read when /Status says
+        # they changed (an input renamed or hidden in the BluOS app, say).
         self.sources: list[dict[str, str]] = []
-        # Presets (saved radio/favourites) fetched once from /Presets:
-        # [{id, name, image}]
+        # Presets (saved radio/favourites) from /Presets: [{id, name, image}],
+        # re-read likewise.
         self.presets: list[dict[str, str]] = []
         # Individual volume for this device (differs from group volume when slave)
         self.individual_volume: int | None = sync_info.volume
@@ -399,7 +404,32 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
                 continue
 
             etag = data.etag
+            await self._refresh_lists(self.data, data)
             self.async_set_updated_data(data)
+
+    async def _refresh_lists(
+        self, previous: BluesoundData | None, data: BluesoundData
+    ) -> None:
+        """Re-read the sources and presets when /Status says they changed."""
+        if previous is None:
+            return
+        session = self._get_session()
+        if data.source_list_id != previous.source_list_id:
+            self.sources = await _fetch_sources(session, self.host, self.port)
+        if data.preset_list_id != previous.preset_list_id:
+            self.presets = await _fetch_presets(session, self.host, self.port)
+
+    def source_options(self) -> list[tuple[str, str]]:
+        """Return (key, name) for every selectable source, in list order.
+
+        The key stays the same when the source is renamed, so a choice made
+        about it, such as hiding it, survives the rename.
+        """
+        return [
+            *((f"browse:{s['play_url']}", s["name"]) for s in self.sources),
+            *((f"input:{i['id']}", i["name"]) for i in self.external_inputs),
+            *((f"preset:{p['id']}", p["name"]) for p in self.presets),
+        ]
 
     async def async_request_api(self, path: str, **params: Any) -> str:
         """Send a command to the player and return its answer.
@@ -924,6 +954,8 @@ def _parse_status(xml_text: str) -> BluesoundData:
     data.image_url = s.get("image")
     data.group_name = s.get("groupName")
     data.sync_stat = s.get("syncStat")
+    data.source_list_id = s.get("sid")
+    data.preset_list_id = s.get("prid")
     data.stream_url = s.get("streamUrl")
 
     try:

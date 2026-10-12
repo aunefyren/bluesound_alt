@@ -30,6 +30,20 @@
       "no_ipv4_address": "The player announced no IPv4 address."
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Sources",
+        "description": "Tick the sources to leave out of the source list. A hidden source still plays, and still shows as the source while it does, it is just not offered to pick. Sources added on the player later show up on their own.",
+        "data": {
+          "hidden_sources": "Hidden sources"
+        }
+      }
+    },
+    "abort": {
+      "not_loaded": "The player is not set up right now. Try again once it is available."
+    }
+  },
   "entity": {
     "number": {
       "balance": {

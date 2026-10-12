@@ -32,6 +32,10 @@ on the [GitHub releases page](https://github.com/aunefyren/bluesound_alt/release
   their first page (up to 10 pages).
 - Stations and inputs picked in the media browser play on the player.
 - Presets appear in the source list and can be selected.
+- Sources can be hidden from a player's source list under Configure on the
+  player's integration entry, Spotify on a player without an account, say,
+  or an unused input. A hidden source stays hidden when renamed in the BluOS
+  app, and still shows as the source while it plays.
 - The inputs of receivers with a BluOS module, such as the NAD T758, appear
   in the source list and can be selected, and the active one shows as the
   source ([#13](https://github.com/aunefyren/bluesound_alt/issues/13)).
@@ -40,6 +44,12 @@ on the [GitHub releases page](https://github.com/aunefyren/bluesound_alt/release
   identifiers in stream URLs redacted.
 
 ### Fixed
+- The source list follows the player: inputs renamed, hidden or added in the
+  BluOS app, and presets added or removed, show up straight away rather than
+  after restarting Home Assistant.
+- On a receiver input the input's name is the title, rather than "External
+  Source", so cards that show only the title say which input is on
+  ([#13](https://github.com/aunefyren/bluesound_alt/issues/13)).
 - Adding a player that is already set up, at its new address, now updates
   the address instead of only saying it is already configured.
 - Pausing a player that is already paused, for instance from the BluOS app,

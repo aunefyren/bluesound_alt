@@ -6,14 +6,27 @@ from typing import Any
 from xml.parsers.expat import ExpatError
 
 import aiohttp
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import (
+    ConfigEntry,
+    ConfigEntryState,
+    ConfigFlow,
+    ConfigFlowResult,
+    OptionsFlow,
+)
 from homeassistant.const import CONF_HOST, CONF_PORT
+from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.selector import (
+    SelectOptionDict,
+    SelectSelector,
+    SelectSelectorConfig,
+    SelectSelectorMode,
+)
 from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 import voluptuous as vol
 import xmltodict
 
-from .const import DEFAULT_PORT, DOMAIN
+from .const import CONF_HIDDEN_SOURCES, DEFAULT_PORT, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,6 +46,12 @@ class BluesoundConfigFlow(ConfigFlow, domain=DOMAIN):
     def __init__(self) -> None:
         """Start with no discovered player."""
         self._discovered: dict[str, Any] = {}
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
+        """Offer the player's options."""
+        return BluesoundOptionsFlow()
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -149,3 +168,46 @@ class BluesoundConfigFlow(ConfigFlow, domain=DOMAIN):
             "mac": sync.get("@mac", ""),
             "name": sync.get("@name") or sync.get("name", ""),
         }
+
+
+class BluesoundOptionsFlow(OptionsFlow):
+    """Choose which sources the player offers in Home Assistant."""
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Pick the sources to hide from the player's current list."""
+        # The choices are the player's own sources, so it must be set up.
+        if self.config_entry.state is not ConfigEntryState.LOADED:
+            return self.async_abort(reason="not_loaded")
+
+        sources = self.config_entry.runtime_data.source_options()
+        listed = {key for key, _ in sources}
+        hidden = self.config_entry.options.get(CONF_HIDDEN_SOURCES, [])
+
+        if user_input is not None:
+            # Hidden sources the player does not list right now (a preset
+            # removed, an input turned off) stay hidden should they return.
+            kept = [key for key in hidden if key not in listed]
+            return self.async_create_entry(
+                data={CONF_HIDDEN_SOURCES: [*user_input[CONF_HIDDEN_SOURCES], *kept]}
+            )
+
+        schema = vol.Schema(
+            {
+                vol.Optional(
+                    CONF_HIDDEN_SOURCES,
+                    default=[key for key in hidden if key in listed],
+                ): SelectSelector(
+                    SelectSelectorConfig(
+                        options=[
+                            SelectOptionDict(value=key, label=name)
+                            for key, name in sources
+                        ],
+                        multiple=True,
+                        mode=SelectSelectorMode.LIST,
+                    )
+                ),
+            }
+        )
+        return self.async_show_form(step_id="init", data_schema=schema)
