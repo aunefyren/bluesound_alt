@@ -9,14 +9,13 @@ from typing import Any
 from xml.parsers.expat import ExpatError
 
 import aiohttp
-import xmltodict
-from yarl import URL
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+import xmltodict
+from yarl import URL
 
 from .const import (
     DOMAIN,
@@ -125,6 +124,7 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
         port: int,
         sync_info: BluesoundSyncInfo,
     ) -> None:
+        """Set up the coordinator for one player."""
         super().__init__(
             hass,
             _LOGGER,
@@ -144,7 +144,8 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
         self.external_input: str | None = sync_info.external_input
         # Sources fetched once from /Browse: [{name, play_url}]
         self.sources: list[dict[str, str]] = []
-        # Presets (saved radio/favourites) fetched once from /Presets: [{id, name, image}]
+        # Presets (saved radio/favourites) fetched once from /Presets:
+        # [{id, name, image}]
         self.presets: list[dict[str, str]] = []
         # Individual volume for this device (differs from group volume when slave)
         self.individual_volume: int | None = sync_info.volume
@@ -305,8 +306,9 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
 
         if self._is_first_fetch:
             self._is_first_fetch = False
-            self.sources = await _fetch_sources(self._get_session(), self.host, self.port)
-            self.presets = await _fetch_presets(self._get_session(), self.host, self.port)
+            session = self._get_session()
+            self.sources = await _fetch_sources(session, self.host, self.port)
+            self.presets = await _fetch_presets(session, self.host, self.port)
             self._start_long_poll_loop()
             self._start_sync_poll_loop()
 
@@ -406,6 +408,7 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
         )
 
     def stop(self) -> None:
+        """Stop following the player."""
         for task in (self._long_poll_task, self._sync_poll_task):
             if task and not task.done():
                 task.cancel()
@@ -529,6 +532,7 @@ async def _fetch_sync_info(
                 if isinstance(item, dict) and item.get("@id")
             ]
 
+        volume = _safe_int(sync.get("@volume"), -1)
         return BluesoundSyncInfo(
             name=name,
             mac=mac,
@@ -539,7 +543,7 @@ async def _fetch_sync_info(
             master_port=master_port,
             slaves=slaves,
             fixed_secondary=sync.get("@zoneSlave") == "true",
-            volume=volume if (volume := _safe_int(sync.get("@volume"), -1)) >= 0 else None,
+            volume=volume if volume >= 0 else None,
             external_inputs=external_inputs,
             external_input=external_input,
             etag=sync.get("@etag"),

@@ -1,6 +1,7 @@
 """Bluesound Alt media player entity."""
 from __future__ import annotations
 
+import contextlib
 import logging
 from typing import Any
 from urllib.parse import parse_qs, urlencode, urlsplit
@@ -121,6 +122,7 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
     _attr_media_position_updated_at = None
 
     def __init__(self, coordinator: BluesoundCoordinator, entry: ConfigEntry) -> None:
+        """Set up the entity for one player."""
         super().__init__(coordinator)
         self._entry = entry
         self._attr_unique_id = coordinator.sync_info.mac
@@ -135,44 +137,54 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
 
     @property
     def state(self) -> MediaPlayerState | None:
+        """Return whether the player is playing, paused or idle."""
         return _STATE_MAP.get(self.coordinator.data.state)
 
     @property
     def volume_level(self) -> float | None:
+        """Return this player's own volume, also when grouped."""
         if self._optimistic_volume is not None:
             return self._optimistic_volume
-        if self.coordinator.group_master_ip and self.coordinator.individual_volume is not None:
-            return self.coordinator.individual_volume / 100
+        individual = self.coordinator.individual_volume
+        if self.coordinator.group_master_ip and individual is not None:
+            return individual / 100
         return self.coordinator.data.volume / 100
 
     @property
     def is_volume_muted(self) -> bool:
+        """Return whether the player is muted."""
         if self._optimistic_muted is not None:
             return self._optimistic_muted
         return self.coordinator.data.muted
 
     @property
     def shuffle(self) -> bool:
+        """Return whether shuffle is on."""
         return self.coordinator.data.shuffle
 
     @property
     def repeat(self) -> RepeatMode | None:
+        """Return the repeat mode."""
         return _REPEAT_TO_HA.get(self.coordinator.data.repeat)
 
     @property
     def media_title(self) -> str | None:
+        """Return the title of what is playing."""
         return self.coordinator.data.title
 
     @property
     def media_artist(self) -> str | None:
+        """Return the artist of what is playing."""
         return self.coordinator.data.artist
 
     @property
     def media_album_name(self) -> str | None:
+        """Return the album of what is playing."""
         return self.coordinator.data.album
 
     @property
     def media_image_url(self) -> str | None:
+        """Return the artwork URL, made absolute."""
         img = self.coordinator.data.image_url
         if img and not img.startswith("http"):
             return f"http://{self.coordinator.host}:{self.coordinator.port}{img}"
@@ -180,14 +192,17 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
 
     @property
     def media_position(self) -> float | None:
+        """Return how far into the track playback is, in seconds."""
         return self.coordinator.data.position
 
     @property
     def media_duration(self) -> float | None:
+        """Return the length of the track, in seconds."""
         return self.coordinator.data.duration
 
     @property
     def source_list(self) -> list[str]:
+        """Return the inputs, services and presets that can be selected."""
         return [
             *(s["name"] for s in self.coordinator.sources),
             *(i["name"] for i in self.coordinator.external_inputs),
@@ -196,6 +211,7 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
 
     @property
     def source(self) -> str | None:
+        """Return the input, service or preset that is playing."""
         stream_url = self.coordinator.data.stream_url
         if stream_url:
             for s in self._playable_sources():
@@ -229,7 +245,7 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         return None
 
     def _playable_sources(self) -> list[dict[str, str]]:
-        """Sources whose stream this player may be reporting.
+        """Return the sources whose stream this player may be reporting.
 
         A slave reports whatever the group plays, which is usually one of the
         master's inputs rather than one of its own.
@@ -242,10 +258,12 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
+        """Return the group members under the integration's own name."""
         return {"bluesound_group": self.group_members}
 
     @property
     def group_members(self) -> list[str]:
+        """Return the players grouped with this one, master first."""
         return self._resolve_group_members()
 
     async def async_added_to_hass(self) -> None:
@@ -319,14 +337,17 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
     # --- Playback controls ---
 
     async def async_media_play(self) -> None:
+        """Start or resume playback."""
         await self.coordinator.async_request_api("/Play")
         await self.coordinator.async_request_refresh()
 
     async def async_media_pause(self) -> None:
+        """Pause playback."""
         await self.coordinator.async_request_api("/Pause", toggle=1)
         await self.coordinator.async_request_refresh()
 
     async def async_media_stop(self) -> None:
+        """Stop playback."""
         await self.coordinator.async_request_api("/Stop")
         await self.coordinator.async_request_refresh()
 
@@ -354,6 +375,7 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         self.coordinator.async_apply_volume_answer(answer)
 
     async def async_select_source(self, source: str) -> None:
+        """Play an input, service or preset by its name."""
         for s in self.coordinator.sources:
             if s["name"] == source:
                 await self.coordinator.async_request_api("/Play", url=s["play_url"])
@@ -373,24 +395,29 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
                 return
 
     async def async_set_shuffle(self, shuffle: bool) -> None:
+        """Turn shuffle on or off."""
         await self.coordinator.async_request_api("/Shuffle", state=int(shuffle))
         await self.coordinator.async_request_refresh()
 
     async def async_set_repeat(self, repeat: RepeatMode) -> None:
+        """Set the repeat mode."""
         await self.coordinator.async_request_api(
             "/Repeat", state=_HA_TO_REPEAT[repeat]
         )
         await self.coordinator.async_request_refresh()
 
     async def async_media_next_track(self) -> None:
+        """Skip to the next track."""
         await self.coordinator.async_request_api("/Skip")
         await self.coordinator.async_request_refresh()
 
     async def async_media_previous_track(self) -> None:
+        """Go back to the previous track."""
         await self.coordinator.async_request_api("/Back")
         await self.coordinator.async_request_refresh()
 
     async def async_media_seek(self, position: float) -> None:
+        """Jump to a position in the track."""
         await self.coordinator.async_request_api("/Play", seek=int(position))
         await self.coordinator.async_request_refresh()
 
@@ -455,7 +482,7 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         """Top level: device services/inputs/radio plus HA media sources."""
         items = await self.coordinator.async_browse(None)
         children = [self._item_to_browse(i) for i in items]
-        try:
+        with contextlib.suppress(BrowseError):
             children.append(
                 await media_source.async_browse_media(
                     self.hass,
@@ -465,8 +492,6 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
                     ),
                 )
             )
-        except BrowseError:
-            pass
         return BrowseMedia(
             title="Bluesound",
             media_class=MediaClass.DIRECTORY,
