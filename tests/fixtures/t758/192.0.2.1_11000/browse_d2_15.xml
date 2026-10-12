@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<browse serviceIcon="/Sources/images/DeezerIcon.png" serviceName="Deezer" searchKey="Deezer:Search" type="menu">
+  <item browseKey="Deezer:Playlist/%2FPlaylists%3Fcategory=toplist&amp;genre=0&amp;service=Deezer" text="Popular Playlists" type="link"></item>
+  <item browseKey="Deezer:Artist/%2FArtists%3Fcategory=toplist&amp;genre=0&amp;service=Deezer" text="Popular Artists" type="link"></item>
+  <item browseKey="Deezer:Album/%2FAlbums%3Fcategory=toplist&amp;genre=0&amp;service=Deezer" text="Popular Albums" type="link"></item>
+  <item browseKey="Deezer:Song/%2FSongs%3Fcategory=toplist&amp;genre=0&amp;service=Deezer" text="Popular Songs" type="link"></item>
+</browse>

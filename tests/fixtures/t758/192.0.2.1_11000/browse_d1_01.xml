@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<browse serviceIcon="/images/BluOSIcon.png" serviceName="BluOS" type="playlists">
+  <item browseKey="BluOS:MG/BluOS-Playlist?playlist=Christmas+1" contextMenuKey="BluOS:CM/BluOS-Playlist?playlist=Christmas+1" playURL="/Load?service=BluOS&amp;name=Christmas+1" text="Christmas 1" image="/Artwork?service=Tidal&amp;songid=Tidal%3A19374056" type="playlist"></item>
+  <item browseKey="BluOS:MG/BluOS-Playlist?playlist=Christmas+Test" contextMenuKey="BluOS:CM/BluOS-Playlist?playlist=Christmas+Test" playURL="/Load?service=BluOS&amp;name=Christmas+Test" text="Christmas Test" image="/Artwork?service=Tidal&amp;songid=Tidal%3A1315306" type="playlist"></item>
+</browse>

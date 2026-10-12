@@ -87,6 +87,8 @@ async def async_get_config_entry_diagnostics(
             **identifying,
             "individual_volume": coordinator.individual_volume,
             "sources": coordinator.sources,
+            "external_inputs": coordinator.external_inputs,
+            "external_input": coordinator.external_input,
             "presets": coordinator.presets,
             "last_update_success": coordinator.last_update_success,
             "push_loop_running": _running(coordinator._long_poll_task),

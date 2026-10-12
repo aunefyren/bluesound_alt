@@ -13,6 +13,9 @@ on the [GitHub releases page](https://github.com/aunefyren/bluesound_alt/release
   their first page (up to 10 pages).
 - Stations and inputs picked in the media browser play on the player.
 - Presets appear in the source list and can be selected.
+- The inputs of receivers with a BluOS module, such as the NAD T758, appear
+  in the source list and can be selected, and the active one shows as the
+  source ([#13](https://github.com/aunefyren/bluesound_alt/issues/13)).
 - AirPlay and HTTP streams show up as the current source while they play.
 - Diagnostics, with addresses, MAC addresses, player names and account
   identifiers in stream URLs redacted.

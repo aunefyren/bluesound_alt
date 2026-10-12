@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<browse serviceIcon="/Sources/images/TidalIcon.png" serviceName="TIDAL" searchKey="Tidal:Search" type="menu">
+  <item browseKey="Tidal:MG/Tidal-New" text="New" type="link"></item>
+  <item browseKey="Tidal:MG/Tidal-TIDAL%20Rising" text="TIDAL Rising" type="link"></item>
+  <item browseKey="Tidal:MG/Tidal-Recommendations" text="Recommendations" type="link"></item>
+  <item browseKey="Tidal:MG/Tidal-Popular" text="Popular" type="link"></item>
+  <item browseKey="Tidal:MG/Tidal-Artistes%20fran%C3%A7ais" text="Artistes français" type="link"></item>
+  <item browseKey="Tidal:GG/Moods" text="Moods" type="link"></item>
+  <item browseKey="Tidal:GG/Genres" text="Genres" type="link"></item>
+  <item browseKey="Tidal:MG/Tidal-Favourites" text="My Music" type="link"></item>
+</browse>

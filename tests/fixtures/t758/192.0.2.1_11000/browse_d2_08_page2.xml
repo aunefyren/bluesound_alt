@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<browse serviceIcon="/images/BluOSIcon.png" serviceName="BluOS" type="tracks" playURL="/Load?service=BluOS&amp;name=Christmas+1">
+  <item playURL="/Add?playnow=1&amp;file=Tidal%3A19374066" autoplayURL="/Add?service=BluOS&amp;listindex=0&amp;nextlist=1&amp;where=last&amp;cursor=last&amp;playnow=1&amp;playlist=Christmas+1&amp;offset=10" text="My! My! Time Flies!" text2="Enya • And Winter Came..." duration="183" image="/Artwork?service=BluOS&amp;songid=Tidal%3A19374066" type="track"></item>
+  <item playURL="/Add?playnow=1&amp;file=Tidal%3A19374067" autoplayURL="/Add?service=BluOS&amp;listindex=1&amp;nextlist=1&amp;where=last&amp;cursor=last&amp;playnow=1&amp;playlist=Christmas+1&amp;offset=10" text="Oíche Chiúin (Chorale)" text2="Enya • And Winter Came..." duration="230" image="/Artwork?service=BluOS&amp;songid=Tidal%3A19374067" type="track"></item>
+  <item playURL="/Add?playnow=1&amp;file=Tidal%3A19374068" autoplayURL="/Add?service=BluOS&amp;listindex=2&amp;nextlist=1&amp;where=last&amp;cursor=last&amp;playnow=1&amp;playlist=Christmas+1&amp;offset=10" text="Miraculum" text2="Enya • And Winter Came..." duration="234" image="/Artwork?service=BluOS&amp;songid=Tidal%3A19374068" type="track"></item>
+</browse>

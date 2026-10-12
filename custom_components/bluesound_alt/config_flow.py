@@ -6,12 +6,11 @@ from typing import Any
 from xml.parsers.expat import ExpatError
 
 import aiohttp
-import voluptuous as vol
-import xmltodict
-
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+import voluptuous as vol
+import xmltodict
 
 from .const import DEFAULT_PORT, DOMAIN
 
@@ -33,6 +32,7 @@ class BluesoundConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
+        """Ask for the player's address and check that it answers."""
         errors: dict[str, str] = {}
 
         if user_input is not None:
