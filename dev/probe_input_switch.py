@@ -212,7 +212,7 @@ def unique(candidates: list[dict]) -> list[dict]:
 
 
 def retarget(candidate: dict, old: dict, new: dict, positions: dict) -> dict:
-    """The same command, aimed at another input (used to switch back)."""
+    """Aim the same command at another input, to switch back."""
     swap = {
         str(old["id"]): str(new["id"]),
         str(positions[old["id"]]): str(positions[new["id"]]),
@@ -299,7 +299,7 @@ def choose_target(inputs: list[dict], current: str, wanted: str | None) -> dict:
     print("\nWhich input may the script switch to while testing?")
     for n, i in enumerate(choices, 1):
         print(f"  {n}. {i['name']}")
-    answer = input(f"Number [1]: ").strip() or "1"
+    answer = input("Number [1]: ").strip() or "1"
     try:
         return choices[int(answer) - 1]
     except (ValueError, IndexError):
@@ -378,10 +378,13 @@ def main() -> int:
             f"{SETTLE_SECONDS} seconds after each.\nIf one works it switches back "
             f"to {original['name']} afterwards. Turn the volume down first."
         )
-        if not args.yes and sys.stdin.isatty():
-            if input("Go ahead? [y/N] ").strip().lower() not in ("y", "yes"):
-                print("Stopped; nothing was switched.")
-                return 1
+        if (
+            not args.yes
+            and sys.stdin.isatty()
+            and input("Go ahead? [y/N] ").strip().lower() not in ("y", "yes")
+        ):
+            print("Stopped; nothing was switched.")
+            return 1
 
         current = original["id"]
         for n, cand in enumerate(candidates, 1):

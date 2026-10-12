@@ -79,7 +79,7 @@ async def test_slave_shows_the_group_source(
 
 
 def with_external_input(sync_status: str, input_id: str) -> str:
-    """A captured /SyncStatus, as it reads once another input is active."""
+    """Rewrite a captured /SyncStatus as it reads once another input is active."""
     names = dict(re.findall(r'<item id="(\d+)" name="([^"]*)"', sync_status))
     return re.sub(
         r'<externalSource id="\d+" name="[^"]*"',
