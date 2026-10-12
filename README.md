@@ -25,7 +25,7 @@ Must be added as a custom repository.
 <br>
 
 ## Main features
-* UI-based setup, no `configuration.yaml` editing required
+* UI-based setup, no `configuration.yaml` editing required, with players on the network discovered automatically
 * Correct group join/unjoin with immediate state updates
 * Per-speaker volume control within groups (individual volume, not just group volume)
 * Group state works with groups of any size
@@ -48,8 +48,8 @@ Must be added as a custom repository.
 
 2. Install `Bluesound Alt` in HACS
 3. Restart Home Assistant
-4. Go to **Settings → Integrations → Add Integration** and search for `Bluesound Alt`
-5. Enter the IP address and port (default: 11000) for each speaker, repeat for every device
+4. Your players show up under **Settings → Devices & services → Discovered**. Click **Add** on each one
+5. A player that is not discovered, on another subnet or VLAN say, can be added by hand: **Add Integration**, search for `Bluesound Alt`, and enter its IP address and port (default: 11000)
 
 <br>
 <br>
