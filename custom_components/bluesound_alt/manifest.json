@@ -1,11 +1,13 @@
 {
   "domain": "bluesound_alt",
   "name": "Bluesound Alt",
+  "after_dependencies": ["zeroconf"],
   "codeowners": ["@aunefyren"],
   "config_flow": true,
   "documentation": "https://github.com/aunefyren/bluesound_alt",
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/aunefyren/bluesound_alt/issues",
   "requirements": ["xmltodict==0.13.0"],
-  "version": "1.2.1"
+  "version": "1.3.0",
+  "zeroconf": [{"type": "_musc._tcp.local."}]
 }

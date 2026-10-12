@@ -1,5 +1,6 @@
 {
   "config": {
+    "flow_title": "{name}",
     "step": {
       "user": {
         "title": "Add Bluesound Player",
@@ -11,6 +12,10 @@
           "host": "IP address or hostname of the Bluesound player",
           "port": "Port number (default: 11000)"
         }
+      },
+      "confirm": {
+        "title": "Discovered Bluesound player",
+        "description": "Add {name} ({host})?"
       }
     },
     "error": {
@@ -19,7 +24,10 @@
       "unknown": "Unexpected error."
     },
     "abort": {
-      "already_configured": "This player is already configured."
+      "already_configured": "This player is already configured.",
+      "cannot_connect": "Failed to connect to the player.",
+      "invalid_response": "The device did not return a valid response.",
+      "no_ipv4_address": "The player announced no IPv4 address."
     }
   },
   "entity": {

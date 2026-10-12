@@ -7,6 +7,9 @@ on the [GitHub releases page](https://github.com/aunefyren/bluesound_alt/release
 ## [Unreleased]
 
 ### Added
+- Players on the network are discovered: they show up under Discovered in
+  Settings, ready to add with a click. A player already set up that turns up
+  at a new address, after a new DHCP lease say, is updated to it.
 - The player's settings, wherever its menus offer them, as the BluOS app
   shows them:
   - Audio: listening mode (Off, Music, Movie, Late Night), tone controls,
@@ -37,6 +40,8 @@ on the [GitHub releases page](https://github.com/aunefyren/bluesound_alt/release
   identifiers in stream URLs redacted.
 
 ### Fixed
+- Adding a player that is already set up, at its new address, now updates
+  the address instead of only saying it is already configured.
 - Pausing a player that is already paused, for instance from the BluOS app,
   no longer resumes it.
 - Home Assistant's startup no longer waits on the players' push connections.
