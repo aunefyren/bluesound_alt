@@ -33,6 +33,26 @@
       "file": "presets.xml"
     },
     {
+      "name": "settings_player",
+      "path": "/Settings",
+      "params": {
+        "id": "player",
+        "schemaVersion": "34"
+      },
+      "status": 200,
+      "file": "settings_player.xml"
+    },
+    {
+      "name": "settings_audio",
+      "path": "/Settings",
+      "params": {
+        "id": "audio",
+        "schemaVersion": "34"
+      },
+      "status": 200,
+      "file": "settings_audio.xml"
+    },
+    {
       "name": "status_long_poll",
       "path": "/Status",
       "params": {

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<settings pageId="player" schemaVersion="35">
+	<menuGroup id="player" displayName="Player" icon="/images/players/P125_nt.png">
+		<setting id="wifi" name="wifi" displayName="WiFi" icon="/images/settings/ic_wifi.png" description="Configure wireless network settings">
+			<webview url="http://192.0.2.2:80/wificfg?noheader=1"></webview>
+		</setting>
+		<setting id="nodename" name="nodename" displayName="Room name" url="/Name" icon="/images/settings/ic_roomname.png" class="text" value="Player 2" pattern=".{1,255}" patternError="Maximum 255 characters." refresh="true"></setting>
+		<menuGroup id="capture" displayName="Customize sources" icon="/images/settings/ic_capture.png" url="/setting"></menuGroup>
+		<menuGroup id="ir_remote" displayName="IR remote" icon="/images/settings/ic_irremote.png"></menuGroup>
+		<setting id="ledbrightness" name="ledbrightness" displayName="Indicator brightness" url="/setting" icon="/images/settings/ic_indicatorlight.png" class="list" value="default" description="Normal">
+			<value displayName="Normal" name="default"></value>
+			<value displayName="Dim" name="dim"></value>
+			<value displayName="Off" name="off"></value>
+		</setting>
+		<setting id="amplifierStandby" name="amplifierStandby" displayName="Amplifier Standby" url="/setting" icon="/images/settings/ic_power.png" class="boolean" value="ON"></setting>
+	</menuGroup>
+</settings>

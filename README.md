@@ -32,6 +32,8 @@ Must be added as a custom repository.
 * Source/input selection (physical inputs and streaming services)
 * Works with [Mini Media Player](https://github.com/kalkih/mini-media-player) grouping
 * Long-poll based updates, reacts to changes instantly rather than polling on a fixed interval
+* Player settings as in the BluOS app: listening mode, tone, balance, subwoofer, output mode, volume limits, Bluetooth mode, indicator and display brightness
+* Restart button for every player
 
 <br>
 <br>

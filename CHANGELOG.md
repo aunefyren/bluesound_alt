@@ -7,6 +7,22 @@ on the [GitHub releases page](https://github.com/aunefyren/bluesound_alt/release
 ## [Unreleased]
 
 ### Added
+- The player's settings, wherever its menus offer them, as the BluOS app
+  shows them:
+  - Audio: listening mode (Off, Music, Movie, Late Night), tone controls,
+    bass, treble, balance, subwoofer, output mode, replay gain, minimum and
+    maximum volume, and the soundbar's Surround Upmixer, Virtualizer, Volume
+    Leveler and Deep Bass.
+  - Player: indicator brightness, and on players with a display (C700) its
+    brightness, automatic brightness and dark mode.
+  - Sources: Bluetooth mode (Manual, Automatic, Guest, Disabled).
+
+  A setting that does not apply right now shows as unavailable, such as bass
+  and treble while tone controls are off. Listening mode, volume limits,
+  subwoofer and Bluetooth mode changed in the BluOS app show up straight
+  away, the others within 30 seconds.
+- A Restart button on every player, which reboots it as the BluOS app's
+  Diagnostics page does.
 - Media browsing: the player's inputs, TuneIn, Radio Paradise and BluOS Radio
   menus, alongside Home Assistant's own media sources. Menus that group their
   stations into categories are listed in full, and long menus continue past
@@ -21,6 +37,8 @@ on the [GitHub releases page](https://github.com/aunefyren/bluesound_alt/release
   identifiers in stream URLs redacted.
 
 ### Fixed
+- Pausing a player that is already paused, for instance from the BluOS app,
+  no longer resumes it.
 - Home Assistant's startup no longer waits on the players' push connections.
 - A player that is off or unreachable when Home Assistant starts is retried
   until it comes back, instead of failing to set up for good.
