@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<browse serviceIcon="/Sources/images/DeezerIcon.png" serviceName="Deezer" searchKey="Deezer:Search" type="menu">
+  <item browseKey="Deezer:BrowseMenu/%2FRadioBrowse%3Fservice=Deezer" text="Radio" type="link"></item>
+  <item browseKey="Deezer:MG/Deezer-What%27s%20Hot" text="What&#39;s Hot" type="link"></item>
+  <item browseKey="Deezer:GG/Genres" text="Genres" type="link"></item>
+  <item browseKey="Deezer:MG/Deezer-Recommendations" text="Recommendations" type="link"></item>
+  <item browseKey="Deezer:MG/Deezer-Favourites" text="My Music" type="link"></item>
+  <item browseKey="Deezer:Album/%2FAlbums%3Fcategory=new&amp;genre=0&amp;service=Deezer" text="New Albums" type="link"></item>
+</browse>

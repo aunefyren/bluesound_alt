@@ -10,6 +10,11 @@ from __future__ import annotations
 LABEL = "home"
 # The group master again, captured with browse pages followed.
 PAGING_LABEL = "paging"
+# A NAD T758 receiver, on its own "Squeeze" input. Its inputs are listed in
+# /SyncStatus rather than /Browse (issue #13).
+T758_LABEL = "t758"
+T758 = ("192.0.2.1", 11000)
+T758_MAC = "00005e005301"
 
 MASTER = ("192.0.2.1", 11000)
 SLAVE_1 = ("192.0.2.2", 11000)

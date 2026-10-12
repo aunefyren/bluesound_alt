@@ -17,7 +17,17 @@ from custom_components.bluesound_alt.coordinator import (
 )
 
 from .conftest import FakeBluOS, config_entry_for, fixture_text
-from .const import LABEL, MASTER, MASTER_MAC, PAGING_LABEL, SLAVE_1, SLAVE_2, SOUNDBAR
+from .const import (
+    LABEL,
+    MASTER,
+    MASTER_MAC,
+    PAGING_LABEL,
+    SLAVE_1,
+    SLAVE_2,
+    SOUNDBAR,
+    T758,
+    T758_LABEL,
+)
 
 # -- /SyncStatus ------------------------------------------------------------
 
@@ -56,6 +66,34 @@ async def test_sync_info_standalone(bluos: FakeBluOS) -> None:
     assert info.model == "PULSE SOUNDBAR+"
     assert info.master_ip is None
     assert info.slaves == []
+
+
+@pytest.mark.parametrize("bluos", [T758_LABEL], indirect=True)
+async def test_sync_info_receiver_inputs(bluos: FakeBluOS) -> None:
+    """A receiver lists its own inputs and which one is active."""
+    info = await _fetch_sync_info(bluos, *T758)
+
+    assert info is not None
+    assert info.model == "T758"
+    assert info.external_input == "4"
+    assert [(i["id"], i["name"]) for i in info.external_inputs] == [
+        ("1", "BluRay"),
+        ("2", "TV Optical"),
+        ("3", "CD"),
+        ("4", "Squeeze"),
+        ("5", "PS3"),
+        ("6", "BluOS"),
+    ]
+    assert [i["name"] for i in info.external_inputs if i["bluos"]] == ["BluOS"]
+
+
+async def test_sync_info_no_receiver_inputs(bluos: FakeBluOS) -> None:
+    """A plain player has no inputs of a receiver."""
+    info = await _fetch_sync_info(bluos, *MASTER)
+
+    assert info is not None
+    assert info.external_inputs == []
+    assert info.external_input is None
 
 
 async def test_sync_info_offline(bluos: FakeBluOS) -> None:

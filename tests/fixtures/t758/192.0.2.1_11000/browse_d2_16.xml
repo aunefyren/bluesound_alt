@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<browse serviceIcon="/Sources/images/TidalIcon.png" serviceName="TIDAL" searchKey="Tidal:Search" type="menu">
+  <item browseKey="Tidal:Song/%2FSongs%3Fcategory=new&amp;service=Tidal" text="New Songs" type="link"></item>
+  <item browseKey="Tidal:Playlist/%2FPlaylists%3Fcategory=new&amp;service=Tidal" text="New Playlists" type="link"></item>
+  <item browseKey="Tidal:Album/%2FAlbums%3Fcategory=new&amp;service=Tidal" text="New Albums" type="link"></item>
+</browse>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<browse serviceIcon="/images/LibraryIcon.png" serviceName="Library" searchKey="LocalMusic:Search" type="sections">
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=%23" text="#" text2="1" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=A" text="A" text2="29" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=B" text="B" text2="30" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=C" text="C" text2="31" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=D" text="D" text2="31" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=E" text="E" text2="17" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=F" text="F" text2="15" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=G" text="G" text2="17" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=H" text="H" text2="5" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=I" text="I" text2="6" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=J" text="J" text2="42" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=K" text="K" text2="16" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=L" text="L" text2="23" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=M" text="M" text2="38" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=N" text="N" text2="7" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=O" text="O" text2="4" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=P" text="P" text2="17" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=Q" text="Q" text2="2" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=R" text="R" text2="14" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=S" text="S" text2="36" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=T" text="T" text2="23" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=U" text="U" text2="2" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=V" text="V" text2="24" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=W" text="W" text2="9" type="section"></item>
+  <item browseKey="LocalMusic:S:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic&amp;limit=50&amp;section=Y" text="Y" text2="1" type="section"></item>
+</browse>

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 from homeassistant.components.media_player import BrowseMedia
 from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback
 from homeassistant.helpers.entity_component import EntityComponent
@@ -14,7 +16,7 @@ from custom_components.bluesound_alt.media_player import (
     _encode_media_id,
 )
 
-from .conftest import FakeBluOS, setup_player
+from .conftest import FakeBluOS, setup_player, wait_for
 from .const import (
     MASTER,
     MASTER_MAC,
@@ -24,6 +26,9 @@ from .const import (
     SLAVE_2_MAC,
     SOUNDBAR,
     SOUNDBAR_MAC,
+    T758,
+    T758_LABEL,
+    T758_MAC,
 )
 
 
@@ -71,6 +76,79 @@ async def test_slave_shows_the_group_source(
     await setup_group(hass)
 
     assert hass.states.get("media_player.player_2").attributes["source"] == "PlexAmp"
+
+
+def with_external_input(sync_status: str, input_id: str) -> str:
+    """A captured /SyncStatus, as it reads once another input is active."""
+    names = dict(re.findall(r'<item id="(\d+)" name="([^"]*)"', sync_status))
+    return re.sub(
+        r'<externalSource id="\d+" name="[^"]*"',
+        f'<externalSource id="{input_id}" name="{names[input_id]}"',
+        sync_status,
+    )
+
+
+@pytest.mark.parametrize("bluos", [T758_LABEL], indirect=True)
+async def test_receiver_inputs_are_sources(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """A receiver's own inputs are listed, and the active one is the source.
+
+    Reported in issue #13: a NAD T758 only offered Bluetooth and Spotify.
+    """
+    await setup_player(hass, T758, T758_MAC)
+
+    state = hass.states.get("media_player.player_1")
+    assert state.attributes["source"] == "Squeeze"
+    assert state.attributes["source_list"] == [
+        "Bluetooth",
+        "Spotify",
+        "BluRay",
+        "TV Optical",
+        "CD",
+        "Squeeze",
+        "PS3",
+        "BluOS",
+    ]
+
+
+@pytest.mark.parametrize("bluos", [T758_LABEL], indirect=True)
+async def test_select_receiver_input(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """Selecting a receiver input switches to it by id, and the source follows."""
+    await setup_player(hass, T758, T758_MAC)
+    player = patch_session.player(T758)
+
+    await hass.services.async_call(
+        "media_player",
+        "select_source",
+        {"entity_id": "media_player.player_1", "source": "PS3"},
+        blocking=True,
+    )
+    sent = [r for r in patch_session.requests if r.path == "/ExternalSource"]
+    assert [r.query for r in sent] == [{"id": "5"}]
+
+    player.push("/SyncStatus", with_external_input(player.captured("sync_status"), "5"))
+    await wait_for(
+        lambda: hass.states.get("media_player.player_1").attributes["source"] == "PS3"
+    )
+
+
+@pytest.mark.parametrize("bluos", [T758_LABEL], indirect=True)
+async def test_receiver_on_bluos_input_is_not_named_bluos(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """With the BluOS module active, its entry is not passed off as the source."""
+    await setup_player(hass, T758, T758_MAC)
+    player = patch_session.player(T758)
+
+    player.push("/SyncStatus", with_external_input(player.captured("sync_status"), "6"))
+    await wait_for(
+        lambda: entity(hass, "media_player.player_1").coordinator.external_input
+        == "6"
+    )
+    assert hass.states.get("media_player.player_1").attributes.get("source") != "BluOS"
 
 
 # -- grouping ---------------------------------------------------------------

@@ -71,6 +71,11 @@ class BluesoundSyncInfo:
     fixed_secondary: bool = False
     # This player's own volume (0..100), None for fixed volume or unknown.
     volume: int | None = None
+    # A receiver's own inputs (NAD T758 and the like), switched with
+    # /ExternalSource: [{id, name, bluos}], and the id of the active one.
+    # bluos marks the input that is the BluOS module itself.
+    external_inputs: list[dict[str, Any]] = field(default_factory=list)
+    external_input: str | None = None
     etag: str | None = None
 
 
@@ -134,6 +139,9 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
         self.group_master_ip: str | None = sync_info.master_ip
         self.group_master_port: int = sync_info.master_port
         self.group_slaves: list[dict[str, Any]] = sync_info.slaves
+        # A receiver's own inputs, kept current by long-polling /SyncStatus
+        self.external_inputs: list[dict[str, Any]] = sync_info.external_inputs
+        self.external_input: str | None = sync_info.external_input
         # Sources fetched once from /Browse: [{name, play_url}]
         self.sources: list[dict[str, str]] = []
         # Presets (saved radio/favourites) fetched once from /Presets: [{id, name, image}]
@@ -230,23 +238,29 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
 
     @callback
     def _apply_sync_info(self, info: BluesoundSyncInfo) -> None:
-        """Take on the grouping and volume a /SyncStatus answer reports."""
+        """Take on the grouping, volume and input a /SyncStatus answer reports."""
         before = (
             self.group_master_ip,
             self.group_master_port,
             self.group_slaves,
             self.individual_volume,
+            self.external_inputs,
+            self.external_input,
         )
         self.group_master_ip = info.master_ip
         self.group_master_port = info.master_port
         self.group_slaves = info.slaves
         if info.volume is not None:
             self.individual_volume = info.volume
+        self.external_inputs = info.external_inputs
+        self.external_input = info.external_input
         after = (
             self.group_master_ip,
             self.group_master_port,
             self.group_slaves,
             self.individual_volume,
+            self.external_inputs,
+            self.external_input,
         )
         if after == before:
             return
@@ -498,6 +512,23 @@ async def _fetch_sync_info(
             elif isinstance(master_raw, str) and master_raw.strip():
                 master_ip = master_raw.strip()
 
+        # A receiver's own inputs: <externalSource id="4" name="Squeeze">
+        # with one <item id=.. name=..> per input. Plain players have none.
+        external = sync.get("externalSource")
+        external_inputs: list[dict[str, Any]] = []
+        external_input: str | None = None
+        if isinstance(external, dict):
+            external_input = external.get("@id")
+            external_inputs = [
+                {
+                    "id": item["@id"],
+                    "name": item.get("@name") or item["@id"],
+                    "bluos": item.get("@isBluos") == "true",
+                }
+                for item in _as_list(external.get("item"))
+                if isinstance(item, dict) and item.get("@id")
+            ]
+
         return BluesoundSyncInfo(
             name=name,
             mac=mac,
@@ -509,6 +540,8 @@ async def _fetch_sync_info(
             slaves=slaves,
             fixed_secondary=sync.get("@zoneSlave") == "true",
             volume=volume if (volume := _safe_int(sync.get("@volume"), -1)) >= 0 else None,
+            external_inputs=external_inputs,
+            external_input=external_input,
             etag=sync.get("@etag"),
         )
     except Exception:

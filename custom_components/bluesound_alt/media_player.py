@@ -73,6 +73,9 @@ _HA_TO_REPEAT: dict[RepeatMode, int] = {v: k for k, v in _REPEAT_TO_HA.items()}
 # AirPlay self-labels via the BluOS serviceName field, so only "http" needs mapping.
 _SERVICE_LABELS: dict[str, str] = {"http": "Streaming"}
 
+# What a receiver reports as its stream while one of its own inputs plays.
+_EXTERNAL_STREAM = "Capture:External"
+
 # Media browser: media_content_id encodes a BluOS browseKey (b) and/or playURL (p).
 _BLUESOUND_SCHEME = "bluesound:"
 _BLUESOUND_ROOT = "bluesound:root"
@@ -185,8 +188,10 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
 
     @property
     def source_list(self) -> list[str]:
-        return [s["name"] for s in self.coordinator.sources] + [
-            p["name"] for p in self.coordinator.presets
+        return [
+            *(s["name"] for s in self.coordinator.sources),
+            *(i["name"] for i in self.coordinator.external_inputs),
+            *(p["name"] for p in self.coordinator.presets),
         ]
 
     @property
@@ -196,12 +201,32 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
             for s in self._playable_sources():
                 if s["play_url"] == stream_url:
                     return s["name"]
+            if stream_url.startswith(_EXTERNAL_STREAM) and (
+                name := self._active_external_input()
+            ):
+                return name
         # Push inputs (AirPlay, URL/streaming) match no /Browse source, fall
         # back to the active BluOS service so the UI shows what is playing.
         data = self.coordinator.data
         if not data.service:
             return None
         return _SERVICE_LABELS.get(data.service, data.service_name or data.service)
+
+    def _active_external_input(self) -> str | None:
+        """Name the receiver input that is playing, this player's or its master's.
+
+        The BluOS module's own entry is left out: while it is active, the
+        stream is one of the module's sources, and that is the better name.
+        """
+        coordinators = [self.coordinator]
+        master_ip = self.coordinator.group_master_ip
+        if master_ip and (master := self._find_coordinator_by_ip(master_ip)):
+            coordinators.append(master)
+        for coordinator in coordinators:
+            for i in coordinator.external_inputs:
+                if i["id"] == coordinator.external_input and not i["bluos"]:
+                    return i["name"]
+        return None
 
     def _playable_sources(self) -> list[dict[str, str]]:
         """Sources whose stream this player may be reporting.
@@ -332,6 +357,13 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         for s in self.coordinator.sources:
             if s["name"] == source:
                 await self.coordinator.async_request_api("/Play", url=s["play_url"])
+                await self.coordinator.async_request_refresh()
+                return
+        for i in self.coordinator.external_inputs:
+            if i["name"] == source:
+                # Not in the public API; found on a NAD T758, whose BluOS app
+                # switches its inputs this way.
+                await self.coordinator.async_request_api("/ExternalSource", id=i["id"])
                 await self.coordinator.async_request_refresh()
                 return
         for p in self.coordinator.presets:

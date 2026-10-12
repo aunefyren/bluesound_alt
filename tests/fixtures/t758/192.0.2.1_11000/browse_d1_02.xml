@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<browse serviceIcon="/images/LibraryIcon.png" serviceName="Library" searchKey="LocalMusic:Search" type="menu">
+  <item browseKey="LocalMusic:bySection:Artist/%2Flibrary%2Fv1%2FArtists%3Fservice=LocalMusic" text="Artists" type="link"></item>
+  <item browseKey="LocalMusic:bySection:Album/%2Flibrary%2Fv1%2FAlbums%3Fservice=LocalMusic" text="Albums" type="link"></item>
+  <item browseKey="LocalMusic:bySection:Song/%2Flibrary%2Fv1%2FSongs%3Fall=1&amp;service=LocalMusic" text="Songs" type="link"></item>
+  <item browseKey="LocalMusic:GG/Genres" text="Genres" type="link"></item>
+  <item browseKey="LocalMusic:Playlist/%2Flibrary%2Fv1%2FPlaylists%3Fimported=1&amp;service=LocalMusic" text="Playlists" type="link"></item>
+  <item browseKey="LocalMusic:bySection:Composer/%2Flibrary%2Fv1%2FComposers%3Fservice=LocalMusic" text="Composers" type="link"></item>
+  <item browseKey="LocalMusic:MG/LocalMusic-Favourites" text="Favourites" type="link"></item>
+</browse>

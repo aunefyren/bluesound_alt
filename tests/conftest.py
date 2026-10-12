@@ -34,7 +34,7 @@ FIXTURES = pathlib.Path(__file__).parent / "fixtures"
 # Commands the probe never captures, as it only reads. Players accept them
 # with a short XML answer.
 COMMANDS = {"/Play", "/Pause", "/Stop", "/Skip", "/Back", "/Shuffle", "/Repeat"}
-COMMANDS |= {"/Preset", "/Volume"}
+COMMANDS |= {"/Preset", "/Volume", "/ExternalSource"}
 
 
 @pytest.fixture(autouse=True)
