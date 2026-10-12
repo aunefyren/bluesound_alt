@@ -31,7 +31,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 import homeassistant.util.dt as dt_util
 
 from . import BluesoundConfigEntry
-from .const import DOMAIN
+from .const import CONF_HIDDEN_SOURCES, DOMAIN
 from .coordinator import BluesoundCoordinator
 from .grouping import async_join, async_unjoin
 
@@ -164,13 +164,28 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
 
     @property
     def media_title(self) -> str | None:
-        """Return the title of what is playing."""
-        return self.coordinator.data.title
+        """Return the title of what is playing.
+
+        On a receiver input the player reports the generic "External Source"
+        as the title and the input as the artist, so cards that show only the
+        title would never say which input is on. The input is the title then.
+        """
+        data = self.coordinator.data
+        if self._playing_external_input():
+            return data.artist or self._active_external_input() or data.title
+        return data.title
 
     @property
     def media_artist(self) -> str | None:
         """Return the artist of what is playing."""
+        if self._playing_external_input():
+            return None
         return self.coordinator.data.artist
+
+    def _playing_external_input(self) -> bool:
+        """Return whether one of the receiver's own inputs is playing."""
+        stream_url = self.coordinator.data.stream_url
+        return bool(stream_url and stream_url.startswith(_EXTERNAL_STREAM))
 
     @property
     def media_album_name(self) -> str | None:
@@ -197,11 +212,16 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
 
     @property
     def source_list(self) -> list[str]:
-        """Return the inputs, services and presets that can be selected."""
+        """Return the inputs, services and presets that can be selected.
+
+        Those hidden in the player's options are left out. They still show as
+        the source while they play.
+        """
+        hidden = set(self._entry.options.get(CONF_HIDDEN_SOURCES, []))
         return [
-            *(s["name"] for s in self.coordinator.sources),
-            *(i["name"] for i in self.coordinator.external_inputs),
-            *(p["name"] for p in self.coordinator.presets),
+            name
+            for key, name in self.coordinator.source_options()
+            if key not in hidden
         ]
 
     @property
@@ -212,7 +232,7 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
             for s in self._playable_sources():
                 if s["play_url"] == stream_url:
                     return s["name"]
-            if stream_url.startswith(_EXTERNAL_STREAM) and (
+            if self._playing_external_input() and (
                 name := self._active_external_input()
             ):
                 return name

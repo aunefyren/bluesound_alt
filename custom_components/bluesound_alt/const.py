@@ -3,6 +3,9 @@
 DOMAIN = "bluesound_alt"
 
 DEFAULT_PORT = 11000
+# Option: keys of the sources left out of the source list (see
+# BluesoundCoordinator.source_options).
+CONF_HIDDEN_SOURCES = "hidden_sources"
 # Every player also serves a web page, where it is rebooted from.
 WEB_PORT = 80
 POLL_INTERVAL = 1
