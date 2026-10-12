@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<settings pageId="player" schemaVersion="35">
+	<menuGroup id="player" displayName="Player" icon="/images/players/C700_nt.png">
+		<setting id="wifi" name="wifi" displayName="WiFi" icon="/images/settings/ic_wifi.png" description="Configure wireless network settings">
+			<webview url="http://192.0.2.1:80/wificfg?noheader=1"></webview>
+		</setting>
+		<setting id="nodename" name="nodename" displayName="Room name" url="/Name" icon="/images/settings/ic_roomname.png" class="text" value="Player 1" pattern=".{1,255}" patternError="Maximum 255 characters." refresh="true"></setting>
+		<menuGroup id="capture" displayName="Customize sources" icon="/images/settings/ic_capture.png" url="/setting"></menuGroup>
+		<menuGroup id="ir_remote" displayName="IR remote" icon="/images/settings/ic_irremote.png"></menuGroup>
+		<setting id="ledbrightness" name="ledbrightness" displayName="Indicator brightness" url="/setting" icon="/images/settings/ic_indicatorlight.png" class="list" value="default" description="Normal">
+			<value displayName="Normal" name="default"></value>
+			<value displayName="Dim" name="dim"></value>
+			<value displayName="Off" name="off"></value>
+		</setting>
+		<setting id="amplifierStandby" name="amplifierStandby" displayName="Amplifier Standby" url="/setting" icon="/images/settings/ic_power.png" class="boolean" value="ON"></setting>
+		<setting id="auto-lcd-brightness" name="auto-lcd-brightness" displayName="Auto LCD Brightness" url="/setting" icon="/images/settings/ic_lcd_brightness.png" class="boolean" value="OFF" explanation="Change the Auto LCD brightness."></setting>
+		<setting id="lcd-brightness" name="lcd-brightness" displayName="LCD Brightness" url="/setting" icon="/images/settings/ic_lcd_brightness.png" class="range" value="60" explanation="Change the LCD brightness.">
+			<value min="0" max="100" units="%"></value>
+			<dependsOn name="auto-lcd-brightness" value="OFF"></dependsOn>
+		</setting>
+		<setting id="lcd-tempdisplay" name="lcd-tempdisplay" displayName="LCD Temporary Display" url="/setting" icon="/images/settings/ic_display_timer.png" class="boolean" value="OFF" explanation="When enabled the display will turn off after 60 seconds since the last LCD touch event."></setting>
+		<setting id="lcd-volumedisplay" name="lcd-volumedisplay" displayName="LCD Volume Display Percent" url="/setting" icon="/images/settings/ic_volume_mode.png" class="boolean" value="ON" explanation="When enabled show the volume as percent.  When disabled show the volume as dB."></setting>
+		<setting id="darkmode" name="darkmode" displayName="Dark Mode" url="/setting" icon="/images/settings/ic_darkmode.png" class="boolean" value="ON"></setting>
+		<setting id="settings.ui.displaylanguage.value" name="settings.ui.displaylanguage.value" displayName="Display Language" url="/brokerSetting" icon="/images/settings/ic_display_language.png" class="list" value="">
+			<value displayName="čeština" name="cs"></value>
+			<value displayName="dansk" name="da"></value>
+			<value displayName="Deutsch" name="de"></value>
+			<value displayName="British English" name="en-GB"></value>
+			<value displayName="American English" name="en-US"></value>
+			<value displayName="español de España" name="es"></value>
+			<value displayName="suomi" name="fi"></value>
+			<value displayName="français" name="fr"></value>
+			<value displayName="français canadien" name="fr-CA"></value>
+			<value displayName="magyar" name="hu"></value>
+			<value displayName="italiano" name="it"></value>
+			<value displayName="日本語" name="ja"></value>
+			<value displayName="한국어" name="ko"></value>
+			<value displayName="Nederlands" name="nl"></value>
+			<value displayName="polski" name="pl"></value>
+			<value displayName="português europeu" name="pt-PT"></value>
+			<value displayName="русский" name="ru"></value>
+			<value displayName="slovenčina" name="sk"></value>
+			<value displayName="svenska" name="sv"></value>
+			<value displayName="українська" name="uk"></value>
+			<value displayName="简体中文" name="zh-CN"></value>
+			<value displayName="繁體中文" name="zh-TW"></value>
+		</setting>
+	</menuGroup>
+</settings>

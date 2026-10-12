@@ -14,7 +14,13 @@ from .coordinator import BluesoundCoordinator, _fetch_sync_info
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS = [Platform.MEDIA_PLAYER]
+PLATFORMS = [
+    Platform.BUTTON,
+    Platform.MEDIA_PLAYER,
+    Platform.NUMBER,
+    Platform.SELECT,
+    Platform.SWITCH,
+]
 
 type BluesoundConfigEntry = ConfigEntry[BluesoundCoordinator]
 

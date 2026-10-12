@@ -22,6 +22,71 @@
       "already_configured": "This player is already configured."
     }
   },
+  "entity": {
+    "number": {
+      "balance": {
+        "name": "Balance"
+      },
+      "bass": {
+        "name": "Bass"
+      },
+      "display_brightness": {
+        "name": "Display brightness"
+      },
+      "treble": {
+        "name": "Treble"
+      },
+      "volume_limit_max": {
+        "name": "Maximum volume"
+      },
+      "volume_limit_min": {
+        "name": "Minimum volume"
+      }
+    },
+    "select": {
+      "bluetooth_mode": {
+        "name": "Bluetooth"
+      },
+      "indicator_brightness": {
+        "name": "Indicator brightness"
+      },
+      "listening_mode": {
+        "name": "Listening mode"
+      },
+      "output_mode": {
+        "name": "Output mode"
+      },
+      "replay_gain": {
+        "name": "Replay gain"
+      }
+    },
+    "switch": {
+      "auto_display_brightness": {
+        "name": "Auto display brightness"
+      },
+      "dark_mode": {
+        "name": "Dark mode"
+      },
+      "deep_bass": {
+        "name": "Deep bass"
+      },
+      "subwoofer": {
+        "name": "Subwoofer"
+      },
+      "surround_upmixer": {
+        "name": "Surround upmixer"
+      },
+      "tone_controls": {
+        "name": "Tone controls"
+      },
+      "virtualizer": {
+        "name": "Virtualizer"
+      },
+      "volume_leveler": {
+        "name": "Volume leveler"
+      }
+    }
+  },
   "exceptions": {
     "cannot_reach": {
       "message": "Could not reach the player at {host}: {error}"
@@ -40,6 +105,9 @@
     },
     "unknown_member": {
       "message": "{entity_id} is not a Bluesound Alt player."
+    },
+    "volume_limits_too_close": {
+      "message": "The minimum and maximum volume must be at least {gap} dB apart."
     }
   }
 }

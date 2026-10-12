@@ -34,7 +34,9 @@ FIXTURES = pathlib.Path(__file__).parent / "fixtures"
 # Commands the probe never captures, as it only reads. Players accept them
 # with a short XML answer.
 COMMANDS = {"/Play", "/Pause", "/Stop", "/Skip", "/Back", "/Shuffle", "/Repeat"}
-COMMANDS |= {"/Preset", "/Volume", "/ExternalSource"}
+COMMANDS |= {"/Preset", "/Volume", "/ExternalSource", "/reboot"}
+# Settings, which players accept with 205 Reset Content and a blank body.
+SETTINGS_COMMANDS = {"/alsa_setting", "/audiomodes"}
 
 
 @pytest.fixture(autouse=True)
@@ -93,6 +95,9 @@ class Request:
     path: str
     query: dict[str, str]
     raw_url: str
+    method: str = "GET"
+    # A POST's body: the json or form fields, as sent.
+    body: dict[str, Any] | None = None
 
 
 @dataclass
@@ -156,6 +161,8 @@ class FakePlayer:
         for entry in self.responses:
             if entry["path"] == request.path and entry["params"] == request.query:
                 return self._with_volume(request, self._from_entry(entry))
+        if request.path in SETTINGS_COMMANDS:
+            return FakeResponse(205, " ")
         if request.path in COMMANDS:
             return FakeResponse(200, '<?xml version="1.0" encoding="UTF-8"?>\n<ok/>')
         return FakeResponse(404, "")
@@ -260,9 +267,41 @@ class FakeBluOS:
             query=dict(full.query),
             raw_url=str(full),
         )
+        return self._answer(request)
+
+    def post(
+        self,
+        url: str | URL,
+        *,
+        json: dict[str, Any] | None = None,
+        data: dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> FakeResponse:
+        """Answer a POST, keeping its json or form body for the test."""
+        full = URL(url) if isinstance(url, str) else url
+        request = Request(
+            host=full.host or "",
+            port=full.port or 80,
+            path=full.path,
+            query=dict(full.query),
+            raw_url=str(full),
+            method="POST",
+            body=json if json is not None else data,
+        )
+        return self._answer(request)
+
+    def _answer(self, request: Request) -> FakeResponse:
+        """Record a request and have the addressed player answer it.
+
+        Port 80 is a player's web page, answered by the player on that host.
+        """
         self.requests.append(request)
 
         player = self.players.get((request.host, request.port))
+        if player is None and request.port == 80:
+            player = next(
+                (p for p in self.players.values() if p.host == request.host), None
+            )
         if player is None:
             return FakeResponse(
                 error=aiohttp.ClientConnectionError(

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<settings pageId="audio" schemaVersion="34">
+	<menuGroup id="audio" defaults="false" displayName="Audio" icon="/images/settings/ic_audio.png" url="/audiomodes">
+		<menuGroup id="audioPreset" defaults="false" displayName="Listening Mode" style="panel" url="/alsa_setting" description="Movie" inline="true">
+			<setting id="preset" name="preset" displayName="Listening Mode" url="/alsa_setting" class="list" value="movie" refresh="true" required="true" style="title">
+				<value displayName="Off" name="off"></value>
+				<value displayName="Music" name="music" icon="/images/settings/icon_music-mode.png" iconActive="/images/settings/icon_music-mode-active.png"></value>
+				<value displayName="Movie" name="movie" icon="/images/settings/icon_movies-mode.png" iconActive="/images/settings/icon_movies-mode-active.png"></value>
+				<value displayName="Late Night" name="night" icon="/images/settings/icon_latenight-mode.png" iconActive="/images/settings/icon_latenight-mode-active.png"></value>
+			</setting>
+			<setting id="eq-upmix" name="eq-upmix" displayName="Surround Upmixer" url="/alsa_setting" icon="/images/settings/ic_surround_decoder.png" class="boolean" value="ON" explanation="Turns channel-based audio (from 2-channel up to 7.1) into a virtualized surround sound environment. Enable for Stereo Surround in a Home Theatre Group." hideIfDisabled="true"></setting>
+			<setting id="eq-virt" name="eq-virt" displayName="Virtualizer" url="/alsa_setting" icon="/images/settings/ic_virtualization.png" class="boolean" value="ON" explanation="Expands the audio soundstage of any source. Must be enabled for the full virtual experience of Dolby Atmos content. Enable along with Surround Upmixer for the widest soundstage with a stereo source." hideIfDisabled="true"></setting>
+			<setting id="eq-vlamp" name="eq-vlamp" displayName="Volume Leveler" url="/alsa_setting" icon="/images/settings/ic_volume_leveling.png" class="boolean" value="ON" explanation="Maintains consistent playback levels regardless of the source selection or content." hideIfDisabled="true"></setting>
+			<setting id="eq-treble" name="eq-treble" displayName="Treble" url="/alsa_setting" icon="/images/settings/icon_treble.png" class="range" value="0" hideIfDisabled="true">
+				<value min="-6" max="6" step="0.5" units="dB"></value>
+			</setting>
+			<setting id="eq-bass" name="eq-bass" displayName="Bass" url="/alsa_setting" icon="/images/settings/icon_bass.png" class="range" value="0" hideIfDisabled="true">
+				<value min="-6" max="6" step="0.5" units="dB"></value>
+			</setting>
+			<setting id="eq-excursion2" name="eq-excursion2" displayName="Deep Bass" url="/alsa_setting" icon="/images/settings/icon_deepbass.png" class="boolean" value="OFF" explanation="Boosts, enhances, and controls the lowest frequencies." hideIfDisabled="true"></setting>
+			<setting id="reset" name="resetPreset" displayName="Reset Movie Mode" url="/alsa_setting" icon="/images/settings/icon_reset.png" class="button" style="center"></setting>
+		</menuGroup>
+		<menuGroup id="subw" displayName="Subwoofer" icon="/images/settings/icon_subwoofer.png" url="/audiomodes" name="subwoofer" class="boolean" value="default">
+			<value displayName="Off" name="default"></value>
+			<value displayName="On" name="withsub"></value>
+		</menuGroup>
+		<menuGroup id="i3d_enable" displayName="Spatial Audio" icon="/images/settings/ic_audio.png" url="/i3d"></menuGroup>
+		<setting id="replayGainMode" name="replayGainMode" displayName="Replay-gain" url="/audiomodes" icon="/images/settings/ic_replaygain.png" class="list" value="none" description="Disabled">
+			<value displayName="Disabled" name="none"></value>
+			<value displayName="Track gain" name="track"></value>
+			<value displayName="Album gain" name="album"></value>
+			<value displayName="Smart gain" name="smart"></value>
+		</setting>
+		<setting id="volumeLimits" name="volumeLimits" displayName="Volume limits (dB)" icon="/images/settings/ic_volumelimits.png" class="dual-range" value="-75,-12" hideIfDisabled="true">
+			<value min="-90" max="0" minRange="30" units="dB"></value>
+		</setting>
+		<setting id="reset" name="reset" displayName="Reset All" url="/alsa_setting" icon="/images/settings/icon_reset.png" class="button" style="center"></setting>
+	</menuGroup>
+</settings>

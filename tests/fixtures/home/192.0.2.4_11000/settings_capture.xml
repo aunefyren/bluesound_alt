@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<settings pageId="capture" schemaVersion="34">
+	<menuGroup id="capture" displayName="Customize sources" icon="/images/settings/ic_capture.png" url="/setting">
+		<setting id="bluetoothAutoplay" name="bluetoothAutoplay" displayName="Bluetooth" url="/audiomodes" icon="/images/settings/ic_bluetooth.png" class="list" value="3" description="Disabled" explanation="Manual mode allows you to switch between sources in the navigation drawer. &#xA;&#xA;Automatic mode switches to the Bluetooth source when a connected Bluetooth device starts playing audio. You can then switch between sources in the navigation drawer. &#xA;&#xA;Guest mode switches to the Bluetooth source when a connected Bluetooth device starts playing audio. If you change to another source, Bluetooth will disconnect. The Bluetooth source does not appear in the navigation drawer. &#xA;&#xA;Disabled removes the source from the navigation drawer, and does not allow another device to connect to the Player as a Bluetooth source." refresh="true">
+			<value displayName="Manual" name="0"></value>
+			<value displayName="Automatic" name="1"></value>
+			<value displayName="Guest" name="2"></value>
+			<value displayName="Disabled" name="3"></value>
+		</setting>
+		<menuGroup id="capture-input0" displayName="Analog Input" icon="/images/capture/ic_analoginput.png" url="/setting"></menuGroup>
+		<menuGroup id="capture-input1" displayName="Optical Input" icon="/images/capture/ic_opticalinput.png" url="/setting"></menuGroup>
+		<menuGroup id="capture-input2" displayName="HDMI ARC" icon="/images/capture/ic_tv.png" url="/setting"></menuGroup>
+	</menuGroup>
+</settings>

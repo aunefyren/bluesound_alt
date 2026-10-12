@@ -156,3 +156,9 @@ CLAUDE.md
 
 # Probe dumps; the raw ones hold real addresses and names
 bluesound-probe-*.json
+bluesound-settings-*.json
+# Packet captures hold real addresses and traffic
+*.pcapng
+*.pcap
+# Local Home Assistant from dev/docker-compose.yml: accounts, tokens, database
+dev/config/

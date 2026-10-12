@@ -90,6 +90,7 @@ async def async_get_config_entry_diagnostics(
             "external_inputs": coordinator.external_inputs,
             "external_input": coordinator.external_input,
             "presets": coordinator.presets,
+            "settings": {k: asdict(v) for k, v in coordinator.settings.items()},
             "last_update_success": coordinator.last_update_success,
             "push_loop_running": _running(coordinator._long_poll_task),
             "sync_loop_running": _running(coordinator._sync_poll_task),

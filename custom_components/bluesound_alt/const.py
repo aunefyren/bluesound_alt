@@ -3,6 +3,8 @@
 DOMAIN = "bluesound_alt"
 
 DEFAULT_PORT = 11000
+# Every player also serves a web page, where it is rebooted from.
+WEB_PORT = 80
 POLL_INTERVAL = 1
 LONG_POLL_TIMEOUT = 100
 # The BluOS API asks for at least this many seconds between long polls of one
@@ -18,3 +20,8 @@ MAX_BROWSE_PAGES = 10
 # how often to look. Real players settle well within a second.
 GROUPING_WAIT_SECONDS = 5
 GROUPING_POLL_SECONDS = 0.25
+# How often to re-read the audio settings. The BluOS app changes tone and EQ
+# without anything in /Status or /SyncStatus showing it.
+SETTINGS_POLL_SECONDS = 30
+# Settings menus read for a player's settings: Audio, Player and Sources.
+SETTINGS_MENUS = ("audio", "player", "capture")

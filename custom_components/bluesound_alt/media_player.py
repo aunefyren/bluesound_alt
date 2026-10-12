@@ -126,12 +126,7 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         super().__init__(coordinator)
         self._entry = entry
         self._attr_unique_id = coordinator.sync_info.mac
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, coordinator.sync_info.mac)},
-            "name": coordinator.sync_info.name,
-            "model": coordinator.sync_info.model,
-            "manufacturer": "Bluesound",
-        }
+        self._attr_device_info = coordinator.device_info
         self._optimistic_volume: float | None = None
         self._optimistic_muted: bool | None = None
 
@@ -342,8 +337,12 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         await self.coordinator.async_request_refresh()
 
     async def async_media_pause(self) -> None:
-        """Pause playback."""
-        await self.coordinator.async_request_api("/Pause", toggle=1)
+        """Pause playback.
+
+        Plain /Pause, not toggle=1: a toggle resumes a player that was
+        already paused, e.g. from the BluOS app before our state caught up.
+        """
+        await self.coordinator.async_request_api("/Pause")
         await self.coordinator.async_request_refresh()
 
     async def async_media_stop(self) -> None:

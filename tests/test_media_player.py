@@ -69,6 +69,22 @@ async def test_source_is_the_playing_input(
     assert soundbar.attributes["source"] == "HDMI eARC"
 
 
+async def test_pause_does_not_toggle(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """Pause is a plain pause, so it cannot resume an already paused player."""
+    await setup_player(hass, MASTER, MASTER_MAC)
+
+    await hass.services.async_call(
+        "media_player",
+        "media_pause",
+        {"entity_id": "media_player.player_1"},
+        blocking=True,
+    )
+    sent = [r for r in patch_session.requests if r.path == "/Pause"]
+    assert [r.query for r in sent] == [{}]
+
+
 async def test_slave_shows_the_group_source(
     hass: HomeAssistant, patch_session: FakeBluOS
 ) -> None:

@@ -6,6 +6,7 @@ from collections.abc import Coroutine
 from dataclasses import dataclass, field, replace
 import logging
 from typing import Any
+import xml.etree.ElementTree as ET
 from xml.parsers.expat import ExpatError
 
 import aiohttp
@@ -13,6 +14,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 import xmltodict
 from yarl import URL
@@ -24,6 +26,9 @@ from .const import (
     MAX_BROWSE_PAGES,
     NODE_OFFLINE_CHECK_TIMEOUT,
     RETRY_DELAY,
+    SETTINGS_MENUS,
+    SETTINGS_POLL_SECONDS,
+    WEB_PORT,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -75,7 +80,35 @@ class BluesoundSyncInfo:
     # bluos marks the input that is the BluOS module itself.
     external_inputs: list[dict[str, Any]] = field(default_factory=list)
     external_input: str | None = None
+    # Version of the /Settings schema the player speaks.
+    schema_version: str | None = None
     etag: str | None = None
+
+
+@dataclass
+class BluesoundSetting:
+    """One entry of the player's settings menus, as the BluOS app shows it.
+
+    Changed by POSTing {name: value} as JSON to url, as the app does.
+    """
+
+    id: str
+    name: str
+    url: str
+    # The app's control: boolean (value ON/OFF), list, range or dual-range.
+    kind: str
+    value: str | None
+    # (value the player knows it by, label the app shows), for lists.
+    options: list[tuple[str, str]] = field(default_factory=list)
+    minimum: float | None = None
+    maximum: float | None = None
+    step: float | None = None
+    units: str | None = None
+    # The least a dual-range's two ends may be apart.
+    min_range: float | None = None
+    # (name, value) of other settings this one only applies with, such as
+    # bass only while tone controls are on.
+    depends_on: list[tuple[str, str]] = field(default_factory=list)
 
 
 class BluesoundCommandError(HomeAssistantError):
@@ -152,7 +185,20 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
         self._session: aiohttp.ClientSession | None = None
         self._long_poll_task: asyncio.Task | None = None
         self._sync_poll_task: asyncio.Task | None = None
+        self._settings_poll_task: asyncio.Task | None = None
         self._is_first_fetch = True
+        # The Audio, Player and Sources settings menus, by setting name.
+        self.settings: dict[str, BluesoundSetting] = {}
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Describe the player, for every entity it has."""
+        return DeviceInfo(
+            identifiers={(DOMAIN, self.sync_info.mac)},
+            name=self.sync_info.name,
+            model=self.sync_info.model,
+            manufacturer="Bluesound",
+        )
 
     def _base_url(self) -> str:
         return f"http://{self.host}:{self.port}"
@@ -224,8 +270,12 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
                     etag = None
                     await asyncio.sleep(RETRY_DELAY)
                     continue
+                changed = etag is not None and info.etag != etag
                 etag = info.etag
                 self._apply_sync_info(info)
+                if changed and self.settings:
+                    # A new listening mode or volume limit moves /SyncStatus.
+                    await self.async_refresh_settings()
             except Exception:
                 # A dead loop would freeze grouping and volume for good.
                 _LOGGER.exception("Unexpected error following %s", self.host)
@@ -309,8 +359,13 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
             session = self._get_session()
             self.sources = await _fetch_sources(session, self.host, self.port)
             self.presets = await _fetch_presets(session, self.host, self.port)
+            self.settings = await self._fetch_settings() or {}
             self._start_long_poll_loop()
             self._start_sync_poll_loop()
+            if self.settings:
+                self._settings_poll_task = self._start_background(
+                    self._settings_poll_loop(), "settings"
+                )
 
         return data
 
@@ -407,9 +462,96 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
             self._get_session(), URL(f"{self._base_url()}{path}", encoded=True)
         )
 
+    async def _fetch_settings(self) -> dict[str, BluesoundSetting] | None:
+        """Read the settings menus; None if the player did not answer.
+
+        A menu the player does not have is left out, so plain players simply
+        offer fewer settings.
+        """
+        settings: dict[str, BluesoundSetting] = {}
+        for menu in SETTINGS_MENUS:
+            text = await self._fetch_settings_menu(menu)
+            if text is None:
+                return None
+            try:
+                for name, setting in _parse_settings(text).items():
+                    settings.setdefault(name, setting)
+            except ET.ParseError:
+                _LOGGER.warning("Malformed %s settings from %s", menu, self.host)
+                return None
+        return settings
+
+    async def _fetch_settings_menu(self, menu: str) -> str | None:
+        """Read one settings menu: its XML, "" if it is missing, None on failure."""
+        params = {"id": menu, "schemaVersion": self.sync_info.schema_version or "34"}
+        try:
+            async with self._get_session().get(
+                f"{self._base_url()}/Settings",
+                params=params,
+                timeout=aiohttp.ClientTimeout(total=NODE_OFFLINE_CHECK_TIMEOUT),
+            ) as resp:
+                if resp.status == 404:
+                    return ""
+                if resp.status != 200:
+                    return None
+                return await resp.text()
+        except (aiohttp.ClientError, TimeoutError):
+            return None
+
+    def setting_applies(self, setting: BluesoundSetting) -> bool:
+        """Return whether the settings a setting depends on allow it now."""
+        for name, value in setting.depends_on:
+            other = self.settings.get(name)
+            if other is not None and other.value != value:
+                return False
+        return True
+
+    async def _settings_poll_loop(self) -> None:
+        """Re-read the settings now and then, to follow the BluOS app.
+
+        Changing the listening mode or volume limits moves /SyncStatus, which
+        triggers a re-read too, but tone and EQ changes do not.
+        """
+        while True:
+            await asyncio.sleep(SETTINGS_POLL_SECONDS)
+            try:
+                await self.async_refresh_settings()
+            except Exception:
+                # A dead loop would leave the settings stale for good.
+                _LOGGER.exception("Unexpected error reading settings of %s", self.host)
+
+    async def async_refresh_settings(self) -> None:
+        """Re-read the settings, keeping the last ones if none come back."""
+        settings = await self._fetch_settings()
+        if settings is not None and settings != self.settings:
+            self.settings = settings
+            self.async_update_listeners()
+
+    async def async_set_setting(self, name: str, value: str | float) -> None:
+        """Change one setting, and show what the player then reports."""
+        setting = self.settings[name]
+        await async_send_command(
+            self._get_session(),
+            f"{self._base_url()}{setting.url}",
+            json={setting.name: value},
+        )
+        await self.async_refresh_settings()
+
+    async def async_reboot(self) -> None:
+        """Reboot the player, as the confirmation form on its web page does."""
+        await async_send_command(
+            self._get_session(),
+            f"http://{self.host}:{WEB_PORT}/reboot",
+            data={"noheader": "1", "yes": ""},
+        )
+
     def stop(self) -> None:
         """Stop following the player."""
-        for task in (self._long_poll_task, self._sync_poll_task):
+        for task in (
+            self._long_poll_task,
+            self._sync_poll_task,
+            self._settings_poll_task,
+        ):
             if task and not task.done():
                 task.cancel()
 
@@ -418,22 +560,30 @@ async def async_send_command(
     session: aiohttp.ClientSession,
     url: str | URL,
     params: dict[str, Any] | None = None,
+    *,
+    json: dict[str, Any] | None = None,
+    data: dict[str, str] | None = None,
 ) -> str:
-    """Send a command to a player and return its answer, raising on refusal."""
+    """Send a command to a player and return its answer, raising on refusal.
+
+    A GET with query parameters, or a POST when there is a json or form body.
+    """
     target = URL(url) if isinstance(url, str) else url
     host, command = target.host or "", target.path
+    timeout = aiohttp.ClientTimeout(total=NODE_OFFLINE_CHECK_TIMEOUT)
+    if json is not None or data is not None:
+        request = session.post(url, json=json, data=data, timeout=timeout)
+    else:
+        request = session.get(url, params=params or None, timeout=timeout)
     try:
-        async with session.get(
-            url,
-            params=params or None,
-            timeout=aiohttp.ClientTimeout(total=NODE_OFFLINE_CHECK_TIMEOUT),
-        ) as resp:
+        async with request as resp:
             status = resp.status
             text = await resp.text()
     except (aiohttp.ClientError, TimeoutError) as err:
         raise BluesoundUnreachableError(host, str(err) or type(err).__name__) from err
 
-    if status != 200:
+    # Settings answer 205 Reset Content: done, and re-read what is shown.
+    if not 200 <= status < 300:
         raise BluesoundCommandError(host, command, f"HTTP {status}")
     if (reason := _error_reason(text)) is not None:
         raise BluesoundCommandError(host, command, reason)
@@ -546,6 +696,7 @@ async def _fetch_sync_info(
             volume=volume if volume >= 0 else None,
             external_inputs=external_inputs,
             external_input=external_input,
+            schema_version=sync.get("@schemaVersion"),
             etag=sync.get("@etag"),
         )
     except Exception:
@@ -584,6 +735,7 @@ async def _fetch_sources(
                 continue
             encoded = play_url_raw.split("?url=", 1)[1]
             from urllib.parse import unquote
+
             play_url = unquote(encoded)
             sources.append({"name": item.get("@text", ""), "play_url": play_url})
 
@@ -686,6 +838,72 @@ def _parse_browse(
             }
         )
     return result, root.get("@nextKey") or None
+
+
+# The controls entities are made from. Text (room and input names), icon
+# lists and buttons are left out, which also keeps names out of diagnostics.
+SETTING_KINDS = {"boolean", "list", "range", "dual-range"}
+
+
+def _parse_settings(xml_text: str) -> dict[str, BluesoundSetting]:
+    """Parse a settings menu into its settings, by name.
+
+    A setting without a url of its own is changed through its menu's, as the
+    app does with volume limits. A menu can itself be a setting, as the
+    soundbar's subwoofer is. Only SETTING_KINDS are kept.
+    """
+    found: dict[str, BluesoundSetting] = {}
+
+    def walk(element: ET.Element, url: str | None) -> None:
+        url = element.get("url") or url
+        for child in element:
+            if child.tag not in ("menuGroup", "setting"):
+                continue
+            setting = _parse_setting(child, url)
+            if setting is not None:
+                found.setdefault(setting.name, setting)
+            if child.tag == "menuGroup":
+                walk(child, url)
+
+    root = ET.fromstring(xml_text) if xml_text.strip() else None
+    if root is not None:
+        walk(root, None)
+    return found
+
+
+def _parse_setting(element: ET.Element, url: str | None) -> BluesoundSetting | None:
+    """Parse one setting, or None if it is not one that can be set."""
+    setting_id, name = element.get("id"), element.get("name")
+    url = element.get("url") or url
+    kind = element.get("class") or ""
+    if not setting_id or not name or not url or kind not in SETTING_KINDS:
+        return None
+    setting = BluesoundSetting(
+        id=setting_id, name=name, url=url, kind=kind, value=element.get("value")
+    )
+    for value in element.findall("value"):
+        if value.get("name"):
+            label = value.get("displayName") or value.get("name")
+            setting.options.append((value.get("name"), label))
+        elif value.get("min") is not None:
+            setting.minimum = _safe_float(value.get("min"))
+            setting.maximum = _safe_float(value.get("max"))
+            setting.step = _safe_float(value.get("step"))
+            setting.units = value.get("units")
+            setting.min_range = _safe_float(value.get("minRange"))
+    setting.depends_on = [
+        (d.get("name"), d.get("value"))
+        for d in element.findall("dependsOn")
+        if d.get("name") and d.get("value") is not None
+    ]
+    return setting
+
+
+def _safe_float(val: Any) -> float | None:
+    try:
+        return float(val)
+    except (ValueError, TypeError):
+        return None
 
 
 def _parse_status(xml_text: str) -> BluesoundData:
