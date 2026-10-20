@@ -8,7 +8,6 @@ DEFAULT_PORT = 11000
 CONF_HIDDEN_SOURCES = "hidden_sources"
 # Every player also serves a web page, where it is rebooted from.
 WEB_PORT = 80
-POLL_INTERVAL = 1
 LONG_POLL_TIMEOUT = 100
 # The BluOS API asks for at least this many seconds between long polls of one
 # resource, even when an answer comes back sooner.

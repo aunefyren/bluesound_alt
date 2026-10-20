@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
       - run: python -m pip install ruff
       - run: ruff check tests dev
       - run: ruff format --check tests dev
@@ -31,7 +31,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          # Current pytest-homeassistant-custom-component needs 3.14; on an
+          # older Python pip quietly installs an older Home Assistant.
+          python-version: "3.14"
           cache: pip
           cache-dependency-path: requirements_test.txt
       - run: python -m pip install -r requirements_test.txt

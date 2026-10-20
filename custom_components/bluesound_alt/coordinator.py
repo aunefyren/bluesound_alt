@@ -49,6 +49,9 @@ class BluesoundData:
     image_url: str | None = None
     position: float | None = None
     duration: float | None = None
+    # Whether the player can jump within what is playing; live radio and
+    # inputs cannot.
+    can_seek: bool = False
     service: str | None = None
     service_name: str | None = None
     stream_url: str | None = None
@@ -68,6 +71,8 @@ class BluesoundSyncInfo:
     name: str
     mac: str
     model: str | None = None
+    # Who makes it: Bluesound, or NAD for a C700 or T758, say.
+    brand: str | None = None
     ip: str | None = None
     port: int = 11000
     # Group topology, master_ip set means this player is a slave
@@ -202,7 +207,7 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
             identifiers={(DOMAIN, self.sync_info.mac)},
             name=self.sync_info.name,
             model=self.sync_info.model,
-            manufacturer="Bluesound",
+            manufacturer=self.sync_info.brand or "Bluesound",
         )
 
     def _base_url(self) -> str:
@@ -717,6 +722,7 @@ async def _fetch_sync_info(
             name=name,
             mac=mac,
             model=model,
+            brand=sync.get("@brand") or None,
             ip=host,
             port=port,
             master_ip=master_ip,
@@ -946,6 +952,7 @@ def _parse_status(xml_text: str) -> BluesoundData:
     data.state = s.get("state", "stop")
     data.muted = s.get("mute", "0") == "1"
     data.shuffle = s.get("shuffle", "0") == "1"
+    data.can_seek = s.get("canSeek", "0") == "1"
     data.service = s.get("service")
     data.service_name = s.get("serviceName")
     data.title = s.get("title1")

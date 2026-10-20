@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import re
 
-from homeassistant.components.media_player import BrowseMedia
+from homeassistant.components.media_player import BrowseMedia, MediaPlayerEntityFeature
 from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback
+from homeassistant.exceptions import ServiceValidationError
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity_component import EntityComponent
 from homeassistant.helpers.event import async_track_state_change_event
 import pytest
 
+from custom_components.bluesound_alt.const import DOMAIN
 from custom_components.bluesound_alt.media_player import (
     BluesoundMediaPlayer,
     _decode_media_id,
@@ -245,6 +248,66 @@ async def test_receiver_on_bluos_input_is_not_named_bluos(
         lambda: entity(hass, "media_player.player_1").coordinator.external_input == "6"
     )
     assert hass.states.get("media_player.player_1").attributes.get("source") != "BluOS"
+
+
+async def test_select_unknown_source(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """A source the player does not have is refused, not silently ignored."""
+    await setup_player(hass, MASTER, MASTER_MAC)
+
+    with pytest.raises(ServiceValidationError) as raised:
+        await hass.services.async_call(
+            "media_player",
+            "select_source",
+            {"entity_id": "media_player.player_1", "source": "Cassette"},
+            blocking=True,
+        )
+    assert raised.value.translation_key == "unknown_source"
+    assert not [r for r in patch_session.requests if r.path in ("/Play", "/Preset")]
+
+
+# -- controls ---------------------------------------------------------------
+
+
+async def test_no_seek_on_an_input(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """Seeking is not offered while the player cannot seek, as on an input."""
+    await setup_player(hass, MASTER, MASTER_MAC)
+
+    features = hass.states.get("media_player.player_1").attributes["supported_features"]
+    assert not features & MediaPlayerEntityFeature.SEEK
+    assert features & MediaPlayerEntityFeature.PAUSE
+
+
+@pytest.mark.parametrize("bluos", [T758_LABEL], indirect=True)
+async def test_seek_where_the_player_can(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """Seeking is offered while the player reports it can seek."""
+    await setup_player(hass, T758, T758_MAC)
+
+    features = hass.states.get("media_player.player_1").attributes["supported_features"]
+    assert features & MediaPlayerEntityFeature.SEEK
+
+
+# -- device -----------------------------------------------------------------
+
+
+async def test_device_maker_is_the_brand(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """The device's maker is the player's brand, NAD as well as Bluesound."""
+    nad_entry = await setup_player(hass, MASTER, MASTER_MAC)
+    soundbar_entry = await setup_player(hass, SOUNDBAR, SOUNDBAR_MAC)
+
+    registry = dr.async_get(hass)
+    [nad] = dr.async_entries_for_config_entry(registry, nad_entry.entry_id)
+    [soundbar] = dr.async_entries_for_config_entry(registry, soundbar_entry.entry_id)
+    assert nad.identifiers == {(DOMAIN, MASTER_MAC)}
+    assert (nad.manufacturer, nad.model) == ("NAD", "C700")
+    assert (soundbar.manufacturer, soundbar.model) == ("Bluesound", "PULSE SOUNDBAR+")
 
 
 # -- grouping ---------------------------------------------------------------
