@@ -34,7 +34,7 @@ FIXTURES = pathlib.Path(__file__).parent / "fixtures"
 # Commands the probe never captures, as it only reads. Players accept them
 # with a short XML answer.
 COMMANDS = {"/Play", "/Pause", "/Stop", "/Skip", "/Back", "/Shuffle", "/Repeat"}
-COMMANDS |= {"/Preset", "/Volume", "/ExternalSource", "/reboot"}
+COMMANDS |= {"/Preset", "/Volume", "/ExternalSource", "/reboot", "/Clear"}
 # Settings, which players accept with 205 Reset Content and a blank body.
 SETTINGS_COMMANDS = {"/alsa_setting", "/audiomodes"}
 
@@ -129,6 +129,8 @@ class FakePlayer:
     # Volume and mute as last set through /Volume, once they have been.
     volume: int | None = None
     muted: bool | None = None
+    # Minutes on the sleep timer, stepped by /Sleep as players step it.
+    sleep: int | None = None
 
     def push(self, path: str, body: str, status: int = 200) -> None:
         """Answer the next long poll on a path, e.g. "/Status"."""
@@ -159,6 +161,9 @@ class FakePlayer:
                 status, body, content_type=next(iter(content_type), "text/xml")
             )
 
+        if request.path == "/Sleep":
+            return FakeResponse(200, self._step_sleep())
+
         if request.path == "/Volume" and ({"level", "mute"} & set(request.query)):
             return FakeResponse(200, self._set_volume(request.query))
 
@@ -176,6 +181,13 @@ class FakePlayer:
         if request.path in COMMANDS:
             return FakeResponse(200, '<?xml version="1.0" encoding="UTF-8"?>\n<ok/>')
         return FakeResponse(404, "")
+
+    def _step_sleep(self) -> str:
+        """Move the sleep timer on a step: 15, 30, 45, 60, 90, then off."""
+        steps = (15, 30, 45, 60, 90)
+        self.sleep = next((s for s in steps if s > (self.sleep or 0)), None)
+        minutes = "" if self.sleep is None else str(self.sleep)
+        return f'<?xml version="1.0" encoding="UTF-8"?>\n<sleep>{minutes}</sleep>'
 
     def _set_volume(self, query: dict[str, str]) -> str:
         """Change volume or mute, answering as players do with the new level."""

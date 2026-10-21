@@ -14,7 +14,11 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.device_registry import (
+    CONNECTION_NETWORK_MAC,
+    DeviceInfo,
+    format_mac,
+)
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 import xmltodict
 from yarl import URL
@@ -28,6 +32,7 @@ from .const import (
     RETRY_DELAY,
     SETTINGS_MENUS,
     SETTINGS_POLL_SECONDS,
+    SLEEP_STEPS,
     WEB_PORT,
 )
 
@@ -57,6 +62,9 @@ class BluesoundData:
     # Whether the player can jump within what is playing; live radio and
     # inputs cannot.
     can_seek: bool = False
+    # Minutes left on the sleep timer, None while it is off. In a group the
+    # timer is the group's.
+    sleep: int | None = None
     service: str | None = None
     service_name: str | None = None
     stream_url: str | None = None
@@ -210,9 +218,14 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
         """Describe the player, for every entity it has."""
         return DeviceInfo(
             identifiers={(DOMAIN, self.sync_info.mac)},
+            # The MAC lets Home Assistant match the player with what other
+            # integrations, a router's say, see of it.
+            connections={(CONNECTION_NETWORK_MAC, format_mac(self.sync_info.mac))},
             name=self.sync_info.name,
             model=self.sync_info.model,
             manufacturer=self.sync_info.brand or "Bluesound",
+            # The player's own web page, where the BluOS app's settings are.
+            configuration_url=f"http://{self.host}:{WEB_PORT}",
         )
 
     def _base_url(self) -> str:
@@ -603,6 +616,31 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
         if target.is_absolute():
             return target.with_host(self.host)
         return URL(self._base_url()).join(target)
+
+    async def async_set_sleep(self, minutes: int | None) -> None:
+        """Set the sleep timer to one of its steps, or off with None.
+
+        The player only moves its timer on a step at a time, so it is stepped
+        until it answers with the one asked for. /Status catches up a moment
+        later; the answer is shown straight away.
+        """
+        if minutes is None and self.data is not None and self.data.sleep is None:
+            return
+        for _ in range(len(SLEEP_STEPS) + 1):
+            answer = await self.async_request_api("/Sleep")
+            try:
+                now = _minutes_or_none(xmltodict.parse(answer).get("sleep"))
+            except ExpatError:
+                break
+            if now == minutes:
+                if self.data is not None:
+                    self.async_set_updated_data(replace(self.data, sleep=now))
+                return
+        raise HomeAssistantError(
+            translation_domain=DOMAIN,
+            translation_key="sleep_not_set",
+            translation_placeholders={"host": self.host},
+        )
 
     async def async_fetch_image(self, url: str) -> tuple[bytes | None, str | None]:
         """Fetch an image, as its bytes and content type; None if it fails."""
@@ -997,6 +1035,7 @@ def _parse_status(xml_text: str) -> BluesoundData:
     data.muted = s.get("mute", "0") == "1"
     data.shuffle = s.get("shuffle", "0") == "1"
     data.can_seek = s.get("canSeek", "0") == "1"
+    data.sleep = _minutes_or_none(s.get("sleep"))
     data.service = s.get("service")
     data.service_name = s.get("serviceName")
     data.title = s.get("title1")
@@ -1031,6 +1070,12 @@ def _parse_status(xml_text: str) -> BluesoundData:
         data.duration = None
 
     return data
+
+
+def _minutes_or_none(val: Any) -> int | None:
+    """Return the sleep timer's minutes, None while it is off (<sleep/>)."""
+    minutes = _safe_int(val, -1)
+    return minutes if minutes > 0 else None
 
 
 def _safe_int(val: Any, default: int = 0) -> int:

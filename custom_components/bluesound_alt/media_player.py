@@ -43,6 +43,7 @@ SUPPORT_BLUESOUND = (
     | MediaPlayerEntityFeature.PAUSE
     | MediaPlayerEntityFeature.STOP
     | MediaPlayerEntityFeature.VOLUME_SET
+    | MediaPlayerEntityFeature.VOLUME_STEP
     | MediaPlayerEntityFeature.VOLUME_MUTE
     | MediaPlayerEntityFeature.SHUFFLE_SET
     | MediaPlayerEntityFeature.GROUPING
@@ -52,6 +53,7 @@ SUPPORT_BLUESOUND = (
     | MediaPlayerEntityFeature.PREVIOUS_TRACK
     | MediaPlayerEntityFeature.REPEAT_SET
     | MediaPlayerEntityFeature.BROWSE_MEDIA
+    | MediaPlayerEntityFeature.CLEAR_PLAYLIST
 )
 
 _STATE_MAP: dict[str, MediaPlayerState] = {
@@ -128,6 +130,9 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
     _attr_has_entity_name = True
     _attr_name = None
     _attr_media_position_updated_at = None
+    # Volume up and down move 2 of the player's 100 steps. Home Assistant's
+    # default, 10, jumps too far for a speaker.
+    _attr_volume_step = 0.02
 
     def __init__(self, coordinator: BluesoundCoordinator, entry: ConfigEntry) -> None:
         """Set up the entity for one player."""
@@ -473,6 +478,11 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
     async def async_media_seek(self, position: float) -> None:
         """Jump to a position in the track."""
         await self.coordinator.async_request_api("/Play", seek=int(position))
+        await self.coordinator.async_request_refresh()
+
+    async def async_clear_playlist(self) -> None:
+        """Empty the play queue."""
+        await self.coordinator.async_request_api("/Clear")
         await self.coordinator.async_request_refresh()
 
     async def async_play_media(

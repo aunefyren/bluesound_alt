@@ -1,0 +1,160 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "title": "Legg til Bluesound-spiller",
+        "data": {
+          "host": "Vert",
+          "port": "Port"
+        },
+        "data_description": {
+          "host": "IP-adressen eller vertsnavnet til Bluesound-spilleren",
+          "port": "Portnummer (standard: 11000)"
+        }
+      },
+      "confirm": {
+        "title": "Fant en Bluesound-spiller",
+        "description": "Vil du legge til {name} ({host})?"
+      }
+    },
+    "error": {
+      "cannot_connect": "Kunne ikke koble til spilleren. Sjekk vert og port.",
+      "invalid_response": "Enheten svarte ikke med et gyldig svar.",
+      "unknown": "Uventet feil."
+    },
+    "abort": {
+      "already_configured": "Denne spilleren er allerede satt opp.",
+      "cannot_connect": "Kunne ikke koble til spilleren.",
+      "invalid_response": "Enheten svarte ikke med et gyldig svar.",
+      "no_ipv4_address": "Spilleren oppga ingen IPv4-adresse."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Innganger",
+        "description": "Kryss av for inngangene som ikke skal vises i kildelisten. En skjult inngang spiller fortsatt, og vises som kilde mens den spiller, den tilbys bare ikke som valg. Innganger som legges til på spilleren senere, dukker opp av seg selv. Musikktjenester og forhåndsinnstillinger spilles fra mediebiblioteket.",
+        "data": {
+          "hidden_sources": "Skjulte innganger"
+        }
+      }
+    },
+    "abort": {
+      "not_loaded": "Spilleren er ikke satt opp akkurat nå. Prøv igjen når den er tilgjengelig."
+    }
+  },
+  "entity": {
+    "number": {
+      "balance": {
+        "name": "Balanse"
+      },
+      "bass": {
+        "name": "Bass"
+      },
+      "display_brightness": {
+        "name": "Skjermlysstyrke"
+      },
+      "treble": {
+        "name": "Diskant"
+      },
+      "volume_limit_max": {
+        "name": "Maksimalt volum"
+      },
+      "volume_limit_min": {
+        "name": "Minimalt volum"
+      }
+    },
+    "select": {
+      "bluetooth_mode": {
+        "name": "Bluetooth"
+      },
+      "indicator_brightness": {
+        "name": "Lysstyrke på indikatorlys"
+      },
+      "listening_mode": {
+        "name": "Lyttemodus"
+      },
+      "output_mode": {
+        "name": "Utgangsmodus"
+      },
+      "replay_gain": {
+        "name": "Replay gain"
+      },
+      "sleep_timer": {
+        "name": "Innsovningstimer",
+        "state": {
+          "off": "Av",
+          "15": "15 minutter",
+          "30": "30 minutter",
+          "45": "45 minutter",
+          "60": "60 minutter",
+          "90": "90 minutter"
+        },
+        "state_attributes": {
+          "minutes_left": {
+            "name": "Minutter igjen"
+          }
+        }
+      }
+    },
+    "switch": {
+      "auto_display_brightness": {
+        "name": "Automatisk skjermlysstyrke"
+      },
+      "dark_mode": {
+        "name": "Mørk modus"
+      },
+      "deep_bass": {
+        "name": "Dyp bass"
+      },
+      "subwoofer": {
+        "name": "Subwoofer"
+      },
+      "surround_upmixer": {
+        "name": "Surround-oppmiksing"
+      },
+      "tone_controls": {
+        "name": "Tonekontroll"
+      },
+      "virtualizer": {
+        "name": "Virtualisering"
+      },
+      "volume_leveler": {
+        "name": "Volumutjevning"
+      }
+    }
+  },
+  "exceptions": {
+    "cannot_reach": {
+      "message": "Fikk ikke kontakt med spilleren på {host}: {error}"
+    },
+    "command_failed": {
+      "message": "Spilleren på {host} avviste {command}: {reason}"
+    },
+    "fixed_group": {
+      "message": "{name} er del av en fast gruppe, for eksempel et stereopar, og kan ikke grupperes alene."
+    },
+    "not_added": {
+      "message": "{leader} tok ikke {names} inn i gruppen sin."
+    },
+    "not_regrouped": {
+      "message": "Spillerne bekreftet ikke omgrupperingen i tide. Sjekk gruppen i BluOS-appen og prøv igjen."
+    },
+    "sleep_not_set": {
+      "message": "Spilleren på {host} satte ikke innsovningstimeren. Prøv igjen."
+    },
+    "unknown_member": {
+      "message": "{entity_id} er ikke en Bluesound Alt-spiller."
+    },
+    "unknown_preset": {
+      "message": "Denne spilleren har ingen forhåndsinnstilling {preset}."
+    },
+    "unknown_source": {
+      "message": "{source} finnes ikke i kildelisten til denne spilleren."
+    },
+    "volume_limits_too_close": {
+      "message": "Minimalt og maksimalt volum må være minst {gap} dB fra hverandre."
+    }
+  }
+}
