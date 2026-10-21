@@ -1,6 +1,7 @@
 """Bluesound Alt media player entity."""
 from __future__ import annotations
 
+from collections import OrderedDict
 import contextlib
 import logging
 from typing import Any
@@ -79,6 +80,15 @@ _EXTERNAL_STREAM = "Capture:External"
 # Media browser: media_content_id encodes a BluOS browseKey (b) and/or playURL (p).
 _BLUESOUND_SCHEME = "bluesound:"
 _BLUESOUND_ROOT = "bluesound:root"
+# The player's presets, as a folder of their own, and one preset by its id:
+# bluesound:preset/3, short enough to write in an automation by hand.
+_BLUESOUND_PRESETS = "bluesound:presets"
+_BLUESOUND_PRESET = "bluesound:preset/"
+# Browse images not on HTTPS, such as the player's own icons, are passed
+# through Home Assistant: an HTTPS frontend, or a phone away from home, cannot
+# load them from the player. Only images handed out while browsing are
+# fetched, the most recent this many.
+_MAX_BROWSE_IMAGES = 1000
 
 # Sent when a player entity comes or goes. Group membership is resolved
 # through the other players' entities, so theirs may have changed too.
@@ -127,13 +137,22 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         self._attr_device_info = coordinator.device_info
         self._optimistic_volume: float | None = None
         self._optimistic_muted: bool | None = None
+        self._browse_images: OrderedDict[str, None] = OrderedDict()
 
     @property
     def supported_features(self) -> MediaPlayerEntityFeature:
-        """Return the controls the player offers, seeking only where it can."""
+        """Return the controls the player offers.
+
+        Seeking only where it can, and source selection only with inputs to
+        choose from: a speaker without any, or with all of them hidden, has
+        none.
+        """
+        features = SUPPORT_BLUESOUND
         if self.coordinator.data is not None and self.coordinator.data.can_seek:
-            return SUPPORT_BLUESOUND | MediaPlayerEntityFeature.SEEK
-        return SUPPORT_BLUESOUND
+            features |= MediaPlayerEntityFeature.SEEK
+        if not self.source_list:
+            features &= ~MediaPlayerEntityFeature.SELECT_SOURCE
+        return features
 
     @property
     def state(self) -> MediaPlayerState | None:
@@ -217,10 +236,11 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
 
     @property
     def source_list(self) -> list[str]:
-        """Return the inputs, services and presets that can be selected.
+        """Return the audio inputs connected to the player.
 
-        Those hidden in the player's options are left out. They still show as
-        the source while they play.
+        Services and presets are played from the media browser. Inputs hidden
+        in the player's options are left out. Either still shows as the
+        source while it plays.
         """
         hidden = set(self._entry.options.get(CONF_HIDDEN_SOURCES, []))
         return [
@@ -399,7 +419,12 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         self.coordinator.async_apply_volume_answer(answer)
 
     async def async_select_source(self, source: str) -> None:
-        """Play an input, service or preset by its name."""
+        """Switch to an input by its name.
+
+        Services such as Spotify and presets are no longer listed as sources,
+        but their names are still accepted, so automations that picked one
+        this way keep working.
+        """
         for s in self.coordinator.sources:
             if s["name"] == source:
                 await self.coordinator.async_request_api("/Play", url=s["play_url"])
@@ -454,6 +479,9 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         self, media_type: str, media_id: str, **kwargs: Any
     ) -> None:
         """Play a URL on the device, resolving HA media_source IDs first."""
+        if media_id.startswith(_BLUESOUND_PRESET):
+            await self._async_play_preset(media_id.removeprefix(_BLUESOUND_PRESET))
+            return
         # Items picked from our own media browser carry a BluOS playURL, which is
         # replayed verbatim (it is already a complete, encoded relative URL).
         if media_id.startswith(_BLUESOUND_SCHEME):
@@ -474,6 +502,17 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         await self.coordinator.async_request_api("/Play", url=media_id)
         await self.coordinator.async_request_refresh()
 
+    async def _async_play_preset(self, preset_id: str) -> None:
+        """Load one of the player's presets by its id."""
+        if not any(p["id"] == preset_id for p in self.coordinator.presets):
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="unknown_preset",
+                translation_placeholders={"preset": preset_id},
+            )
+        await self.coordinator.async_request_api("/Preset", id=preset_id)
+        await self.coordinator.async_request_refresh()
+
     # --- Media browsing ---
 
     async def async_browse_media(
@@ -484,6 +523,8 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         """Browse the device's services/radio tree and HA media sources."""
         if media_content_id is None or media_content_id == _BLUESOUND_ROOT:
             return await self._build_browse_root()
+        if media_content_id == _BLUESOUND_PRESETS:
+            return self._build_presets_folder()
 
         if media_source.is_media_source_id(media_content_id):
             return await media_source.async_browse_media(
@@ -511,6 +552,8 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         """Top level: device services/inputs/radio plus HA media sources."""
         items = await self.coordinator.async_browse(None)
         children = [self._item_to_browse(i) for i in items]
+        if self.coordinator.presets:
+            children.insert(0, self._build_presets_folder(with_children=False))
         with contextlib.suppress(BrowseError):
             children.append(
                 await media_source.async_browse_media(
@@ -532,17 +575,47 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
             children_media_class=MediaClass.DIRECTORY,
         )
 
+    def _build_presets_folder(self, with_children: bool = True) -> BrowseMedia:
+        """Return the player's presets as a folder, each played with one tap."""
+        children = None
+        if with_children:
+            children = [
+                BrowseMedia(
+                    title=p["name"],
+                    media_class=MediaClass.MUSIC,
+                    media_content_type=MediaType.MUSIC,
+                    media_content_id=f"{_BLUESOUND_PRESET}{p['id']}",
+                    can_play=True,
+                    can_expand=False,
+                    thumbnail=self._browse_thumbnail(
+                        f"{_BLUESOUND_PRESET}{p['id']}", p.get("image")
+                    ),
+                )
+                for p in self.coordinator.presets
+            ]
+        return BrowseMedia(
+            title="Presets",
+            media_class=MediaClass.DIRECTORY,
+            media_content_type="bluesound",
+            media_content_id=_BLUESOUND_PRESETS,
+            can_play=False,
+            can_expand=True,
+            children=children,
+            children_media_class=MediaClass.MUSIC,
+        )
+
     def _item_to_browse(self, item: dict[str, str | None]) -> BrowseMedia:
         browse_key = item.get("browse_key")
         play_url = item.get("play_url")
+        media_content_id = _encode_media_id(browse_key, play_url)
         return BrowseMedia(
             title=item["name"],
             media_class=MediaClass.MUSIC if play_url else MediaClass.DIRECTORY,
             media_content_type=MediaType.MUSIC,
-            media_content_id=_encode_media_id(browse_key, play_url),
+            media_content_id=media_content_id,
             can_play=play_url is not None,
             can_expand=browse_key is not None,
-            thumbnail=self._abs_image(item.get("image")),
+            thumbnail=self._browse_thumbnail(media_content_id, item.get("image")),
         )
 
     def _abs_image(self, image: str | None) -> str | None:
@@ -551,6 +624,36 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         if image.startswith("http"):
             return image
         return f"http://{self.coordinator.host}:{self.coordinator.port}{image}"
+
+    def _browse_thumbnail(
+        self, media_content_id: str, image: str | None
+    ) -> str | None:
+        """Return where the frontend loads an item's image from.
+
+        HTTPS images load as they are; others come through Home Assistant.
+        """
+        if not image:
+            return None
+        if image.startswith("https://"):
+            return image
+        self._browse_images[image] = None
+        self._browse_images.move_to_end(image)
+        while len(self._browse_images) > _MAX_BROWSE_IMAGES:
+            self._browse_images.popitem(last=False)
+        return self.get_browse_image_url(
+            MediaType.MUSIC, media_content_id, media_image_id=image
+        )
+
+    async def async_get_browse_image(
+        self,
+        media_content_type: str,
+        media_content_id: str,
+        media_image_id: str | None = None,
+    ) -> tuple[bytes | None, str | None]:
+        """Fetch a browse image for the frontend, if it was handed out."""
+        if media_image_id is None or media_image_id not in self._browse_images:
+            return None, None
+        return await self.coordinator.async_fetch_image(self._abs_image(media_image_id))
 
     # --- Grouping ---
 

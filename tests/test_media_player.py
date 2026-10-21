@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from urllib.parse import parse_qs, urlsplit
 
 from homeassistant.components.media_player import BrowseMedia, MediaPlayerEntityFeature
 from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback
@@ -12,7 +13,7 @@ from homeassistant.helpers.entity_component import EntityComponent
 from homeassistant.helpers.event import async_track_state_change_event
 import pytest
 
-from custom_components.bluesound_alt.const import DOMAIN
+from custom_components.bluesound_alt.const import CONF_HIDDEN_SOURCES, DOMAIN
 from custom_components.bluesound_alt.media_player import (
     BluesoundMediaPlayer,
     _decode_media_id,
@@ -63,12 +64,8 @@ async def test_source_is_the_playing_input(
 
     master = hass.states.get("media_player.player_1")
     assert master.attributes["source"] == "PlexAmp"
-    assert master.attributes["source_list"] == [
-        "PlexAmp",
-        "Vinyl",
-        "Spotify",
-        "P4 Lyden av Norge",
-    ]
+    # Only connected inputs: Spotify and presets are played from the browser.
+    assert master.attributes["source_list"] == ["PlexAmp", "Vinyl"]
     soundbar = hass.states.get("media_player.player_4")
     assert soundbar.attributes["source"] == "HDMI eARC"
 
@@ -117,14 +114,12 @@ async def test_sources_follow_the_player(
     player.push("/Status", status.replace("<sid>4</sid>", "<sid>5</sid>"))
     await wait_for(
         lambda: (
-            "Records"
-            in hass.states.get("media_player.player_1").attributes["source_list"]
+            hass.states.get("media_player.player_1").attributes["source_list"]
+            == ["PlexAmp", "Records"]
         )
     )
-    assert (
-        "NRK P4"
-        not in hass.states.get("media_player.player_1").attributes["source_list"]
-    )
+    coordinator = entity(hass, "media_player.player_1").coordinator
+    assert [p["name"] for p in coordinator.presets] == ["P4 Lyden av Norge"]
 
     player.push(
         "/Status",
@@ -132,12 +127,7 @@ async def test_sources_follow_the_player(
             "<prid>0</prid>", "<prid>1</prid>"
         ),
     )
-    await wait_for(
-        lambda: (
-            hass.states.get("media_player.player_1").attributes["source_list"]
-            == ["PlexAmp", "Records", "Spotify", "NRK P4"]
-        )
-    )
+    await wait_for(lambda: [p["name"] for p in coordinator.presets] == ["NRK P4"])
 
 
 async def test_unchanged_status_does_not_reread_sources(
@@ -187,7 +177,6 @@ async def test_receiver_inputs_are_sources(
     assert state.attributes["source"] == "Squeeze"
     assert state.attributes["source_list"] == [
         "Bluetooth",
-        "Spotify",
         "BluRay",
         "TV Optical",
         "CD",
@@ -293,6 +282,42 @@ async def test_seek_where_the_player_can(
     assert features & MediaPlayerEntityFeature.SEEK
 
 
+def offers_sources(hass: HomeAssistant, entity_id: str) -> bool:
+    """Return whether a player offers source selection."""
+    features = hass.states.get(entity_id).attributes["supported_features"]
+    return bool(features & MediaPlayerEntityFeature.SELECT_SOURCE)
+
+
+async def test_sources_only_with_inputs(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """A speaker without inputs offers no source selection; the C700 does."""
+    await setup_player(hass, MASTER, MASTER_MAC)
+    await setup_player(hass, SLAVE_1, SLAVE_1_MAC)
+
+    assert offers_sources(hass, "media_player.player_1")
+    assert not offers_sources(hass, "media_player.player_2")
+    assert "source_list" not in hass.states.get("media_player.player_2").attributes
+
+
+async def test_no_sources_with_every_input_hidden(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """Hiding every input takes source selection away, until one is back."""
+    entry = await setup_player(hass, MASTER, MASTER_MAC)
+    inputs = [key for key, _ in entry.runtime_data.source_options()]
+
+    hass.config_entries.async_update_entry(entry, options={CONF_HIDDEN_SOURCES: inputs})
+    await hass.async_block_till_done()
+    assert not offers_sources(hass, "media_player.player_1")
+
+    hass.config_entries.async_update_entry(
+        entry, options={CONF_HIDDEN_SOURCES: inputs[1:]}
+    )
+    await hass.async_block_till_done()
+    assert offers_sources(hass, "media_player.player_1")
+
+
 # -- device -----------------------------------------------------------------
 
 
@@ -349,9 +374,11 @@ async def test_browse_root(hass: HomeAssistant, patch_session: FakeBluOS) -> Non
     root = await entity(hass, "media_player.player_1").async_browse_media()
     children = children_named(root)
 
-    assert {"PlexAmp", "Radio", "Radio Paradise", "TuneIn"} <= set(children)
+    assert {"PlexAmp", "Radio", "Radio Paradise", "Spotify", "TuneIn"} <= set(children)
     assert children["PlexAmp"].can_play and not children["PlexAmp"].can_expand
     assert children["TuneIn"].can_expand and not children["TuneIn"].can_play
+    # Spotify is not a source, so it is played from here, with one tap.
+    assert children["Spotify"].can_play and not children["Spotify"].can_expand
 
 
 async def test_browse_categorised_menu(
@@ -394,6 +421,171 @@ async def test_play_browsed_station(
     _, play_url = _decode_media_id(station.media_content_id)
     sent = [r for r in patch_session.requests if r.path == "/Play"]
     assert sent[-1].raw_url == f"http://{MASTER[0]}:{MASTER[1]}{play_url}"
+
+
+async def test_presets_are_browsed(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """Presets come first in the media browser, each played with one tap."""
+    await setup_player(hass, MASTER, MASTER_MAC)
+    player = entity(hass, "media_player.player_1")
+
+    root = await player.async_browse_media()
+    folder = root.children[0]
+    assert (folder.title, folder.can_expand, folder.can_play) == (
+        "Presets",
+        True,
+        False,
+    )
+
+    presets = await player.async_browse_media(
+        folder.media_content_type, folder.media_content_id
+    )
+    [preset] = presets.children
+    assert (preset.title, preset.media_content_id) == (
+        "P4 Lyden av Norge",
+        "bluesound:preset/1",
+    )
+    assert preset.can_play and not preset.can_expand
+    # A plain-HTTP image, so it comes through Home Assistant.
+    assert preset.thumbnail.startswith(PROXY)
+    assert image_id(preset) == "http://static.airable.io/43/65/354202.png"
+
+
+PROXY = "/api/media_player_proxy/media_player.player_1/browse_media/"
+
+
+def image_id(item: BrowseMedia) -> str:
+    """Return the image a proxied thumbnail stands for."""
+    return parse_qs(urlsplit(item.thumbnail).query)["media_image_id"][0]
+
+
+async def test_player_icons_come_through_home_assistant(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """The player's own icons, on plain HTTP, are passed through Home Assistant.
+
+    An HTTPS frontend, or a phone away from home, cannot load them from the
+    player, so the top level showed no icons.
+    """
+    await setup_player(hass, MASTER, MASTER_MAC)
+    player = entity(hass, "media_player.player_1")
+    patch_session.player(MASTER).overrides[
+        ("/Sources/images/SpotifyIcon.png", frozenset())
+    ] = (200, "spotify-png", "image/png")
+
+    spotify = children_named(await player.async_browse_media())["Spotify"]
+    assert spotify.thumbnail.startswith(PROXY)
+    assert image_id(spotify) == "/Sources/images/SpotifyIcon.png"
+
+    image = await player.async_get_browse_image(
+        spotify.media_content_type, spotify.media_content_id, image_id(spotify)
+    )
+    assert image == (b"spotify-png", "image/png")
+
+
+async def test_https_images_load_directly(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """Images already on HTTPS, such as TuneIn's, are left as they are."""
+    await setup_player(hass, MASTER, MASTER_MAC)
+    player = entity(hass, "media_player.player_1")
+
+    tunein = children_named(await player.async_browse_media())["TuneIn"]
+    menu = await player.async_browse_media(
+        tunein.media_content_type, tunein.media_content_id
+    )
+    assert children_named(menu)["For You"].thumbnail == (
+        "https://cdn-profiles.tunein.com/RootMenu/Logo_754o.png?t=1694533369000"
+    )
+
+
+async def test_only_images_handed_out_are_fetched(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """The image proxy fetches nothing it did not offer while browsing."""
+    await setup_player(hass, MASTER, MASTER_MAC)
+    player = entity(hass, "media_player.player_1")
+    before = len(patch_session.requests)
+
+    for asked in ("/Sources/images/SpotifyIcon.png", "http://192.0.2.9/secret"):
+        image = await player.async_get_browse_image("music", "bluesound:root", asked)
+        assert image == (None, None)
+    assert len(patch_session.requests) == before
+
+
+async def test_play_preset(hass: HomeAssistant, patch_session: FakeBluOS) -> None:
+    """A preset plays by its id, as an automation would ask for it."""
+    await setup_player(hass, MASTER, MASTER_MAC)
+
+    await hass.services.async_call(
+        "media_player",
+        "play_media",
+        {
+            "entity_id": "media_player.player_1",
+            "media_content_type": "music",
+            "media_content_id": "bluesound:preset/1",
+        },
+        blocking=True,
+    )
+
+    sent = [r for r in patch_session.requests if r.path == "/Preset"]
+    assert [r.query for r in sent] == [{"id": "1"}]
+
+
+async def test_play_unknown_preset(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """A preset the player does not have is refused, not sent."""
+    await setup_player(hass, MASTER, MASTER_MAC)
+
+    with pytest.raises(ServiceValidationError) as raised:
+        await hass.services.async_call(
+            "media_player",
+            "play_media",
+            {
+                "entity_id": "media_player.player_1",
+                "media_content_type": "music",
+                "media_content_id": "bluesound:preset/9",
+            },
+            blocking=True,
+        )
+    assert raised.value.translation_key == "unknown_preset"
+    assert not [r for r in patch_session.requests if r.path == "/Preset"]
+
+
+async def test_preset_still_selectable_by_name(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """Automations that select a preset as a source keep working."""
+    await setup_player(hass, MASTER, MASTER_MAC)
+
+    await hass.services.async_call(
+        "media_player",
+        "select_source",
+        {"entity_id": "media_player.player_1", "source": "P4 Lyden av Norge"},
+        blocking=True,
+    )
+
+    sent = [r for r in patch_session.requests if r.path == "/Preset"]
+    assert [r.query for r in sent] == [{"id": "1"}]
+
+
+async def test_spotify_still_selectable_by_name(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """Automations that select Spotify as a source keep working."""
+    await setup_player(hass, MASTER, MASTER_MAC)
+
+    await hass.services.async_call(
+        "media_player",
+        "select_source",
+        {"entity_id": "media_player.player_1", "source": "Spotify"},
+        blocking=True,
+    )
+
+    sent = [r for r in patch_session.requests if r.path == "/Play"]
+    assert [r.query for r in sent] == [{"url": "Spotify:play"}]
 
 
 def test_media_id_round_trip() -> None:

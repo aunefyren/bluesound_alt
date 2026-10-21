@@ -361,3 +361,46 @@ def test_setting_url(url: str, expected: str) -> None:
         host="player.local", _base_url=lambda: "http://player.local:11000"
     )
     assert str(BluesoundCoordinator._setting_url(coordinator, url)) == expected
+
+
+FLEX_CAPTURE = ("/Settings", frozenset({("id", "capture"), ("schemaVersion", "34")}))
+BLUETOOTH = (
+    '<item playURL="/Play?url=Capture%3Abluez%3Abluetooth" text="Bluetooth" '
+    'image="/images/BluetoothIcon.png" type="audio" inputType="bluetooth"/>'
+)
+
+
+async def test_bluetooth_turned_on_becomes_a_source(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """Turning Bluetooth on adds its input, though /Status's sid stays put.
+
+    As on a Pulse Flex 2i on BluOS 4.18.18: the mode change moves /SyncStatus,
+    /Browse gains Bluetooth, and a follower's sid is its leader's.
+    """
+    await setup_player(hass, SLAVE_1, SLAVE_1_MAC)
+    player = patch_session.player(SLAVE_1)
+    assert "source_list" not in hass.states.get("media_player.player_2").attributes
+
+    capture = player.captured("settings_capture")
+    player.overrides[FLEX_CAPTURE] = (
+        200,
+        re.sub(
+            r'(id="bluetoothAutoplay"[^>]*value=")[^"]*"', r'\g<1>0"', capture, count=1
+        ),
+    )
+    browse = player.captured("browse_root").replace(
+        "</browse>", f"{BLUETOOTH}</browse>"
+    )
+    player.overrides[("/Browse", frozenset())] = (200, browse)
+    player.push(
+        "/SyncStatus",
+        player.captured("sync_status").replace('etag="108"', 'etag="109"'),
+    )
+
+    await wait_for(
+        lambda: (
+            hass.states.get("media_player.player_2").attributes.get("source_list")
+            == ["Bluetooth"]
+        )
+    )

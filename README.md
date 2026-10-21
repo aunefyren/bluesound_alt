@@ -44,7 +44,8 @@ Core has things this doesn't: clear playlist, sleep timer buttons, several playe
 * Correct group join/unjoin with immediate state updates
 * Per-speaker volume control within groups (individual volume, not just group volume)
 * Group state works with groups of any size
-* Source/input selection (physical inputs, streaming services, presets, and the inputs of receivers such as the NAD T758), with unused sources hideable per player
+* Source selection for the inputs connected to the player (analogue, optical, HDMI, Bluetooth, and the inputs of receivers such as the NAD T758), with unused inputs hideable per player
+* Spotify, presets and streaming services in the media browser, and playable from automations
 * Media browsing of the player's inputs and service menus, such as Apple Music, TuneIn, Radio Paradise and BluOS Radio
 * Shuffle, repeat and seeking (where the track allows it)
 * Works with [Mini Media Player](https://github.com/kalkih/mini-media-player) grouping
@@ -70,6 +71,21 @@ Core has things this doesn't: clear playlist, sleep timer buttons, several playe
 5. A player that is not discovered, on another subnet or VLAN say, can be added by hand: **Add Integration**, search for `Bluesound Alt`, and enter its IP address and port (default: 11000)
 
 <br>
+<br>
+
+### Example: play a preset from an automation
+
+Presets are under **Presets** in the player's media browser. To play one from an automation or script, pick it with the media picker of the **Play media** action, which fills in its id, `bluesound:preset/<id>`:
+
+```yaml
+action: media_player.play_media
+target:
+  entity_id: media_player.c700_amplifier
+data:
+  media_content_type: music
+  media_content_id: bluesound:preset/1
+```
+
 <br>
 
 ### Example: Mini Media Player YAML
