@@ -34,7 +34,7 @@ Home Assistant ships its own `bluesound` integration. Both run locally and follo
 * **Covers more sources and controls**: inputs of receivers with a BluOS module such as the NAD T758, repeat mode, and hiding sources you don't use.
 * **Catches up faster**: a player that drops off is retried after 10 seconds (core: 3 minutes), and inputs and presets changed in the BluOS app show up straight away (core: every 15 minutes).
 
-Core has things this doesn't: clear playlist, sleep timer buttons, several players on one device at different ports, and translations beyond English. If you need those, use core.
+Core has things this doesn't: several players on one device at different ports, and translations beyond English and Norwegian. If you need those, use core.
 
 <br>
 <br>
@@ -47,12 +47,14 @@ Core has things this doesn't: clear playlist, sleep timer buttons, several playe
 * Source selection for the inputs connected to the player (analogue, optical, HDMI, Bluetooth, and the inputs of receivers such as the NAD T758), with unused inputs hideable per player
 * Spotify, presets and streaming services in the media browser, and playable from automations
 * Media browsing of the player's inputs and service menus, such as Apple Music, TuneIn, Radio Paradise and BluOS Radio
-* Shuffle, repeat and seeking (where the track allows it)
+* Shuffle, repeat, seeking (where the track allows it), clearing the queue, and volume up and down in small steps
+* Sleep timer (off, 15, 30, 45, 60 or 90 minutes), with the minutes left; in a group it is the group's
 * Works with [Mini Media Player](https://github.com/kalkih/mini-media-player) grouping
 * Playback, grouping and volume follow the player by long-polling, so changes show up instantly
 * Diagnostics, with addresses, names and account details redacted
 * Player settings as in the BluOS app: listening mode, tone, balance, subwoofer, output mode, volume limits, Bluetooth mode, indicator and display brightness
-* Restart button for every player
+* Restart button for every player, and a link to the player's web page on its device page
+* English and Norwegian (Bokmål)
 
 <br>
 <br>
@@ -129,4 +131,4 @@ Result:
 
 ## Ideas for further development
 
-* Alarm/sleep timer support
+* Alarm support

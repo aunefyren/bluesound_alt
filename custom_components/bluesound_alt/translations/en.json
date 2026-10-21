@@ -33,10 +33,10 @@
   "options": {
     "step": {
       "init": {
-        "title": "Sources",
-        "description": "Tick the sources to leave out of the source list. A hidden source still plays, and still shows as the source while it does, it is just not offered to pick. Sources added on the player later show up on their own.",
+        "title": "Inputs",
+        "description": "Tick the inputs to leave out of the source list. A hidden input still plays, and still shows as the source while it does, it is just not offered to pick. Inputs added on the player later show up on their own. Music services and presets are played from the media browser.",
         "data": {
-          "hidden_sources": "Hidden sources"
+          "hidden_sources": "Hidden inputs"
         }
       }
     },
@@ -80,6 +80,22 @@
       },
       "replay_gain": {
         "name": "Replay gain"
+      },
+      "sleep_timer": {
+        "name": "Sleep timer",
+        "state": {
+          "off": "Off",
+          "15": "15 minutes",
+          "30": "30 minutes",
+          "45": "45 minutes",
+          "60": "60 minutes",
+          "90": "90 minutes"
+        },
+        "state_attributes": {
+          "minutes_left": {
+            "name": "Minutes left"
+          }
+        }
       }
     },
     "switch": {
@@ -124,6 +140,9 @@
     },
     "not_regrouped": {
       "message": "The players did not confirm the regrouping in time. Check the group in the BluOS app and try again."
+    },
+    "sleep_not_set": {
+      "message": "The player at {host} did not set its sleep timer. Try again."
     },
     "unknown_member": {
       "message": "{entity_id} is not a Bluesound Alt player."

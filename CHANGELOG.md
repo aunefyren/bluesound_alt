@@ -6,6 +6,18 @@ on the [GitHub releases page](https://github.com/aunefyren/bluesound_alt/release
 
 ## [Unreleased]
 
+### Added
+- A sleep timer for every player: off, 15, 30, 45, 60 or 90 minutes, with
+  the minutes left. In a group the timer is the group's, set from any of its
+  players.
+- Clearing the play queue.
+- Volume up and down move 2 of the player's 100 steps, rather than Home
+  Assistant's default of 10.
+- The device page links to the player's web page, and the player's MAC
+  address lets Home Assistant match it with what other integrations, such as
+  a router's, see of it.
+- Norwegian (Bokmål) translation.
+
 ### Changed
 - The source list holds only the inputs connected to the player: analogue,
   optical, HDMI, Bluetooth and a receiver's own inputs. Spotify, presets and

@@ -1,0 +1,9 @@
+{
+  "entity": {
+    "select": {
+      "sleep_timer": {
+        "default": "mdi:power-sleep"
+      }
+    }
+  }
+}

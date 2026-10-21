@@ -27,3 +27,6 @@ GROUPING_POLL_SECONDS = 0.25
 SETTINGS_POLL_SECONDS = 30
 # Settings menus read for a player's settings: Audio, Player and Sources.
 SETTINGS_MENUS = ("audio", "player", "capture")
+# The sleep timer's steps, in minutes. /Sleep moves the timer to the next step
+# above the minutes left, and from the last one to off.
+SLEEP_STEPS = (15, 30, 45, 60, 90)

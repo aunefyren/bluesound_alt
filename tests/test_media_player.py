@@ -336,6 +336,51 @@ async def test_device_maker_is_the_brand(
     assert (soundbar.manufacturer, soundbar.model) == ("Bluesound", "PULSE SOUNDBAR+")
 
 
+async def test_device_links_to_the_player(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """The device page links to the player's web page, and knows its MAC."""
+    entry = await setup_player(hass, MASTER, MASTER_MAC)
+
+    [device] = dr.async_entries_for_config_entry(dr.async_get(hass), entry.entry_id)
+    assert device.configuration_url == f"http://{MASTER[0]}:80"
+    assert device.connections == {(dr.CONNECTION_NETWORK_MAC, "00:00:5e:00:53:01")}
+
+
+async def test_volume_up_is_a_small_step(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """Volume up moves 2 steps of 100, not Home Assistant's default 10."""
+    await setup_player(hass, SOUNDBAR, SOUNDBAR_MAC)
+    state = hass.states.get("media_player.player_4")
+    assert state.attributes["supported_features"] & MediaPlayerEntityFeature.VOLUME_STEP
+    before = round(state.attributes["volume_level"] * 100)
+
+    await hass.services.async_call(
+        "media_player",
+        "volume_up",
+        {"entity_id": "media_player.player_4"},
+        blocking=True,
+    )
+
+    sent = [r for r in patch_session.requests if r.path == "/Volume"]
+    assert sent[-1].query == {"level": str(before + 2)}
+
+
+async def test_clear_queue(hass: HomeAssistant, patch_session: FakeBluOS) -> None:
+    """Clearing the playlist empties the player's queue."""
+    await setup_player(hass, MASTER, MASTER_MAC)
+
+    await hass.services.async_call(
+        "media_player",
+        "clear_playlist",
+        {"entity_id": "media_player.player_1"},
+        blocking=True,
+    )
+
+    assert [r.path for r in patch_session.requests if r.path == "/Clear"] == ["/Clear"]
+
+
 # -- grouping ---------------------------------------------------------------
 
 
