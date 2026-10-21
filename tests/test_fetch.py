@@ -40,6 +40,7 @@ async def test_sync_info_master(bluos: FakeBluOS) -> None:
     assert info.name == "Player 1"
     assert info.mac == MASTER_MAC
     assert info.model == "C700"
+    assert info.brand == "NAD"
     assert (info.ip, info.port) == MASTER
     assert info.master_ip is None
     assert info.slaves == [
@@ -54,6 +55,7 @@ async def test_sync_info_slave(bluos: FakeBluOS) -> None:
 
     assert info is not None
     assert info.model == "PULSE FLEX 2i"
+    assert info.brand == "Bluesound"
     assert info.master_ip == MASTER[0]
     assert info.slaves == []
 

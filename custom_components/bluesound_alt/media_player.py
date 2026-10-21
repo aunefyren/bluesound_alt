@@ -49,7 +49,6 @@ SUPPORT_BLUESOUND = (
     | MediaPlayerEntityFeature.PLAY_MEDIA
     | MediaPlayerEntityFeature.NEXT_TRACK
     | MediaPlayerEntityFeature.PREVIOUS_TRACK
-    | MediaPlayerEntityFeature.SEEK
     | MediaPlayerEntityFeature.REPEAT_SET
     | MediaPlayerEntityFeature.BROWSE_MEDIA
 )
@@ -118,7 +117,6 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
 
     _attr_has_entity_name = True
     _attr_name = None
-    _attr_supported_features = SUPPORT_BLUESOUND
     _attr_media_position_updated_at = None
 
     def __init__(self, coordinator: BluesoundCoordinator, entry: ConfigEntry) -> None:
@@ -129,6 +127,13 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         self._attr_device_info = coordinator.device_info
         self._optimistic_volume: float | None = None
         self._optimistic_muted: bool | None = None
+
+    @property
+    def supported_features(self) -> MediaPlayerEntityFeature:
+        """Return the controls the player offers, seeking only where it can."""
+        if self.coordinator.data is not None and self.coordinator.data.can_seek:
+            return SUPPORT_BLUESOUND | MediaPlayerEntityFeature.SEEK
+        return SUPPORT_BLUESOUND
 
     @property
     def state(self) -> MediaPlayerState | None:
@@ -412,6 +417,11 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
                 await self.coordinator.async_request_api("/Preset", id=p["id"])
                 await self.coordinator.async_request_refresh()
                 return
+        raise ServiceValidationError(
+            translation_domain=DOMAIN,
+            translation_key="unknown_source",
+            translation_placeholders={"source": source},
+        )
 
     async def async_set_shuffle(self, shuffle: bool) -> None:
         """Turn shuffle on or off."""

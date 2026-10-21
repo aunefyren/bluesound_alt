@@ -6,4 +6,4 @@ ruff
 
 # The integration's own requirements, from manifest.json. Home Assistant
 # installs these at runtime; tests import the code directly, so they don't.
-xmltodict==0.13.0
+xmltodict>=0.13.0

@@ -5,9 +5,10 @@
   "codeowners": ["@aunefyren"],
   "config_flow": true,
   "documentation": "https://github.com/aunefyren/bluesound_alt",
+  "integration_type": "device",
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/aunefyren/bluesound_alt/issues",
-  "requirements": ["xmltodict==0.13.0"],
-  "version": "1.3.0",
+  "requirements": ["xmltodict>=0.13.0"],
+  "version": "1.4.0",
   "zeroconf": [{"type": "_musc._tcp.local."}]
 }
