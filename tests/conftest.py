@@ -63,16 +63,22 @@ class FakeResponse:
         *,
         pending: Awaitable[tuple[int, str]] | None = None,
         error: BaseException | None = None,
+        content_type: str = "text/xml",
     ) -> None:
         """Store what this response will return, now or once it arrives."""
         self.status = status
         self._body = body
+        self.content_type = content_type
         self._pending = pending
         self._error = error
 
     async def text(self) -> str:
         """Return the body."""
         return self._body
+
+    async def read(self) -> bytes:
+        """Return the body as bytes, as for an image."""
+        return self._body.encode()
 
     async def __aenter__(self) -> FakeResponse:
         """Enter the response context, which is where aiohttp raises."""
@@ -111,8 +117,8 @@ class FakePlayer:
     offline: bool = False
     timing_out: bool = False
     # (path, frozenset(query items)) -> (status, body), checked first.
-    overrides: dict[tuple[str, frozenset], tuple[int, str]] = field(
-        default_factory=dict
+    overrides: dict[tuple[str, frozenset], tuple[int, str] | tuple[int, str, str]] = (
+        field(default_factory=dict)
     )
     # Answers for long polls (requests carrying an etag), per path. A long
     # poll waits until the test pushes something, as a real player waits
@@ -147,7 +153,11 @@ class FakePlayer:
 
         query = frozenset(request.query.items())
         if (request.path, query) in self.overrides:
-            return FakeResponse(*self.overrides[(request.path, query)])
+            # (status, body), or (status, body, content type) for an image.
+            status, body, *content_type = self.overrides[(request.path, query)]
+            return FakeResponse(
+                status, body, content_type=next(iter(content_type), "text/xml")
+            )
 
         if request.path == "/Volume" and ({"level", "mute"} & set(request.query)):
             return FakeResponse(200, self._set_volume(request.query))

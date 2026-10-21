@@ -33,6 +33,11 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
+# What the stream of an input the player captures starts with: analogue,
+# optical, HDMI, Bluetooth. Services such as Spotify:play are played from the
+# media browser instead.
+_INPUT_STREAM = "Capture:"
+
 
 @dataclass
 class BluesoundData:
@@ -427,13 +432,20 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
     def source_options(self) -> list[tuple[str, str]]:
         """Return (key, name) for every selectable source, in list order.
 
+        Sources are the audio inputs connected to the player: those it
+        captures, and a receiver's own. Services and presets are played from
+        the media browser.
+
         The key stays the same when the source is renamed, so a choice made
         about it, such as hiding it, survives the rename.
         """
         return [
-            *((f"browse:{s['play_url']}", s["name"]) for s in self.sources),
+            *(
+                (f"browse:{s['play_url']}", s["name"])
+                for s in self.sources
+                if s["play_url"].startswith(_INPUT_STREAM)
+            ),
             *((f"input:{i['id']}", i["name"]) for i in self.external_inputs),
-            *((f"preset:{p['id']}", p["name"]) for p in self.presets),
         ]
 
     async def async_request_api(self, path: str, **params: Any) -> str:
@@ -556,10 +568,18 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
                 _LOGGER.exception("Unexpected error reading settings of %s", self.host)
 
     async def async_refresh_settings(self) -> None:
-        """Re-read the settings, keeping the last ones if none come back."""
+        """Re-read the settings, keeping the last ones if none come back.
+
+        When they changed, the sources are re-read too: turning Bluetooth on
+        or off adds or removes its input without moving sid in /Status, and a
+        follower's /Status is its leader's anyway.
+        """
         settings = await self._fetch_settings()
         if settings is not None and settings != self.settings:
             self.settings = settings
+            self.sources = await _fetch_sources(
+                self._get_session(), self.host, self.port
+            )
             self.async_update_listeners()
 
     async def async_set_setting(self, name: str, value: str | float) -> None:
@@ -583,6 +603,18 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
         if target.is_absolute():
             return target.with_host(self.host)
         return URL(self._base_url()).join(target)
+
+    async def async_fetch_image(self, url: str) -> tuple[bytes | None, str | None]:
+        """Fetch an image, as its bytes and content type; None if it fails."""
+        try:
+            async with self._get_session().get(
+                url, timeout=aiohttp.ClientTimeout(total=NODE_OFFLINE_CHECK_TIMEOUT)
+            ) as resp:
+                if resp.status != 200:
+                    return None, None
+                return await resp.read(), resp.content_type
+        except (aiohttp.ClientError, TimeoutError):
+            return None, None
 
     async def async_reboot(self) -> None:
         """Reboot the player, as the confirmation form on its web page does."""

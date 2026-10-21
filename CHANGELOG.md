@@ -6,6 +6,30 @@ on the [GitHub releases page](https://github.com/aunefyren/bluesound_alt/release
 
 ## [Unreleased]
 
+### Changed
+- The source list holds only the inputs connected to the player: analogue,
+  optical, HDMI, Bluetooth and a receiver's own inputs. Spotify, presets and
+  the streaming services are played from the media browser instead, where
+  Spotify is a one-tap item and presets come first, under Presets. Whatever
+  plays still shows as the source, Spotify and Apple Music included.
+- A player without inputs, such as a Pulse Flex, or with all of them hidden,
+  no longer offers source selection, rather than an empty list.
+- A preset is played from an automation with `media_player.play_media` and
+  the id `bluesound:preset/<id>`, which the media picker fills in. Selecting
+  Spotify or a preset by name as a source still works, so existing
+  automations do not break.
+- Only inputs are offered under Configure. Spotify or a preset hidden there
+  before stays saved, and does nothing.
+
+### Fixed
+- Turning Bluetooth on or off, in the BluOS app or Home Assistant, adds or
+  removes it from the source list straight away. It used to take a restart
+  of Home Assistant, as the player does not count it as a change of sources.
+- The media browser's top level shows its icons, and presets their artwork.
+  The player serves them over plain HTTP, which a browser on an HTTPS
+  Home Assistant, or a phone away from home, cannot load; they now come
+  through Home Assistant.
+
 ## [1.4.0] - 2026-10-20
 
 ### Added
