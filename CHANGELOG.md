@@ -17,6 +17,16 @@ on the [GitHub releases page](https://github.com/aunefyren/bluesound_alt/release
   address lets Home Assistant match it with what other integrations, such as
   a router's, see of it.
 - Norwegian (Bokmål) translation.
+- An input can be linked to the media player that feeds it, such as a
+  streamer or computer on a cable, under Configure. While the input plays and
+  that player has something on, the Bluesound player shows its track,
+  artwork, position and state, and passes it play, pause, stop, skip and
+  seek; volume and grouping stay with the Bluesound player. Speakers grouped
+  with it show the same. If the linked player has a library to browse, such
+  as a Plex player, the input opens it in the media browser, and playing from
+  it switches to the input and plays on the linked player. Optional, per
+  input; the README also shows Home Assistant's Universal Media Player as an
+  alternative.
 
 ### Changed
 - The source list holds only the inputs connected to the player: analogue,
@@ -32,6 +42,7 @@ on the [GitHub releases page](https://github.com/aunefyren/bluesound_alt/release
   automations do not break.
 - Only inputs are offered under Configure. Spotify or a preset hidden there
   before stays saved, and does nothing.
+- Configure opens a menu: hiding inputs, or linking one to a media player.
 
 ### Fixed
 - Turning Bluetooth on or off, in the BluOS app or Home Assistant, adds or

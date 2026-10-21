@@ -15,8 +15,11 @@ from homeassistant.config_entries import (
 )
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import callback
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
+    EntitySelector,
+    EntitySelectorConfig,
     SelectOptionDict,
     SelectSelector,
     SelectSelectorConfig,
@@ -26,7 +29,10 @@ from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 import voluptuous as vol
 import xmltodict
 
-from .const import CONF_HIDDEN_SOURCES, DEFAULT_PORT, DOMAIN
+from .const import CONF_HIDDEN_SOURCES, CONF_LINKED_PLAYERS, DEFAULT_PORT, DOMAIN
+
+CONF_INPUT = "input"
+CONF_MEDIA_PLAYER = "media_player"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -171,16 +177,21 @@ class BluesoundConfigFlow(ConfigFlow, domain=DOMAIN):
 
 
 class BluesoundOptionsFlow(OptionsFlow):
-    """Choose which sources the player offers in Home Assistant."""
+    """Choose how the player's inputs show in Home Assistant."""
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Pick the sources to hide from the player's current list."""
-        # The choices are the player's own sources, so it must be set up.
+        """Offer hiding inputs, or linking one to another media player."""
+        # The choices are the player's own inputs, so it must be set up.
         if self.config_entry.state is not ConfigEntryState.LOADED:
             return self.async_abort(reason="not_loaded")
+        return self.async_show_menu(step_id="init", menu_options=["sources", "links"])
 
+    async def async_step_sources(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Pick the inputs to hide from the player's current list."""
         sources = self.config_entry.runtime_data.source_options()
         listed = {key for key, _ in sources}
         hidden = self.config_entry.options.get(CONF_HIDDEN_SOURCES, [])
@@ -190,7 +201,10 @@ class BluesoundOptionsFlow(OptionsFlow):
             # removed, an input turned off) stay hidden should they return.
             kept = [key for key in hidden if key not in listed]
             return self.async_create_entry(
-                data={CONF_HIDDEN_SOURCES: [*user_input[CONF_HIDDEN_SOURCES], *kept]}
+                data={
+                    **self.config_entry.options,
+                    CONF_HIDDEN_SOURCES: [*user_input[CONF_HIDDEN_SOURCES], *kept],
+                }
             )
 
         schema = vol.Schema(
@@ -210,4 +224,63 @@ class BluesoundOptionsFlow(OptionsFlow):
                 ),
             }
         )
-        return self.async_show_form(step_id="init", data_schema=schema)
+        return self.async_show_form(step_id="sources", data_schema=schema)
+
+    async def async_step_links(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Link an input to the media player that plays into it, or unlink it.
+
+        While the input plays, the player shows the linked one's track,
+        artwork and state, and passes it the playback controls.
+        """
+        inputs = self.config_entry.runtime_data.source_options()
+        if not inputs:
+            return self.async_abort(reason="no_inputs")
+        links: dict[str, str] = dict(
+            self.config_entry.options.get(CONF_LINKED_PLAYERS, {})
+        )
+
+        if user_input is not None:
+            if entity_id := user_input.get(CONF_MEDIA_PLAYER):
+                links[user_input[CONF_INPUT]] = entity_id
+            else:
+                links.pop(user_input[CONF_INPUT], None)
+            return self.async_create_entry(
+                data={**self.config_entry.options, CONF_LINKED_PLAYERS: links}
+            )
+
+        names = dict(inputs)
+        # Other Bluesound Alt players are left out: two players linked to
+        # each other would pass every command back and forth.
+        own = [
+            e.entity_id
+            for e in er.async_get(self.hass).entities.values()
+            if e.platform == DOMAIN and e.domain == "media_player"
+        ]
+        schema = vol.Schema(
+            {
+                vol.Required(CONF_INPUT): SelectSelector(
+                    SelectSelectorConfig(
+                        options=[
+                            SelectOptionDict(value=key, label=name)
+                            for key, name in inputs
+                        ],
+                        mode=SelectSelectorMode.DROPDOWN,
+                    )
+                ),
+                vol.Optional(CONF_MEDIA_PLAYER): EntitySelector(
+                    EntitySelectorConfig(domain="media_player", exclude_entities=own)
+                ),
+            }
+        )
+        current = "\n".join(
+            f"- {names[key]}: {entity_id}"
+            for key, entity_id in links.items()
+            if key in names
+        )
+        return self.async_show_form(
+            step_id="links",
+            data_schema=schema,
+            description_placeholders={"links": current or "-"},
+        )

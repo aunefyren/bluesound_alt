@@ -33,7 +33,21 @@
   "options": {
     "step": {
       "init": {
-        "title": "Inputs",
+        "menu_options": {
+          "sources": "Hide inputs",
+          "links": "Link an input to a media player"
+        }
+      },
+      "links": {
+        "title": "Link an input to a media player",
+        "description": "Pick an input, and the media player that plays into it, such as a computer or streamer on a cable to the player. While the input plays and that media player has something on, this player shows its track, artwork and state, and passes it play, pause, skip and seek. Volume and grouping stay with this player. Leave the media player empty to remove the link.\n\nLinked now:\n{links}",
+        "data": {
+          "input": "Input",
+          "media_player": "Media player"
+        }
+      },
+      "sources": {
+        "title": "Hide inputs",
         "description": "Tick the inputs to leave out of the source list. A hidden input still plays, and still shows as the source while it does, it is just not offered to pick. Inputs added on the player later show up on their own. Music services and presets are played from the media browser.",
         "data": {
           "hidden_sources": "Hidden inputs"
@@ -41,6 +55,7 @@
       }
     },
     "abort": {
+      "no_inputs": "This player has no inputs to link.",
       "not_loaded": "The player is not set up right now. Try again once it is available."
     }
   },
@@ -137,6 +152,9 @@
     },
     "not_added": {
       "message": "{leader} did not take {names} into its group."
+    },
+    "not_linked": {
+      "message": "This input is not linked to a media player that can be browsed."
     },
     "not_regrouped": {
       "message": "The players did not confirm the regrouping in time. Check the group in the BluOS app and try again."
