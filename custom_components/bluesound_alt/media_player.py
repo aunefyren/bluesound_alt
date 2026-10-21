@@ -3,12 +3,24 @@ from __future__ import annotations
 
 from collections import OrderedDict
 import contextlib
+import copy
+from datetime import datetime
 import logging
 from typing import Any
-from urllib.parse import parse_qs, urlencode, urlsplit
+from urllib.parse import parse_qs, unquote, urlencode, urlsplit
 
 from homeassistant.components import media_source
 from homeassistant.components.media_player import (
+    ATTR_MEDIA_ALBUM_NAME,
+    ATTR_MEDIA_ARTIST,
+    ATTR_MEDIA_CONTENT_ID,
+    ATTR_MEDIA_CONTENT_TYPE,
+    ATTR_MEDIA_DURATION,
+    ATTR_MEDIA_POSITION,
+    ATTR_MEDIA_POSITION_UPDATED_AT,
+    ATTR_MEDIA_SEEK_POSITION,
+    ATTR_MEDIA_TITLE,
+    DOMAIN as MEDIA_PLAYER_DOMAIN,
     BrowseError,
     BrowseMedia,
     MediaClass,
@@ -20,19 +32,33 @@ from homeassistant.components.media_player import (
     async_process_play_media_url,
 )
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.const import (
+    ATTR_ENTITY_ID,
+    ATTR_ENTITY_PICTURE,
+    ATTR_SUPPORTED_FEATURES,
+)
+from homeassistant.core import (
+    CALLBACK_TYPE,
+    Event,
+    EventStateChangedData,
+    HomeAssistant,
+    State,
+    callback,
+)
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.dispatcher import (
     async_dispatcher_connect,
     async_dispatcher_send,
 )
+from homeassistant.helpers.entity_component import DATA_INSTANCES
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.event import async_track_state_change_event
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 import homeassistant.util.dt as dt_util
 
 from . import BluesoundConfigEntry
-from .const import CONF_HIDDEN_SOURCES, DOMAIN
+from .const import CONF_HIDDEN_SOURCES, CONF_LINKED_PLAYERS, DOMAIN
 from .coordinator import BluesoundCoordinator
 from .grouping import async_join, async_unjoin
 
@@ -86,11 +112,21 @@ _BLUESOUND_ROOT = "bluesound:root"
 # bluesound:preset/3, short enough to write in an automation by hand.
 _BLUESOUND_PRESETS = "bluesound:presets"
 _BLUESOUND_PRESET = "bluesound:preset/"
+# A linked input's media player, browsed through this one: the input (i) and,
+# below its top level, the linked player's own content type (t) and id (c).
+_BLUESOUND_LINKED = "bluesound:linked"
 # Browse images not on HTTPS, such as the player's own icons, are passed
 # through Home Assistant: an HTTPS frontend, or a phone away from home, cannot
 # load them from the player. Only images handed out while browsing are
 # fetched, the most recent this many.
 _MAX_BROWSE_IMAGES = 1000
+
+# States in which a linked media player stands in for the player.
+_LINK_ACTIVE = {
+    MediaPlayerState.PLAYING,
+    MediaPlayerState.PAUSED,
+    MediaPlayerState.BUFFERING,
+}
 
 # Sent when a player entity comes or goes. Group membership is resolved
 # through the other players' entities, so theirs may have changed too.
@@ -105,6 +141,26 @@ def _encode_media_id(browse_key: str | None, play_url: str | None) -> str:
     if play_url is not None:
         parts.append(("p", play_url))
     return f"{_BLUESOUND_SCHEME}?{urlencode(parts)}"
+
+
+def _encode_linked(
+    input_key: str, content_type: str | None = None, content_id: str | None = None
+) -> str:
+    """Encode a linked input, or an item of its media player, as a media id."""
+    parts = [("i", input_key)]
+    if content_id is not None:
+        parts += [("t", content_type or ""), ("c", content_id)]
+    return f"{_BLUESOUND_LINKED}?{urlencode(parts)}"
+
+
+def _decode_linked(content_id: str) -> tuple[str, str | None, str | None]:
+    """Return (input key, content type, content id) from a linked media id."""
+    qs = parse_qs(urlsplit(content_id).query, keep_blank_values=True)
+    return (
+        qs["i"][0],
+        qs["t"][0] if "t" in qs else None,
+        qs["c"][0] if "c" in qs else None,
+    )
 
 
 def _decode_media_id(content_id: str) -> tuple[str | None, str | None]:
@@ -143,6 +199,9 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         self._optimistic_volume: float | None = None
         self._optimistic_muted: bool | None = None
         self._browse_images: OrderedDict[str, None] = OrderedDict()
+        # The linked media players being followed, and how to stop.
+        self._link_targets: frozenset[str] = frozenset()
+        self._unsub_links: CALLBACK_TYPE | None = None
 
     @property
     def supported_features(self) -> MediaPlayerEntityFeature:
@@ -153,7 +212,11 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         none.
         """
         features = SUPPORT_BLUESOUND
-        if self.coordinator.data is not None and self.coordinator.data.can_seek:
+        if (linked := self._linked_state()) is not None:
+            linked_features = linked.attributes.get(ATTR_SUPPORTED_FEATURES, 0)
+            if linked_features & MediaPlayerEntityFeature.SEEK:
+                features |= MediaPlayerEntityFeature.SEEK
+        elif self.coordinator.data is not None and self.coordinator.data.can_seek:
             features |= MediaPlayerEntityFeature.SEEK
         if not self.source_list:
             features &= ~MediaPlayerEntityFeature.SELECT_SOURCE
@@ -162,6 +225,8 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
     @property
     def state(self) -> MediaPlayerState | None:
         """Return whether the player is playing, paused or idle."""
+        if (linked := self._linked_state()) is not None:
+            return MediaPlayerState(linked.state)
         return _STATE_MAP.get(self.coordinator.data.state)
 
     @property
@@ -199,6 +264,8 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         as the title and the input as the artist, so cards that show only the
         title would never say which input is on. The input is the title then.
         """
+        if (linked := self._linked_state()) is not None:
+            return linked.attributes.get(ATTR_MEDIA_TITLE)
         data = self.coordinator.data
         if self._playing_external_input():
             return data.artist or self._active_external_input() or data.title
@@ -207,6 +274,8 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
     @property
     def media_artist(self) -> str | None:
         """Return the artist of what is playing."""
+        if (linked := self._linked_state()) is not None:
+            return linked.attributes.get(ATTR_MEDIA_ARTIST)
         if self._playing_external_input():
             return None
         return self.coordinator.data.artist
@@ -219,6 +288,8 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
     @property
     def media_album_name(self) -> str | None:
         """Return the album of what is playing."""
+        if (linked := self._linked_state()) is not None:
+            return linked.attributes.get(ATTR_MEDIA_ALBUM_NAME)
         return self.coordinator.data.album
 
     @property
@@ -232,12 +303,34 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
     @property
     def media_position(self) -> float | None:
         """Return how far into the track playback is, in seconds."""
+        if (linked := self._linked_state()) is not None:
+            return linked.attributes.get(ATTR_MEDIA_POSITION)
         return self.coordinator.data.position
+
+    @property
+    def media_position_updated_at(self) -> datetime | None:
+        """Return when the position was last reported."""
+        if (linked := self._linked_state()) is not None:
+            return linked.attributes.get(ATTR_MEDIA_POSITION_UPDATED_AT)
+        return self._attr_media_position_updated_at
 
     @property
     def media_duration(self) -> float | None:
         """Return the length of the track, in seconds."""
+        if (linked := self._linked_state()) is not None:
+            return linked.attributes.get(ATTR_MEDIA_DURATION)
         return self.coordinator.data.duration
+
+    @property
+    def entity_picture(self) -> str | None:
+        """Return the artwork, the linked media player's while it stands in.
+
+        Its picture is already served by Home Assistant, so it is passed on
+        as it is.
+        """
+        if (linked := self._linked_state()) is not None:
+            return linked.attributes.get(ATTR_ENTITY_PICTURE)
+        return super().entity_picture
 
     @property
     def source_list(self) -> list[str]:
@@ -303,8 +396,130 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        """Return the group members under the integration's own name."""
-        return {"bluesound_group": self.group_members}
+        """Return the group members, and the media player standing in."""
+        attributes: dict[str, Any] = {"bluesound_group": self.group_members}
+        if (linked := self._linked_state()) is not None:
+            attributes["linked_media_player"] = linked.entity_id
+        return attributes
+
+    # --- Linked inputs ---
+
+    def _active_input(self) -> tuple[BluesoundCoordinator, str] | None:
+        """Return the input playing, as the player it belongs to and its key.
+
+        A player in a group plays its leader's input, so that is looked for
+        among the leader's inputs too. The key is the one the options use.
+        """
+        data = self.coordinator.data
+        players = [self.coordinator]
+        master_ip = self.coordinator.group_master_ip
+        if master_ip and (master := self._find_coordinator_by_ip(master_ip)):
+            players.append(master)
+        if data.stream_url:
+            for player in players:
+                for s in player.sources:
+                    if s["play_url"] == data.stream_url:
+                        return player, f"browse:{s['play_url']}"
+        if self._playing_external_input():
+            for player in players:
+                for i in player.external_inputs:
+                    if i["id"] == player.external_input and not i["bluos"]:
+                        return player, f"input:{i['id']}"
+        return None
+
+    def _linked_state(self) -> State | None:
+        """Return the linked media player's state, while it stands in.
+
+        That is while its input plays and it has something on. Links to
+        other Bluesound Alt players are ignored, so two players linked to
+        each other cannot pass commands back and forth.
+        """
+        if self.hass is None or (active := self._active_input()) is None:
+            return None
+        player, key = active
+        if (entity_id := self._link_target(player.config_entry.options, key)) is None:
+            return None
+        state = self.hass.states.get(entity_id)
+        if state is None or state.state not in _LINK_ACTIVE:
+            return None
+        return state
+
+    def _link_target(self, options: Any, key: str) -> str | None:
+        """Return the media player an input is linked to, if the link counts.
+
+        Links to other Bluesound Alt players do not: two players linked to
+        each other would pass commands back and forth.
+        """
+        entity_id = options.get(CONF_LINKED_PLAYERS, {}).get(key)
+        if not entity_id or entity_id == self.entity_id:
+            return None
+        registered = er.async_get(self.hass).async_get(entity_id)
+        if registered is not None and registered.platform == DOMAIN:
+            return None
+        return entity_id
+
+    def _browsable_link(self, key: str) -> MediaPlayerEntity | None:
+        """Return the media player linked to one of this player's inputs.
+
+        Only one that can be browsed, as its media list is shown in place of
+        the input's.
+        """
+        if (entity_id := self._link_target(self._entry.options, key)) is None:
+            return None
+        component = self.hass.data.get(DATA_INSTANCES, {}).get(MEDIA_PLAYER_DOMAIN)
+        entity = component.get_entity(entity_id) if component else None
+        if entity is None or not (
+            entity.supported_features & MediaPlayerEntityFeature.BROWSE_MEDIA
+        ):
+            return None
+        return entity
+
+    @callback
+    def _follow_links(self) -> None:
+        """Follow the media players linked to this player's or its leader's inputs."""
+        players = [self.coordinator]
+        master_ip = self.coordinator.group_master_ip
+        if master_ip and (master := self._find_coordinator_by_ip(master_ip)):
+            players.append(master)
+        targets = frozenset(
+            entity_id
+            for player in players
+            for entity_id in player.config_entry.options.get(
+                CONF_LINKED_PLAYERS, {}
+            ).values()
+        )
+        if targets == self._link_targets:
+            return
+        self._stop_following_links()
+        self._link_targets = targets
+        if targets:
+            self._unsub_links = async_track_state_change_event(
+                self.hass, targets, self._handle_linked_change
+            )
+
+    @callback
+    def _stop_following_links(self) -> None:
+        if self._unsub_links is not None:
+            self._unsub_links()
+            self._unsub_links = None
+        self._link_targets = frozenset()
+
+    @callback
+    def _handle_linked_change(self, event: Event[EventStateChangedData]) -> None:
+        """Show a linked media player's new track or state."""
+        self.async_write_ha_state()
+
+    async def _async_forward(self, service: str, **data: Any) -> bool:
+        """Pass a playback command to the media player standing in, if any."""
+        if (linked := self._linked_state()) is None:
+            return False
+        await self.hass.services.async_call(
+            MEDIA_PLAYER_DOMAIN,
+            service,
+            {ATTR_ENTITY_ID: linked.entity_id, **data},
+            blocking=True,
+        )
+        return True
 
     @property
     def group_members(self) -> list[str]:
@@ -320,16 +535,19 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
             )
         )
         async_dispatcher_send(self.hass, _SIGNAL_PLAYERS_CHANGED, self)
+        self._follow_links()
 
     async def async_will_remove_from_hass(self) -> None:
         """Tell the other players this one is going."""
         await super().async_will_remove_from_hass()
+        self._stop_following_links()
         async_dispatcher_send(self.hass, _SIGNAL_PLAYERS_CHANGED, self)
 
     @callback
     def _handle_players_changed(self, sender: BluesoundMediaPlayer) -> None:
         """Re-resolve group members after another player came or went."""
         if sender is not self:
+            self._follow_links()
             self.async_write_ha_state()
 
     @callback
@@ -337,6 +555,7 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         self._optimistic_volume = None
         self._optimistic_muted = None
         self._attr_media_position_updated_at = dt_util.utcnow()
+        self._follow_links()
         super()._handle_coordinator_update()
 
     def _resolve_group_members(self) -> list[str]:
@@ -383,6 +602,8 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
 
     async def async_media_play(self) -> None:
         """Start or resume playback."""
+        if await self._async_forward("media_play"):
+            return
         await self.coordinator.async_request_api("/Play")
         await self.coordinator.async_request_refresh()
 
@@ -392,11 +613,15 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         Plain /Pause, not toggle=1: a toggle resumes a player that was
         already paused, e.g. from the BluOS app before our state caught up.
         """
+        if await self._async_forward("media_pause"):
+            return
         await self.coordinator.async_request_api("/Pause")
         await self.coordinator.async_request_refresh()
 
     async def async_media_stop(self) -> None:
         """Stop playback."""
+        if await self._async_forward("media_stop"):
+            return
         await self.coordinator.async_request_api("/Stop")
         await self.coordinator.async_request_refresh()
 
@@ -467,16 +692,23 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
 
     async def async_media_next_track(self) -> None:
         """Skip to the next track."""
+        if await self._async_forward("media_next_track"):
+            return
         await self.coordinator.async_request_api("/Skip")
         await self.coordinator.async_request_refresh()
 
     async def async_media_previous_track(self) -> None:
         """Go back to the previous track."""
+        if await self._async_forward("media_previous_track"):
+            return
         await self.coordinator.async_request_api("/Back")
         await self.coordinator.async_request_refresh()
 
     async def async_media_seek(self, position: float) -> None:
         """Jump to a position in the track."""
+        seek = {ATTR_MEDIA_SEEK_POSITION: position}
+        if await self._async_forward("media_seek", **seek):
+            return
         await self.coordinator.async_request_api("/Play", seek=int(position))
         await self.coordinator.async_request_refresh()
 
@@ -491,6 +723,9 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         """Play a URL on the device, resolving HA media_source IDs first."""
         if media_id.startswith(_BLUESOUND_PRESET):
             await self._async_play_preset(media_id.removeprefix(_BLUESOUND_PRESET))
+            return
+        if media_id.startswith(_BLUESOUND_LINKED):
+            await self._async_play_linked(media_id)
             return
         # Items picked from our own media browser carry a BluOS playURL, which is
         # replayed verbatim (it is already a complete, encoded relative URL).
@@ -510,6 +745,39 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
         media_id = async_process_play_media_url(self.hass, media_id)
 
         await self.coordinator.async_request_api("/Play", url=media_id)
+        await self.coordinator.async_request_refresh()
+
+    async def _async_play_linked(self, media_id: str) -> None:
+        """Switch to a linked input, and play an item of its media player there.
+
+        The input alone just switches; an item from the linked player's media
+        list is then played by that player, into the input.
+        """
+        key, content_type, content_id = _decode_linked(media_id)
+        linked = self._browsable_link(key) if content_id is not None else None
+        if content_id is not None and linked is None:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN, translation_key="not_linked"
+            )
+        if key.startswith("browse:"):
+            await self.coordinator.async_request_api(
+                "/Play", url=key.removeprefix("browse:")
+            )
+        elif key.startswith("input:"):
+            await self.coordinator.async_request_api(
+                "/ExternalSource", id=key.removeprefix("input:")
+            )
+        if linked is not None:
+            await self.hass.services.async_call(
+                MEDIA_PLAYER_DOMAIN,
+                "play_media",
+                {
+                    ATTR_ENTITY_ID: linked.entity_id,
+                    ATTR_MEDIA_CONTENT_TYPE: content_type,
+                    ATTR_MEDIA_CONTENT_ID: content_id,
+                },
+                blocking=True,
+            )
         await self.coordinator.async_request_refresh()
 
     async def _async_play_preset(self, preset_id: str) -> None:
@@ -535,6 +803,8 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
             return await self._build_browse_root()
         if media_content_id == _BLUESOUND_PRESETS:
             return self._build_presets_folder()
+        if media_content_id.startswith(_BLUESOUND_LINKED):
+            return await self._browse_linked(media_content_id)
 
         if media_source.is_media_source_id(media_content_id):
             return await media_source.async_browse_media(
@@ -561,7 +831,7 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
     async def _build_browse_root(self) -> BrowseMedia:
         """Top level: device services/inputs/radio plus HA media sources."""
         items = await self.coordinator.async_browse(None)
-        children = [self._item_to_browse(i) for i in items]
+        children = [self._linked_item(i) or self._item_to_browse(i) for i in items]
         if self.coordinator.presets:
             children.insert(0, self._build_presets_folder(with_children=False))
         with contextlib.suppress(BrowseError):
@@ -613,6 +883,52 @@ class BluesoundMediaPlayer(CoordinatorEntity[BluesoundCoordinator], MediaPlayerE
             children=children,
             children_media_class=MediaClass.MUSIC,
         )
+
+    def _linked_item(self, item: dict[str, str | None]) -> BrowseMedia | None:
+        """Return a linked input as a folder of its media player's media.
+
+        It still plays, which switches to the input. None for an input that
+        is not linked to a media player that can be browsed.
+        """
+        play_url = item.get("play_url")
+        if not play_url or "?url=" not in play_url:
+            return None
+        key = f"browse:{unquote(play_url.split('?url=', 1)[1])}"
+        if self._browsable_link(key) is None:
+            return None
+        media_content_id = _encode_linked(key)
+        return BrowseMedia(
+            title=item["name"],
+            media_class=MediaClass.DIRECTORY,
+            media_content_type=MediaType.MUSIC,
+            media_content_id=media_content_id,
+            can_play=True,
+            can_expand=True,
+            thumbnail=self._browse_thumbnail(media_content_id, item.get("image")),
+        )
+
+    async def _browse_linked(self, media_content_id: str) -> BrowseMedia:
+        """Browse a linked input's media player, through this player."""
+        key, content_type, content_id = _decode_linked(media_content_id)
+        if (linked := self._browsable_link(key)) is None:
+            raise BrowseError(f"{key} is not linked to a media player to browse")
+        media = await linked.async_browse_media(content_type, content_id)
+        return self._wrap_linked(key, media)
+
+    def _wrap_linked(self, key: str, media: BrowseMedia) -> BrowseMedia:
+        """Return a linked player's media, its ids leading back through us.
+
+        So opening or playing an item asks this player, which switches to the
+        input and passes the item on. Searching is not passed on.
+        """
+        wrapped = copy.copy(media)
+        wrapped.media_content_id = _encode_linked(
+            key, media.media_content_type, media.media_content_id
+        )
+        wrapped.can_search = False
+        if media.children:
+            wrapped.children = [self._wrap_linked(key, c) for c in media.children]
+        return wrapped
 
     def _item_to_browse(self, item: dict[str, str | None]) -> BrowseMedia:
         browse_key = item.get("browse_key")

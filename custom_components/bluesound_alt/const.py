@@ -6,6 +6,9 @@ DEFAULT_PORT = 11000
 # Option: keys of the sources left out of the source list (see
 # BluesoundCoordinator.source_options).
 CONF_HIDDEN_SOURCES = "hidden_sources"
+# Option: input key -> entity id of a media player that stands in for the
+# player while that input plays, with its track, artwork and controls.
+CONF_LINKED_PLAYERS = "linked_players"
 # Every player also serves a web page, where it is rebooted from.
 WEB_PORT = 80
 LONG_POLL_TIMEOUT = 100

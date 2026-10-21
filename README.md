@@ -46,6 +46,7 @@ Core has things this doesn't: several players on one device at different ports, 
 * Group state works with groups of any size
 * Source selection for the inputs connected to the player (analogue, optical, HDMI, Bluetooth, and the inputs of receivers such as the NAD T758), with unused inputs hideable per player
 * Spotify, presets and streaming services in the media browser, and playable from automations
+* Inputs linked to the media player that feeds them, such as a streamer on a cable: its track, artwork and controls show on the Bluesound player while the input plays
 * Media browsing of the player's inputs and service menus, such as Apple Music, TuneIn, Radio Paradise and BluOS Radio
 * Shuffle, repeat, seeking (where the track allows it), clearing the queue, and volume up and down in small steps
 * Sleep timer (off, 15, 30, 45, 60 or 90 minutes), with the minutes left; in a group it is the group's
@@ -87,6 +88,72 @@ data:
   media_content_type: music
   media_content_id: bluesound:preset/1
 ```
+
+<br>
+
+### Linking an input to another media player
+
+An input often carries another player: a streamer or computer on a cable, a TV on HDMI. When that player is in Home Assistant too, the input can be linked to it, under **Configure** on the player's integration entry, **Link an input to a media player**.
+
+While the linked input plays and the linked media player has something on (playing, paused or buffering), the Bluesound player shows that player's track, artist, album, artwork, position and state, and passes it play, pause, stop, skip and seek. Volume, mute, inputs and grouping stay with the Bluesound player. Speakers grouped with it show the same. Switch to another input, or stop the linked player, and the Bluesound player shows itself again.
+
+If the linked media player has a library to browse, as Plex's players do, the input opens it in the Bluesound player's media browser. Playing an album or playlist from there switches the Bluesound player to the input and has the linked player play it, in one tap; the media picker of an automation's **Play media** action works the same way. The input's own play button still just switches to it.
+
+The link is optional, per input, and follows the input when it is renamed in the BluOS app. Other Bluesound Alt players cannot be linked, so two players never pass commands back and forth.
+
+#### Alternative: Home Assistant's Universal Media Player
+
+Without the link, Home Assistant's [Universal Media Player](https://www.home-assistant.io/integrations/universal/) does much the same in YAML, as a separate, combined media player. Here a NAD C700's `PlexAmp` input is fed by a Plex client:
+
+```yaml
+media_player:
+  - platform: universal
+    name: C700 Living Room
+    unique_id: c700_living_room_universal
+    device_class: receiver
+    children:
+      - media_player.plex_client
+      - media_player.c700_amplifier
+    # The Plex client leads while the C700 is on its PlexAmp input and the
+    # client has something on; otherwise the C700 itself.
+    active_child_template: "{{ 'media_player.plex_client' if is_state_attr('media_player.c700_amplifier', 'source', 'PlexAmp') and states('media_player.plex_client') in ['playing', 'paused', 'buffering'] else 'media_player.c700_amplifier' }}"
+    # Volume and inputs always belong to the amplifier.
+    attributes:
+      volume_level: media_player.c700_amplifier|volume_level
+      is_volume_muted: media_player.c700_amplifier|is_volume_muted
+      source: media_player.c700_amplifier|source
+      source_list: media_player.c700_amplifier|source_list
+    commands:
+      volume_set:
+        action: media_player.volume_set
+        target:
+          entity_id: media_player.c700_amplifier
+        data:
+          volume_level: "{{ volume_level }}"
+      volume_up:
+        action: media_player.volume_up
+        target:
+          entity_id: media_player.c700_amplifier
+      volume_down:
+        action: media_player.volume_down
+        target:
+          entity_id: media_player.c700_amplifier
+      volume_mute:
+        action: media_player.volume_mute
+        target:
+          entity_id: media_player.c700_amplifier
+        data:
+          is_volume_muted: "{{ is_volume_muted }}"
+      select_source:
+        action: media_player.select_source
+        target:
+          entity_id: media_player.c700_amplifier
+        data:
+          source: "{{ source }}"
+    browse_media_entity: media_player.c700_amplifier
+```
+
+The differences: the universal player is a third entity next to the two it combines; grouping stays on the Bluesound entity; speakers grouped with the C700 do not show the client's track; and the template names the input, so renaming it in the BluOS app means editing the YAML. The link avoids all of these. The universal player, in turn, can combine media players from any integrations, Bluesound or not.
 
 <br>
 

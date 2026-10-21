@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .const import DEFAULT_PORT
+from .const import DEFAULT_PORT, DOMAIN
 from .coordinator import BluesoundCoordinator, _fetch_sync_info
 
 _LOGGER = logging.getLogger(__name__)
@@ -49,8 +49,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: BluesoundConfigEntry) ->
 async def _async_options_updated(
     hass: HomeAssistant, entry: BluesoundConfigEntry
 ) -> None:
-    """Show changed options, such as hidden sources, without a reload."""
-    entry.runtime_data.async_update_listeners()
+    """Show changed options, such as hidden sources, without a reload.
+
+    Every player is told, not just this one: a player in a group follows its
+    leader's linked inputs.
+    """
+    for other in hass.config_entries.async_loaded_entries(DOMAIN):
+        other.runtime_data.async_update_listeners()
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: BluesoundConfigEntry) -> bool:

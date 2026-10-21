@@ -9,6 +9,6 @@
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/aunefyren/bluesound_alt/issues",
   "requirements": ["xmltodict>=0.13.0"],
-  "version": "1.5.0",
+  "version": "1.6.0",
   "zeroconf": [{"type": "_musc._tcp.local."}]
 }

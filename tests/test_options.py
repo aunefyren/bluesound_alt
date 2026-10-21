@@ -1,14 +1,17 @@
-"""Tests for the player's options: hiding sources."""
+"""Tests for the player's options: hiding inputs, and linking them."""
 
 from __future__ import annotations
 
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 
-from custom_components.bluesound_alt.const import CONF_HIDDEN_SOURCES
+from custom_components.bluesound_alt.const import (
+    CONF_HIDDEN_SOURCES,
+    CONF_LINKED_PLAYERS,
+)
 
 from .conftest import FakeBluOS, config_entry_for, setup_player, wait_for
-from .const import MASTER, MASTER_MAC
+from .const import MASTER, MASTER_MAC, SLAVE_1, SLAVE_1_MAC
 
 PLEXAMP = "browse:Capture:hw:imxspdif,0/1/25/2?id=input2"
 VINYL = "browse:Capture:plughw:imxnadadc,0/44100/24/2?id=input0"
@@ -22,9 +25,19 @@ def source_list(hass: HomeAssistant) -> list[str]:
     return hass.states.get("media_player.player_1").attributes["source_list"]
 
 
+async def open_step(hass: HomeAssistant, entry_id: str, step: str) -> dict:
+    """Open the options and pick a step from their menu."""
+    result = await hass.config_entries.options.async_init(entry_id)
+    assert result["type"] is FlowResultType.MENU
+    assert result["menu_options"] == ["sources", "links"]
+    return await hass.config_entries.options.async_configure(
+        result["flow_id"], {"next_step_id": step}
+    )
+
+
 async def hide(hass: HomeAssistant, entry_id: str, keys: list[str]) -> dict:
     """Open the options and submit the sources to hide."""
-    result = await hass.config_entries.options.async_init(entry_id)
+    result = await open_step(hass, entry_id, "sources")
     assert result["type"] is FlowResultType.FORM
     return await hass.config_entries.options.async_configure(
         result["flow_id"], {CONF_HIDDEN_SOURCES: keys}
@@ -41,7 +54,7 @@ async def test_options_offer_every_source(
     """
     entry = await setup_player(hass, MASTER, MASTER_MAC)
 
-    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await open_step(hass, entry.entry_id, "sources")
 
     selector = result["data_schema"].schema[CONF_HIDDEN_SOURCES].config
     assert [(o["value"], o["label"]) for o in selector["options"]] == [
@@ -81,7 +94,7 @@ async def test_options_saved_when_services_were_sources(
     await hass.async_block_till_done()
     assert source_list(hass) == ["PlexAmp"]
 
-    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await open_step(hass, entry.entry_id, "sources")
     assert result["type"] is FlowResultType.FORM
     field = next(k for k in result["data_schema"].schema if k == CONF_HIDDEN_SOURCES)
     assert field.default() == [VINYL]
@@ -156,3 +169,80 @@ async def test_options_need_the_player_set_up(
 
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "not_loaded"
+
+
+CALDERA = "media_player.caldera"
+
+
+async def link(hass: HomeAssistant, entry_id: str, user_input: dict) -> dict:
+    """Open the links step and submit one input's link."""
+    result = await open_step(hass, entry_id, "links")
+    assert result["type"] is FlowResultType.FORM
+    return await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input
+    )
+
+
+async def test_links_offer_the_inputs(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """Any input can be linked, hidden or not, to a media player not ours."""
+    entry = await setup_player(hass, MASTER, MASTER_MAC)
+    await hide(hass, entry.entry_id, [VINYL])
+
+    result = await open_step(hass, entry.entry_id, "links")
+
+    schema = result["data_schema"].schema
+    inputs = schema["input"].config
+    assert [(o["value"], o["label"]) for o in inputs["options"]] == [
+        (PLEXAMP, "PlexAmp"),
+        (VINYL, "Vinyl"),
+    ]
+    players = schema["media_player"].config
+    assert players["exclude_entities"] == ["media_player.player_1"]
+    assert result["description_placeholders"] == {"links": "-"}
+
+
+async def test_link_and_unlink(hass: HomeAssistant, patch_session: FakeBluOS) -> None:
+    """A link is saved per input, and removed by leaving the player empty."""
+    entry = await setup_player(hass, MASTER, MASTER_MAC)
+
+    result = await link(
+        hass, entry.entry_id, {"input": PLEXAMP, "media_player": CALDERA}
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert entry.options[CONF_LINKED_PLAYERS] == {PLEXAMP: CALDERA}
+
+    result = await open_step(hass, entry.entry_id, "links")
+    assert result["description_placeholders"] == {"links": f"- PlexAmp: {CALDERA}"}
+
+    await link(hass, entry.entry_id, {"input": PLEXAMP})
+    assert entry.options[CONF_LINKED_PLAYERS] == {}
+
+
+async def test_hiding_keeps_links_and_linking_keeps_hidden(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """Each part of the options leaves the other alone."""
+    entry = await setup_player(hass, MASTER, MASTER_MAC)
+
+    await link(hass, entry.entry_id, {"input": PLEXAMP, "media_player": CALDERA})
+    await hide(hass, entry.entry_id, [VINYL])
+    await link(
+        hass, entry.entry_id, {"input": VINYL, "media_player": "media_player.tv"}
+    )
+
+    assert entry.options == {
+        CONF_HIDDEN_SOURCES: [VINYL],
+        CONF_LINKED_PLAYERS: {PLEXAMP: CALDERA, VINYL: "media_player.tv"},
+    }
+
+
+async def test_no_inputs_to_link(hass: HomeAssistant, patch_session: FakeBluOS) -> None:
+    """A speaker without inputs has nothing to link."""
+    entry = await setup_player(hass, SLAVE_1, SLAVE_1_MAC)
+
+    result = await open_step(hass, entry.entry_id, "links")
+
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "no_inputs"

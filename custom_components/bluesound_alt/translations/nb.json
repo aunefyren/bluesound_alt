@@ -33,7 +33,21 @@
   "options": {
     "step": {
       "init": {
-        "title": "Innganger",
+        "menu_options": {
+          "sources": "Skjul innganger",
+          "links": "Koble en inngang til en mediespiller"
+        }
+      },
+      "links": {
+        "title": "Koble en inngang til en mediespiller",
+        "description": "Velg en inngang, og mediespilleren som spiller inn på den, for eksempel en datamaskin eller strømmer koblet til spilleren med kabel. Mens inngangen spiller og mediespilleren har noe på, viser denne spilleren sporet, omslaget og tilstanden til den, og sender videre spill av, pause, hopp og spoling. Volum og gruppering blir værende hos denne spilleren. La mediespilleren stå tom for å fjerne koblingen.\n\nKoblet nå:\n{links}",
+        "data": {
+          "input": "Inngang",
+          "media_player": "Mediespiller"
+        }
+      },
+      "sources": {
+        "title": "Skjul innganger",
         "description": "Kryss av for inngangene som ikke skal vises i kildelisten. En skjult inngang spiller fortsatt, og vises som kilde mens den spiller, den tilbys bare ikke som valg. Innganger som legges til på spilleren senere, dukker opp av seg selv. Musikktjenester og forhåndsinnstillinger spilles fra mediebiblioteket.",
         "data": {
           "hidden_sources": "Skjulte innganger"
@@ -41,6 +55,7 @@
       }
     },
     "abort": {
+      "no_inputs": "Denne spilleren har ingen innganger å koble.",
       "not_loaded": "Spilleren er ikke satt opp akkurat nå. Prøv igjen når den er tilgjengelig."
     }
   },
@@ -137,6 +152,9 @@
     },
     "not_added": {
       "message": "{leader} tok ikke {names} inn i gruppen sin."
+    },
+    "not_linked": {
+      "message": "Denne inngangen er ikke koblet til en mediespiller med mediebibliotek."
     },
     "not_regrouped": {
       "message": "Spillerne bekreftet ikke omgrupperingen i tide. Sjekk gruppen i BluOS-appen og prøv igjen."
