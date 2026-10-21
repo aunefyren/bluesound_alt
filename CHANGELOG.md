@@ -41,10 +41,14 @@ on the [GitHub releases page](https://github.com/aunefyren/bluesound_alt/release
   longer offer it on radio or an input.
 - Selecting a source the player does not have reports an error instead of
   doing nothing.
+- Changing a player's settings works on BluOS 4.18, whose settings name their
+  full address; every change failed with an invalid URL.
 
 ### Development
 - CI runs on Python 3.14, so it tests against current Home Assistant; on
   Python 3.13 it was held back at 2026.2.
+- Captures from BluOS 4.18.18: a C700 with the new settings URLs, and a group
+  playing Apple Music, which shows as the source and is browsed like TuneIn.
 
 ## [1.3.0] - 2026-10-12
 

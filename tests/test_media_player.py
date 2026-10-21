@@ -21,6 +21,7 @@ from custom_components.bluesound_alt.media_player import (
 
 from .conftest import FakeBluOS, setup_player, wait_for
 from .const import (
+    APPLE_MUSIC_LABEL,
     MASTER,
     MASTER_MAC,
     SLAVE_1,
@@ -457,3 +458,61 @@ async def test_volume_change_does_not_flash_back(
     assert before != 0.2
     assert levels, "the new level was never shown"
     assert all(level == 0.2 for level in levels), levels
+
+
+# -- Apple Music --------------------------------------------------------------
+
+
+@pytest.mark.parametrize("bluos", [APPLE_MUSIC_LABEL], indirect=True)
+async def test_apple_music_playing(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """Apple Music shows as the source, with the track, on the whole group."""
+    await setup_group(hass)
+
+    for member in (
+        "media_player.player_1",
+        "media_player.player_2",
+        "media_player.player_3",
+    ):
+        state = hass.states.get(member)
+        assert state.state == "playing"
+        assert state.attributes["source"] == "Apple Music"
+        assert state.attributes["media_title"] == "GEEKALEEK (feat. Cash Kidd)"
+        assert state.attributes["media_artist"] == "OHGEESY"
+        assert state.attributes["media_album_name"] == "GEEZYWORLD 2"
+        assert state.attributes["media_duration"] == 146
+        assert state.attributes["supported_features"] & MediaPlayerEntityFeature.SEEK
+
+    # Artwork comes from the player, as a path on its own address.
+    assert entity(hass, "media_player.player_1").media_image_url.startswith(
+        "http://192.0.2.1:11000/Artwork?service=AppleMusic"
+    )
+
+
+@pytest.mark.parametrize("bluos", [APPLE_MUSIC_LABEL], indirect=True)
+async def test_apple_music_is_browsed_not_a_source(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """Apple Music is a menu in the media browser, as TuneIn is, not a source."""
+    await setup_player(hass, MASTER, MASTER_MAC)
+    player = entity(hass, "media_player.player_1")
+
+    assert (
+        "Apple Music"
+        not in hass.states.get("media_player.player_1").attributes["source_list"]
+    )
+
+    apple = children_named(await player.async_browse_media())["Apple Music"]
+    assert apple.can_expand and not apple.can_play
+    menu = await player.async_browse_media(
+        apple.media_content_type, apple.media_content_id
+    )
+    assert list(children_named(menu)) == [
+        "Playlists Made for You",
+        "Recently Played",
+        "Popular",
+        "Genres",
+        "Radio",
+        "Library",
+    ]

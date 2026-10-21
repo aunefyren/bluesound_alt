@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<browse serviceIcon="/Sources/images/BluOSRadioIcon.png" serviceName="Radio" searchKey="Airable:Search" type="items">
+  <item browseKey="Airable:BrowseMenu/%2FRadioBrowse%3Fservice=Airable&amp;url=https%253A%252F%252F0000000000.airable.io%252Fradio%252Fstations%252Fcharts" text="Most popular stations" type="link"></item>
+  <item browseKey="Airable:BrowseMenu/%2FRadioBrowse%3Fservice=Airable&amp;url=https%253A%252F%252F0000000000.airable.io%252Fradio%252Fplace%252F9852856029290707" text="Norway" type="link"></item>
+  <item browseKey="Airable:BrowseMenu/%2FRadioBrowse%3Fservice=Airable&amp;url=https%253A%252F%252F0000000000.airable.io%252Fradio%252Flocal" text="Local stations" type="link"></item>
+  <item browseKey="Airable:BrowseMenu/%2FRadioBrowse%3Fservice=Airable&amp;url=https%253A%252F%252F0000000000.airable.io%252Fradio%252Fpodcasts" text="Podcasts" type="link"></item>
+  <item browseKey="Airable:BrowseMenu/%2FRadioBrowse%3Fservice=Airable&amp;url=https%253A%252F%252F0000000000.airable.io%252Fradio%252Fgenres" text="Genres" type="link"></item>
+  <item browseKey="Airable:BrowseMenu/%2FRadioBrowse%3Fservice=Airable&amp;url=https%253A%252F%252F0000000000.airable.io%252Fradio%252Fplaces" text="Location" type="link"></item>
+</browse>

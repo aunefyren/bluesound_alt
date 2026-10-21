@@ -29,7 +29,7 @@ Home Assistant ships its own `bluesound` integration. Both run locally and follo
 
 * **Groups without breaking groups.** Joining from any speaker in a group adds to that group, a speaker leading another group is taken out of it first instead of nesting one group inside another, stereo pairs are refused instead of split, and a join the player refuses shows as an error. Ungrouping works even when the group's leader is not set up in Home Assistant.
 * **Keeps grouped speakers useful.** A speaker in a group shows what the group is playing and keeps its playback controls; core shows it as idle.
-* **Browses the player's own menus**: inputs, TuneIn, Radio Paradise and BluOS Radio, next to Home Assistant's media sources. Core browses only the latter.
+* **Browses the player's own menus**: inputs and services such as Apple Music, TuneIn, Radio Paradise and BluOS Radio, next to Home Assistant's media sources. Core browses only the latter.
 * **Exposes the player's settings** as entities (listening mode, tone controls, bass, treble, balance, subwoofer, volume limits, Bluetooth mode, display and indicator brightness, and more), plus a restart button and diagnostics.
 * **Covers more sources and controls**: inputs of receivers with a BluOS module such as the NAD T758, repeat mode, and hiding sources you don't use.
 * **Catches up faster**: a player that drops off is retried after 10 seconds (core: 3 minutes), and inputs and presets changed in the BluOS app show up straight away (core: every 15 minutes).
@@ -45,7 +45,7 @@ Core has things this doesn't: clear playlist, sleep timer buttons, several playe
 * Per-speaker volume control within groups (individual volume, not just group volume)
 * Group state works with groups of any size
 * Source/input selection (physical inputs, streaming services, presets, and the inputs of receivers such as the NAD T758), with unused sources hideable per player
-* Media browsing of the player's inputs, TuneIn, Radio Paradise and BluOS Radio menus
+* Media browsing of the player's inputs and service menus, such as Apple Music, TuneIn, Radio Paradise and BluOS Radio
 * Shuffle, repeat and seeking (where the track allows it)
 * Works with [Mini Media Player](https://github.com/kalkih/mini-media-player) grouping
 * Playback, grouping and volume follow the player by long-polling, so changes show up instantly

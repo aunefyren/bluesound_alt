@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<browse serviceIcon="/Sources/images/AppleMusicIcon.png" serviceName="Apple Music" searchKey="AppleMusic:Search" type="menu">
+  <item browseKey="AppleMusic:Playlist/%2FPlaylists%3Fcategory=made-for-you&amp;service=AppleMusic" text="Playlists Made for You" type="link"></item>
+  <item browseKey="AppleMusic:MG/AppleMusic-RecentlyPlayed" text="Recently Played" type="link"></item>
+  <item browseKey="AppleMusic:MG/AppleMusic-TopCharts" text="Popular" type="link"></item>
+  <item browseKey="AppleMusic:GG/Genres" text="Genres" type="link"></item>
+  <item browseKey="AppleMusic:MG/AppleMusic-Radio" text="Radio" type="link"></item>
+  <item browseKey="AppleMusic:MG/AppleMusic-Library" text="Library" type="link"></item>
+</browse>
