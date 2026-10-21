@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from types import SimpleNamespace
 
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ServiceValidationError
@@ -10,10 +11,16 @@ from homeassistant.helpers import entity_registry as er
 import pytest
 
 from custom_components.bluesound_alt.const import DOMAIN
-from custom_components.bluesound_alt.coordinator import _parse_settings
+from custom_components.bluesound_alt.coordinator import (
+    BluesoundCoordinator,
+    _parse_settings,
+)
 
 from .conftest import FakeBluOS, fixture_text, setup_player, wait_for
 from .const import (
+    BLUOS_418,
+    BLUOS_418_LABEL,
+    BLUOS_418_MAC,
     LABEL,
     MASTER,
     MASTER_MAC,
@@ -303,3 +310,54 @@ async def test_flex_bluetooth_mode(
         blocking=True,
     )
     assert sent(patch_session, "/audiomodes") == [{"bluetoothAutoplay": "0"}]
+
+
+@pytest.mark.parametrize("bluos", [BLUOS_418_LABEL], indirect=True)
+async def test_absolute_setting_urls(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """Settings that name an absolute URL, as BluOS 4.18 does, are changed there.
+
+    They used to be glued onto the player's address, which made an invalid URL.
+    """
+    await setup_player(hass, BLUOS_418, BLUOS_418_MAC)
+
+    await hass.services.async_call(
+        "switch", "turn_on", {"entity_id": "switch.player_1_subwoofer"}, blocking=True
+    )
+    await hass.services.async_call(
+        "number",
+        "set_value",
+        {"entity_id": "number.player_1_balance", "value": 1},
+        blocking=True,
+    )
+
+    posts = [(r.raw_url, r.body) for r in patch_session.requests if r.method == "POST"]
+    assert posts == [
+        ("http://192.0.2.1:11000/audiomodes", {"subwoofer": "withsub"}),
+        ("http://192.0.2.1:11000/alsa_setting", {"eq-balance": 1}),
+    ]
+
+
+@pytest.mark.parametrize(
+    ("url", "expected"),
+    [
+        ("/audiomodes", "http://player.local:11000/audiomodes"),
+        # The player names its own address; the one Home Assistant uses wins.
+        (
+            "http://192.0.2.1:11000/alsa_setting",
+            "http://player.local:11000/alsa_setting",
+        ),
+        (
+            # Port 80 is the default, so it is left out once resolved.
+            "http://192.0.2.1:80/wificfg?noheader=1",
+            "http://player.local/wificfg?noheader=1",
+        ),
+    ],
+)
+def test_setting_url(url: str, expected: str) -> None:
+    """Relative and absolute setting URLs both reach the configured player."""
+    coordinator = SimpleNamespace(
+        host="player.local", _base_url=lambda: "http://player.local:11000"
+    )
+    assert str(BluesoundCoordinator._setting_url(coordinator, url)) == expected

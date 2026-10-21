@@ -15,6 +15,15 @@ PAGING_LABEL = "paging"
 T758_LABEL = "t758"
 T758 = ("192.0.2.1", 11000)
 T758_MAC = "00005e005301"
+# The C700 on its own, on BluOS 4.18.18: settings schema 36, whose settings
+# name an absolute URL with the player's address rather than a path.
+BLUOS_418_LABEL = "bluos-4.18"
+BLUOS_418 = ("192.0.2.1", 11000)
+BLUOS_418_MAC = "00005e005301"
+# The home group (C700 leading both Flexes) playing Apple Music, on BluOS
+# 4.18.18. Same addresses as the home capture. Apple Music is a menu to
+# browse, not a source, and only the C700 lists it.
+APPLE_MUSIC_LABEL = "apple-music"
 
 MASTER = ("192.0.2.1", 11000)
 SLAVE_1 = ("192.0.2.2", 11000)

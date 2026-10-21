@@ -567,10 +567,22 @@ class BluesoundCoordinator(DataUpdateCoordinator[BluesoundData]):
         setting = self.settings[name]
         await async_send_command(
             self._get_session(),
-            f"{self._base_url()}{setting.url}",
+            self._setting_url(setting.url),
             json={setting.name: value},
         )
         await self.async_refresh_settings()
+
+    def _setting_url(self, url: str) -> URL:
+        """Resolve a setting's URL, which players give relative or absolute.
+
+        BluOS 4.18 and later name the player's own address in it. Home
+        Assistant may reach the player by another name or address, so the
+        configured host is kept and only the port and path are taken.
+        """
+        target = URL(url)
+        if target.is_absolute():
+            return target.with_host(self.host)
+        return URL(self._base_url()).join(target)
 
     async def async_reboot(self) -> None:
         """Reboot the player, as the confirmation form on its web page does."""
