@@ -9,7 +9,7 @@ jobs:
     name: Verify release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # The Marketplace serves the version from manifest.json, not the tag. If
       # they disagree, it offers an update that installs the same code forever.
@@ -25,7 +25,7 @@ jobs:
 
       # A release is what Marketplace users install, so it gets the full test run
       # against the tagged code, not just whatever last ran on main.
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.14"
           cache: pip
