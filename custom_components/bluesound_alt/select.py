@@ -19,6 +19,7 @@ SLEEP_OFF = "off"
 # Setting name -> (translation key, entity category).
 SELECTS: dict[str, tuple[str, EntityCategory | None]] = {
     "preset": ("listening_mode", None),
+    "eq-dirac": ("dirac", None),
     "replayGainMode": ("replay_gain", EntityCategory.CONFIG),
     "channelMode": ("output_mode", EntityCategory.CONFIG),
     "bluetoothAutoplay": ("bluetooth_mode", EntityCategory.CONFIG),

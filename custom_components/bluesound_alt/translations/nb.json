@@ -67,6 +67,9 @@
       "bass": {
         "name": "Bass"
       },
+      "crossover": {
+        "name": "Delefrekvens"
+      },
       "display_brightness": {
         "name": "Skjermlysstyrke"
       },
@@ -83,6 +86,9 @@
     "select": {
       "bluetooth_mode": {
         "name": "Bluetooth"
+      },
+      "dirac": {
+        "name": "Dirac Live"
       },
       "indicator_brightness": {
         "name": "Lysstyrke på indikatorlys"

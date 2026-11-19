@@ -27,6 +27,10 @@ on the [GitHub releases page](https://github.com/aunefyren/bluesound_alt/release
   it switches to the input and plays on the linked player. Optional, per
   input; the README also shows Home Assistant's Universal Media Player as an
   alternative.
+- Dirac Live on players with room correction, such as a NAD C 3050 with the
+  MDC2 BluOS-D module: a select of the stored filters, Off among them. Filters
+  added or renamed in the Dirac app show up without a reload.
+- The subwoofer crossover frequency, on players that offer it.
 
 ### Changed
 - The source list holds only the inputs connected to the player: analogue,

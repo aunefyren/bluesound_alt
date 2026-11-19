@@ -339,6 +339,86 @@ async def test_absolute_setting_urls(
     ]
 
 
+# Dirac Live as a C 3050 with the MDC2 BluOS-D module lists it (issue #24).
+DIRAC = (
+    '<setting id="eq-dirac" name="eq-dirac" displayName="Dirac Live" '
+    'url="http://192.0.2.1:11000/alsa_setting" class="list" value="1" '
+    'description="Living room" hideIfDisabled="true">'
+    '<value displayName="Off" name="0"></value>'
+    '<value displayName="Living room" name="1"></value>'
+    '<value displayName="Sofa" name="2"></value>'
+    "</setting>"
+)
+BLUOS_418_AUDIO = (
+    "/Settings",
+    frozenset({("id", "audio"), ("schemaVersion", "36")}),
+)
+
+
+def with_dirac(menu: str, dirac: str = DIRAC) -> str:
+    """Return the 4.18 Audio menu with a Dirac Live setting before Subwoofer."""
+    return menu.replace('<setting id="subwoofer"', dirac + '<setting id="subwoofer"')
+
+
+@pytest.mark.parametrize("bluos", [BLUOS_418_LABEL], indirect=True)
+async def test_dirac_and_crossover(
+    hass: HomeAssistant, patch_session: FakeBluOS
+) -> None:
+    """Dirac Live is a select of its filters, Off among them; crossover a number."""
+    menu = fixture_text(BLUOS_418_LABEL, BLUOS_418, "settings_audio")
+    player = patch_session.player(BLUOS_418)
+    player.overrides[BLUOS_418_AUDIO] = (200, with_dirac(menu))
+    await setup_player(hass, BLUOS_418, BLUOS_418_MAC)
+
+    dirac = hass.states.get("select.player_1_dirac_live")
+    assert dirac.state == "Living room"
+    assert dirac.attributes["options"] == ["Off", "Living room", "Sofa"]
+    crossover = hass.states.get("number.player_1_crossover")
+    assert crossover.state == "80.0"
+    assert (
+        crossover.attributes["min"],
+        crossover.attributes["max"],
+        crossover.attributes["step"],
+        crossover.attributes["unit_of_measurement"],
+    ) == (40.0, 200.0, 10.0, "Hz")
+
+    await hass.services.async_call(
+        "select",
+        "select_option",
+        {"entity_id": "select.player_1_dirac_live", "option": "Off"},
+        blocking=True,
+    )
+    await hass.services.async_call(
+        "number",
+        "set_value",
+        {"entity_id": "number.player_1_crossover", "value": 100},
+        blocking=True,
+    )
+    posts = [(r.raw_url, r.body) for r in patch_session.requests if r.method == "POST"]
+    assert posts == [
+        ("http://192.0.2.1:11000/alsa_setting", {"eq-dirac": "0"}),
+        ("http://192.0.2.1:11000/alsa_setting", {"eq-crossover": 100}),
+    ]
+
+    # A filter added or renamed in the Dirac app shows up without a reload.
+    player.overrides[BLUOS_418_AUDIO] = (
+        200,
+        with_dirac(
+            menu,
+            DIRAC.replace('value="1"', 'value="3"').replace(
+                "</setting>", '<value displayName="Kitchen" name="3"></value></setting>'
+            ),
+        ),
+    )
+    entry = hass.config_entries.async_entries(DOMAIN)[0]
+    await entry.runtime_data.async_refresh_settings()
+    await hass.async_block_till_done()
+
+    dirac = hass.states.get("select.player_1_dirac_live")
+    assert dirac.state == "Kitchen"
+    assert dirac.attributes["options"] == ["Off", "Living room", "Sofa", "Kitchen"]
+
+
 @pytest.mark.parametrize(
     ("url", "expected"),
     [

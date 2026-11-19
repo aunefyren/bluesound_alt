@@ -67,6 +67,9 @@
       "bass": {
         "name": "Bass"
       },
+      "crossover": {
+        "name": "Crossover"
+      },
       "display_brightness": {
         "name": "Display brightness"
       },
@@ -83,6 +86,9 @@
     "select": {
       "bluetooth_mode": {
         "name": "Bluetooth"
+      },
+      "dirac": {
+        "name": "Dirac Live"
       },
       "indicator_brightness": {
         "name": "Indicator brightness"
