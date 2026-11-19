@@ -1,4 +1,4 @@
-"""Bluesound Alt numbers: tone, balance, display brightness and volume limits."""
+"""Bluesound Alt numbers: tone, balance, crossover, display and volume limits."""
 from __future__ import annotations
 
 from homeassistant.components.number import NumberEntity, NumberMode
@@ -17,6 +17,7 @@ RANGES: dict[str, tuple[str, EntityCategory | None]] = {
     "eq-bass": ("bass", None),
     "eq-treble": ("treble", None),
     "eq-balance": ("balance", None),
+    "eq-crossover": ("crossover", EntityCategory.CONFIG),
     "lcd-brightness": ("display_brightness", EntityCategory.CONFIG),
 }
 # A dual range, "low,high", shown as one number per end.

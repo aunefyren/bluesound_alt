@@ -11,8 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # HACS serves the version from manifest.json, not the tag. If they
-      # disagree, HACS offers an update that installs the same code forever.
+      # The Marketplace serves the version from manifest.json, not the tag. If
+      # they disagree, it offers an update that installs the same code forever.
       - name: Check manifest version matches the tag
         run: |
           TAG="${GITHUB_REF_NAME#v}"
@@ -23,7 +23,7 @@ jobs:
           fi
           echo "Tag and manifest agree on ${MANIFEST}"
 
-      # A release is what HACS users install, so it gets the full test run
+      # A release is what Marketplace users install, so it gets the full test run
       # against the tagged code, not just whatever last ran on main.
       - uses: actions/setup-python@v5
         with:

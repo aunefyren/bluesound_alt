@@ -12,8 +12,7 @@ This project is an alternative integration for Bluesound/BluOS speakers, rewritt
 <br>
 <br>
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=aunefyren&repository=bluesound_alt)  
-Until it is in the HACS default list, add it as a custom repository first.
+[![Open your Home Assistant instance and open a repository inside the Marketplace.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=aunefyren&repository=bluesound_alt)
 
 <br>
 <br>
@@ -30,7 +29,7 @@ Home Assistant ships its own `bluesound` integration. Both run locally and follo
 * **Groups without breaking groups.** Joining from any speaker in a group adds to that group, a speaker leading another group is taken out of it first instead of nesting one group inside another, stereo pairs are refused instead of split, and a join the player refuses shows as an error. Ungrouping works even when the group's leader is not set up in Home Assistant.
 * **Keeps grouped speakers useful.** A speaker in a group shows what the group is playing and keeps its playback controls; core shows it as idle.
 * **Browses the player's own menus**: inputs and services such as Apple Music, TuneIn, Radio Paradise and BluOS Radio, next to Home Assistant's media sources. Core browses only the latter.
-* **Exposes the player's settings** as entities (listening mode, tone controls, bass, treble, balance, subwoofer, volume limits, Bluetooth mode, display and indicator brightness, and more), plus a restart button and diagnostics.
+* **Exposes the player's settings** as entities (listening mode, Dirac Live, tone controls, bass, treble, balance, subwoofer and crossover, volume limits, Bluetooth mode, display and indicator brightness, and more), plus a restart button and diagnostics.
 * **Covers more sources and controls**: inputs of receivers with a BluOS module such as the NAD T758, repeat mode, and hiding sources you don't use.
 * **Catches up faster**: a player that drops off is retried after 10 seconds (core: 3 minutes), and inputs and presets changed in the BluOS app show up straight away (core: every 15 minutes).
 
@@ -53,7 +52,7 @@ Core has things this doesn't: several players on one device at different ports, 
 * Works with [Mini Media Player](https://github.com/kalkih/mini-media-player) grouping
 * Playback, grouping and volume follow the player by long-polling, so changes show up instantly
 * Diagnostics, with addresses, names and account details redacted
-* Player settings as in the BluOS app: listening mode, tone, balance, subwoofer, output mode, volume limits, Bluetooth mode, indicator and display brightness
+* Player settings as in the BluOS app: listening mode, Dirac Live, tone, balance, subwoofer and crossover, output mode, volume limits, Bluetooth mode, indicator and display brightness
 * Restart button for every player, and a link to the player's web page on its device page
 * English and Norwegian (Bokmål)
 
@@ -62,16 +61,13 @@ Core has things this doesn't: several players on one device at different ports, 
 
 ## Installation instructions
 
-1. Until it is in the HACS default list, add this repo to HACS as a custom repository
-
-![Alt text](.github/assets/add-custom-repo-example.png)
-
-<br>
-
-2. Install `Bluesound Alt` in HACS
+1. Open **Settings → Marketplace**, or use the button above
+2. Search for `Bluesound Alt` and install it
 3. Restart Home Assistant
 4. Your players show up under **Settings → Devices & services → Discovered**. Click **Add** on each one
 5. A player that is not discovered, on another subnet or VLAN say, can be added by hand: **Add Integration**, search for `Bluesound Alt`, and enter its IP address and port (default: 11000)
+
+On Home Assistant 2026.10 or older, which has no Marketplace, install `Bluesound Alt` from HACS instead.
 
 <br>
 <br>
